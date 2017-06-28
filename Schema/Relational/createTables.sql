@@ -38,7 +38,9 @@ CREATE TABLE Term
 CREATE TABLE Instructor
 (
    ID SERIAL PRIMARY KEY,
-   "Name" VARCHAR(100) NOT NULL UNIQUE, --name published by the registrar
+   FName VARCHAR(30) NOT NULL,
+   MName VARCHAR(30),
+   LName VARCHAR(30) NOT NULL,
    Department VARCHAR(30)
 );
 
@@ -55,21 +57,20 @@ CREATE TABLE Section
    StartDate DATE, --first date the section meets
    EndDate DATE, --last date the section meets
    MidtermDate DATE, --date of the "middle" of term: used to compute mid-term grade
+   Instructor1 INTEGER NOT NULL REFERENCES Instructor, --primary instructor
+   Instructor2 INTEGER REFERENCES Instructor, --optional 2nd instructor
+   Instructor3 INTEGER REFERENCES Instructor, --optional 3rd instructor
    UNIQUE(Term, Course, SectionNumber),
+   CONSTRAINT DistinctSectionInstructors --make sure instructors are distinct
+        CHECK (Instructor1 <> Instructor2
+            AND Instructor1 <> Instructor3
+            AND Instructor2 <> Instructor3
+        )
 );
 
 
 --Removed Section_Instructor by accommodating 3 instructors in Section table
 --CREATE TABLE Section_Instructor();
-
-CREATE TABLE Section_Instructor
-(
-    Instructor_ID INTEGER NOT NULL REFERENCES Instructor,    --Instructor for each section
-    Section_ID INTEGER NOT NULL REFERENCES Section,
-    Primary_Instructor INTEGER       --Attribute references the primary instructor of the course. If they are the primary instrcutor, attribute is NULL
-);
-ALTER TABLE Section_Instructor
-ADD FOREIGN KEY (Primary_Instructor) REFERENCES Section_Instructor(Instructor_ID);
 
 
 --Table to store all possible letter grades
@@ -123,10 +124,10 @@ CREATE TABLE Student
    FName VARCHAR(30), --at least one of the name fields must be used: see below
    MName VARCHAR(30), --permit NULL in all 3 fields because some people have only one name: not sure which field will be used
    LName VARCHAR(30), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
-   SchoolIssuedID VARCHAR(30),
-   Email VARCHAR(100) NOT NULL,
+   SchoolIssuedID VARCHAR(30) NOT NULL UNIQUE,
+   Email VARCHAR(100) NOT NULL UNIQUE,
    Major VARCHAR(15), --non-matriculated students are not required to have a major
-   Standing VARCHAR(10) NOT NULL, --what does this field represent?
+   Year VARCHAR(10), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
       CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)   --Second attribute was FName. Changed to MName
 );
