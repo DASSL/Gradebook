@@ -31,7 +31,7 @@ CREATE TABLE Term
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
    UNIQUE("Year", Season),
    CONSTRAINT SeasonChoices --an alternative is to define a Season table
-      CHECK (Season IN ('Fall', 'Winter', 'Spring', 'Summer', 'Spring Break'))      --added 'Spring Break' season
+      CHECK (Season IN ('Fall', 'Winter', 'Spring', 'Summer', 'Spring Break'))
 );
 
 
@@ -78,7 +78,7 @@ CREATE TABLE Section
 CREATE TABLE Grade
 (
    Letter VARCHAR(2) NOT NULL PRIMARY KEY,
-   GPA NUMERIC(4,3) NOT NULL, --changed to allow 3 decimal places, some universities use 3 decimal places
+   GPA NUMERIC(4,3) NOT NULL,
    CONSTRAINT LetterChoices
       CHECK (Letter IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+',
                         'C', 'C-', 'D+', 'D', 'D-', 'F', 'W', 'SA')
@@ -129,7 +129,7 @@ CREATE TABLE Student
    Major VARCHAR(15), --non-matriculated students are not required to have a major
    Year VARCHAR(10), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
-      CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)   --Second attribute was FName. Changed to MName
+      CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)
 );
 
 
