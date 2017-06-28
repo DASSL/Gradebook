@@ -126,8 +126,8 @@ CREATE TABLE Student
    LName VARCHAR(30), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
    SchoolIssuedID VARCHAR(30) NOT NULL UNIQUE,
    Email VARCHAR(100) NOT NULL UNIQUE,
-   Major VARCHAR(15), --non-matriculated students are not required to have a major
-   Year VARCHAR(10), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
+   Major VARCHAR(50), --non-matriculated students are not required to have a major
+   Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
       CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)
 );
