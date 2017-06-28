@@ -84,7 +84,7 @@ CREATE TABLE Grade
                         'C', 'C-', 'D+', 'D', 'D-', 'F', 'W', 'SA')
             ),
    CONSTRAINT GPAChoices
-      CHECK (GPA IN (4.333, 4, 3.667, 3.333, 3, 2.667, 2.333, 2, 1.667, 1.333, 1, 0.667, 0)) --added extra digit in decimal place
+      CHECK (GPA IN (4.333, 4, 3.667, 3.333, 3, 2.667, 2.333, 2, 1.667, 1.333, 1, 0.667, 0))
 );
 
 
