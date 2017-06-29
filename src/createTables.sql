@@ -124,7 +124,7 @@ CREATE TABLE Student
    FName VARCHAR(50), --at least one of the name fields must be used: see below
    MName VARCHAR(50), --permit NULL in all 3 fields because some people have only one name: not sure which field will be used
    LName VARCHAR(50), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
-   SchoolIssuedID VARCHAR(30) NOT NULL UNIQUE,
+   SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE,
    Email VARCHAR(100) NOT NULL UNIQUE,
    Major VARCHAR(50), --non-matriculated students are not required to have a major
    Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
