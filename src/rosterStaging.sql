@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS rosterStaging
    Email VARCHAR(100)
 );
 
-IF EXISTS TRUNCATE rosterImport;
+TRUNCATE rosterStaging;
 
 --psql command:
---\COPY rosterImport FROM <filename> WITH csv, HEADER
+--\COPY rosterStaging FROM <filename> WITH csv, HEADER
 
