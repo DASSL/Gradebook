@@ -116,5 +116,5 @@ $$
       COALESCE(i3.MName, '') || ' ' || i3.LName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
    WHERE NOT oc.crn IS NULL
    ON CONFLICT DO NOTHING;
-   TRUNCATE openCloseStaging;
+
 $$ LANGUAGE sql;
