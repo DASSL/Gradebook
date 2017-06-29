@@ -1,4 +1,4 @@
---studentImport.sql - Gradebook
+--rosterImport.sql - Gradebook
 
 --Kyle Bella, Andrew Figueroa, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -45,7 +45,8 @@ $$
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.email, 
 		 Major = EXCLUDED.Major, Year = EXCLUDED.Year;
    
-   INSERT INTO public.Enrollee(Student, Section, DateEnrolled, YearEnrolled, MajorEnrolled)
+   INSERT INTO public.Enrollee(Student, Section, DateEnrolled, YearEnrolled, 
+                MajorEnrolled)
    WITH sectionID AS (
       SELECT ID
 	  FROM public.Section S
