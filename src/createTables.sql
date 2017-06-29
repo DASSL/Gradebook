@@ -38,9 +38,9 @@ CREATE TABLE Term
 CREATE TABLE Instructor
 (
    ID SERIAL PRIMARY KEY,
-   FName VARCHAR(30) NOT NULL,
-   MName VARCHAR(30),
-   LName VARCHAR(30) NOT NULL,
+   FName VARCHAR(50) NOT NULL,
+   MName VARCHAR(50),
+   LName VARCHAR(50) NOT NULL,
    Department VARCHAR(30)
 );
 
@@ -121,10 +121,10 @@ CREATE TABLE Section_GradeTier
 CREATE TABLE Student
 (
    ID SERIAL PRIMARY KEY,
-   FName VARCHAR(30), --at least one of the name fields must be used: see below
-   MName VARCHAR(30), --permit NULL in all 3 fields because some people have only one name: not sure which field will be used
-   LName VARCHAR(30), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
-   SchoolIssuedID VARCHAR(30) NOT NULL UNIQUE,
+   FName VARCHAR(50), --at least one of the name fields must be used: see below
+   MName VARCHAR(50), --permit NULL in all 3 fields because some people have only one name: not sure which field will be used
+   LName VARCHAR(50), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
+   SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE,
    Email VARCHAR(100) NOT NULL UNIQUE,
    Major VARCHAR(50), --non-matriculated students are not required to have a major
    Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
@@ -137,7 +137,9 @@ CREATE TABLE Enrollee
 (
    Student INTEGER NOT NULL REFERENCES Student,
    Section INTEGER REFERENCES Section,
-   EnrollmentDate DATE NULL, --used to figure out which assessment components to include/exclude
+   DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
+   YearEnrolled VARCHAR(30) NOT NULL,
+   MajorEnrolled VARCHAR(50) NOT NULL,
    MidtermWeightedAggregate NUMERIC(5,2), --weighted aggregate computed at mid-term
    MidtermGradeComputed VARCHAR(2), --will eventually move to a view
    MidtermGradeAwarded VARCHAR(2), --actual grade assigned, if any
