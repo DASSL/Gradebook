@@ -9,7 +9,6 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-
 CREATE TABLE IF NOT EXISTS rosterStaging
 (
    LName VARCHAR(32),
@@ -36,7 +35,7 @@ TRUNCATE rosterStaging;
 -- The sectionID corresponds to a section in the Section table from the Gradebook
 -- schema, which is determined by Term, Course, and SectionNumber
 
-CREATE OR REPLACE FUNCTION importStudents(Term INTEGER, Course VARCHAR(8), 
+CREATE OR REPLACE FUNCTION importFromRoster(Term INTEGER, Course VARCHAR(8), 
    SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
 $$
    INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
