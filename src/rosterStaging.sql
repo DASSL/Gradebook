@@ -9,9 +9,8 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-DROP TABLE IF EXISTS rosterImport;
 
-CREATE TABLE rosterImport
+CREATE TABLE IF NOT EXISTS rosterStaging
 (
    LName VARCHAR(32),
    FName VARCHAR(32),
@@ -27,6 +26,8 @@ CREATE TABLE rosterImport
    Email VARCHAR(100)
 );
 
+TRUNCATE rosterStaging;
+
 --psql command:
---\COPY rosterImport FROM <filename> WITH csv, HEADER
+--\COPY rosterStaging FROM <filename> WITH csv, HEADER
 
