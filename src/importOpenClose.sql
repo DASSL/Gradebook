@@ -9,9 +9,9 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 --A function to return individual rows when given a list of instructors that include csv lists
-DROP TABLE IF EXISTS openCloseImport;
+DROP TABLE IF EXISTS openCloseStaging;
 
-CREATE TABLE openCloseImport
+CREATE TABLE openCloseStaging
 (
    Status VARCHAR(6),
    "Level" VARCHAR(2),
@@ -50,17 +50,22 @@ $$
 $$ LANGUAGE sql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
---the openCloseImport table - expects there to be one semster of data in the table,
+--the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
---for the term only, each course gets its dates from openCloseImport
-CREATE OR REPLACE FUNCTION importOpenClose("Year" INT, Season VARCHAR(10),
-   startDate DATE, endDate DATE)
+--for the term only, each course gets its dates from openCloseStaging
+CREATE OR REPLACE FUNCTION importOpenClose("Year" INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
-   TRUNCATE openCloseImport;
-   COPY openCloseImport FROM STDIN WITH csv HEADER;
-
-   INSERT INTO Term("Year", Season, StartDate, EndDate) VALUES($1, $2, $3, $4)
+   WITH termDates AS
+   ( --Get the extreme dates from the openClose data to find the term start/end
+     --this appears to get dates that are not quite correct currently
+      SELECT to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD') sDate,
+             to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD') eDate
+      FROM openCloseStaging
+   )
+   INSERT INTO Term("Year", Season, StartDate, EndDate)
+   SELECT $1, $2, MIN(sDate), MAX(eDate)
+   FROM termDates
    ON CONFLICT DO NOTHING;
 
    --Use the instructorUnnest function to convert csv instructor fields to
@@ -68,7 +73,7 @@ $$
    WITH instructorNames AS
    (
       SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
-      FROM openCloseImport
+      FROM openCloseStaging
       WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
                                  --are missing a first or last name
                                  --also ignores "names" like 'TBA'
@@ -85,21 +90,21 @@ $$
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Course("Number", Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
-   FROM openCloseImport
+   FROM openCloseStaging
    WHERE NOT subject IS NULL
    AND NOT course IS NULL
    ON CONFLICT DO NOTHING;
 
    --Insert into Section.  Get Term ID based on input paramenters.
    --Get the start and end dates of a course by
-   --Splitting the date field in openCloseImport
+   --Splitting the date field in openCloseStaging
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
       Location, Instructor1, Instructor2, Instructor3) --Split the date on -
    SELECT oc.crn, oc.subject || oc.course, oc."Section", t.id, oc.days,
       to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD'),
       to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'), oc.location,
       i1.id, i2.id, i3.id
-   FROM openCloseImport oc
+   FROM openCloseStaging oc
    JOIN Term t ON t."Year" = $1 AND t.Season = $2 --Get one instructor record
                                                   --matching is position in
                                                   --the instructor field csv
@@ -111,5 +116,5 @@ $$
       COALESCE(i3.MName, '') || ' ' || i3.LName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
    WHERE NOT oc.crn IS NULL
    ON CONFLICT DO NOTHING;
-
+   TRUNCATE openCloseStaging;
 $$ LANGUAGE sql;
