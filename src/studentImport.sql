@@ -21,9 +21,9 @@ CREATE OR REPLACE FUNCTION importStudents(Term INTEGER, Course VARCHAR(8),
    SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
 $$
    INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
-   SELECT substring(I.FName FOR 30), substring(I.MName FOR 30), substring(I.MName FOR 30),
-         substring(I.ID FOR 30), I.email, I.Major, I.class
-   FROM rosterImport I
+   SELECT substring(r.FName FOR 30), substring(r.MName FOR 30), substring(r.MName FOR 30),
+         substring(r.ID FOR 30), r.email, r.Major, r.class
+   FROM rosterStaging r
    ON CONFLICT (SchoolIssuedID) DO NOTHING;
    
    INSERT INTO public.Enrollee(Student, Section, EnrollmentDate)
