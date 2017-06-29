@@ -20,19 +20,20 @@
 CREATE OR REPLACE FUNCTION importStudents(Term INTEGER, Course VARCHAR(8), 
    SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
 $$
-   INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
-   SELECT substring(r.FName FOR 30), substring(r.MName FOR 30), substring(r.MName FOR 30),
-         substring(r.ID FOR 30), r.email, r.Major, r.class
-   FROM rosterStaging r
-   ON CONFLICT (SchoolIssuedID) DO NOTHING;
+   INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
+   SELECT I.FName, I.MName, I.MName, I.ID, I.email, I.Major, I.class
+   FROM rosterImport I
+   ON CONFLICT (SchoolIssuedID) DO UPDATE FName = EXCLUDED.FName, MName = EXCLUDED.MName, LName = EXCLUDED.LName,
+         Email = EXCLUDED.email, Major = EXCLUDED.Major, Year = EXCLUDED.class;
    
-   INSERT INTO public.Enrollee(Student, Section, EnrollmentDate)
+   INSERT INTO Enrollee(Student, Section, DateEnrolled, YearEnrolled, MajorEnrolled)
+
    WITH sectionID AS (
       SELECT ID
 	  FROM public.Section S
 	  WHERE Term = S.Term AND Course = S.course AND SectionNumber = S.sectionNumber
    )
-   SELECT Stu.ID, sectionID.ID, $4
+   SELECT Stu.ID, sectionID.ID, $4, r.class, r.Major
    FROM rosterImport r JOIN Student Stu ON substring(r.ID FOR 30) = Stu.schoolIssuedID,
         sectionID;
 $$ LANGUAGE SQL
