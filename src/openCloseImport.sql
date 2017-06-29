@@ -53,7 +53,7 @@ $$ LANGUAGE sql;
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
-CREATE OR REPLACE FUNCTION importOpenClose("Year" INT, Season VARCHAR(10))
+CREATE OR REPLACE FUNCTION openCloseImport("Year" INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
    WITH termDates AS
