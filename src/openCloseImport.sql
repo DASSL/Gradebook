@@ -98,22 +98,37 @@ $$
    --Insert into Section.  Get Term ID based on input paramenters.
    --Get the start and end dates of a course by
    --Splitting the date field in openCloseStaging
+   WITH InstructorNames AS
+   (
+     SELECT id, '%' || i.FName || ' ' || COALESCE(i.MName || ' ', '') || i.LName || '%' n
+     FROM instructor i
+   )
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
       Location, Instructor1, Instructor2, Instructor3) --Split the date on -
    SELECT oc.crn, oc.subject || oc.course, oc."Section", t.id, oc.days,
       to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD'),
-      to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'), oc.location,
-      i1.id, i2.id, i3.id
+      to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'),
+      oc.location,
+      (
+        SELECT DISTINCT ON (i.n) i.id
+        FROM InstructorNames i
+        WHERE (string_to_array(oc.instructor, ','))[1] LIKE i.n
+      ) i1,
+      (
+        SELECT DISTINCT ON (i.n) i.id
+        FROM InstructorNames i
+        WHERE (string_to_array(oc.instructor, ','))[2] LIKE i.n
+        AND NOT (string_to_array(oc.instructor, ','))[1] LIKE i.n
+      ) i2,
+      (
+        SELECT DISTINCT ON (i.n) i.id
+        FROM InstructorNames i
+        WHERE (string_to_array(oc.instructor, ','))[3] LIKE i.n
+        AND NOT (string_to_array(oc.instructor, ','))[1] LIKE i.n
+        AND NOT (string_to_array(oc.instructor, ','))[2] LIKE i.n
+      ) i3
    FROM openCloseStaging oc
-   JOIN Term t ON t."Year" = $1 AND t.Season = $2 --Get one instructor record
-                                                  --matching is position in
-                                                  --the instructor field csv
-   JOIN Instructor i1 ON (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FName || ' ' ||
-      COALESCE(i1.MName, '') || ' ' || i1.LName || '%'
-   JOIN Instructor i2 ON (string_to_array(oc.instructor, ','))[2] LIKE '%' || i2.FName || ' ' ||
-      COALESCE(i2.MName, '') || ' ' || i2.LName || '%' AND NOT i2.id = i1.id
-   JOIN Instructor i3 ON (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FName || ' ' ||
-      COALESCE(i3.MName, '') || ' ' || i3.LName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
+   JOIN Term t ON t."Year" = $1 AND t.Season = $2
    WHERE NOT oc.crn IS NULL
    ON CONFLICT DO NOTHING;
 
