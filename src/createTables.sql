@@ -52,7 +52,7 @@ CREATE TABLE Section
    Course VARCHAR(8) NOT NULL REFERENCES Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
-   Schedule VARCHAR(5),  --days the class meets: 'MW', 'TR', 'MWF', etc.
+   Schedule VARCHAR(7),  --days the class meets: 'MW', 'TR', 'MWF', etc.
    Location VARCHAR(25), --likely a classroom
    StartDate DATE, --first date the section meets
    EndDate DATE, --last date the section meets
