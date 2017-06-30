@@ -27,4 +27,4 @@ DROP TABLE IF EXISTS AttendanceRecord CASCADE;
 DROP TABLE IF EXISTS Section_AssessmentComponent CASCADE;
 DROP TABLE IF EXISTS Section_AssessmentItem CASCADE;
 DROP TABLE IF EXISTS Enrollee_AssessmentItem CASCADE;
-DROP TABLE IF EXISTS opencloseimport CASCADE;
+DROP TABLE IF EXISTS openCloseStaging CASCADE;
