@@ -74,14 +74,12 @@ $$
    (
       SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
       FROM openCloseStaging
-      WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
-                                 --are missing a first or last name
-                                 --also ignores "names" like 'TBA'
-                                 --LIKE '% %' checks for at least one space
+      --WHERE instructor LIKE '% %'--Temporarily allow TBA as 'TBA TBA'
+                                   --for schema purposes
    )
    INSERT INTO Instructor (FName, MName, LName)
    SELECT "Name"[1], CASE
-      WHEN array_length("Name", 1) = 2 THEN  NULL
+      WHEN array_length("Name", 1) < 3 THEN  NULL
       ELSE (SELECT string_agg(n, ' ') FROM unnest("Name"[2:array_length("Name", 1) - 1]) n)
    END, "Name"[array_length("Name", 1)]
    FROM instructorNames
@@ -100,7 +98,7 @@ $$
    --Splitting the date field in openCloseStaging
    WITH InstructorNames AS
    (
-     SELECT id, '%' || i.FName || ' ' || COALESCE(i.MName || ' ', '') || i.LName || '%' n
+     SELECT id, '%' || i.FName || '%' || COALESCE(i.MName || '%', '') || replace(i.LName, 'TBA', '') || '%' n
      FROM instructor i
    )
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
