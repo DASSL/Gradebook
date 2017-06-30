@@ -42,7 +42,7 @@ CREATE OR REPLACE FUNCTION importFromRoster(Term INTEGER, Course VARCHAR(8),
    SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
 $$
    INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
-   SELECT r.FName, r.MName, r.MName, r.ID, r.email, r.Major, r.class
+   SELECT r.FName, r.MName, r.LName, r.ID, r.email, r.Major, r.class
    FROM rosterStaging r
    ON CONFLICT (SchoolIssuedID) DO UPDATE SET FName = EXCLUDED.FName, MName = 
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.email, 
