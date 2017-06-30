@@ -9,6 +9,7 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
+
 CREATE TABLE IF NOT EXISTS rosterStaging
 (
    LName VARCHAR(32),
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS rosterStaging
 
 TRUNCATE rosterStaging;
 
+
 --psql command:
 --\COPY rosterStaging FROM <filename> WITH csv HEADER
 
@@ -34,28 +36,25 @@ TRUNCATE rosterStaging;
 --This function imports students that are currently in the rosterStaging folder.
 -- The sectionID corresponds to a section in the Section table from the Gradebook
 -- schema, which is determined by Term, Course, and SectionNumber
---Currently, it is assumed that the Gradebook tables are in the public schema,
--- and that the search_path for the user running the function is set to:
--- '$user, public' (this is the default search-path). 
 
 CREATE OR REPLACE FUNCTION importFromRoster(Term INTEGER, Course VARCHAR(8), 
-   SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
+   SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
 $$
-   INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
-   SELECT r.FName, r.MName, r.LName, r.ID, r.email, r.Major, r.class
+   INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
+   SELECT r.FName, r.MName, r.LName, r.ID, r.Email, r.Major, r.Class
    FROM rosterStaging r
    ON CONFLICT (SchoolIssuedID) DO UPDATE SET FName = EXCLUDED.FName, MName = 
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.email, 
 		 Major = EXCLUDED.Major, Year = EXCLUDED.Year;
    
-   INSERT INTO public.Enrollee(Student, Section, DateEnrolled, YearEnrolled, 
-                MajorEnrolled)
+   INSERT INTO Enrollee(Student, Section, DateEnrolled, YearEnrolled,
+               MajorEnrolled)
    WITH sectionID AS (
       SELECT ID
-	  FROM public.Section S
-	  WHERE S.Term = $1 AND S.course = $2 AND S.sectionNumber = $3
+	  FROM Section S
+	  WHERE S.Term = $1 AND S.Course = $2 AND S.SectionNumber = $3
    )
-   SELECT Stu.ID, sectionID.ID, $4, r.class, r.Major
-   FROM rosterStaging r JOIN public.Student Stu ON r.ID = Stu.schoolIssuedID,
-        sectionID;
+   SELECT Stu.ID, SectionID.ID, $4, r.Class, r.Major
+   FROM rosterStaging r JOIN Student Stu ON r.ID = Stu.SchoolIssuedID,
+        SectionID;
 $$ LANGUAGE SQL;
