@@ -34,6 +34,9 @@ TRUNCATE rosterStaging;
 --This function imports students that are currently in the rosterStaging folder.
 -- The sectionID corresponds to a section in the Section table from the Gradebook
 -- schema, which is determined by Term, Course, and SectionNumber
+--Currently, it is assumed that the Gradebook tables are in the public schema,
+-- and that the search_path for the user running the function is set to:
+-- '$user, public' (this is the default search-path). 
 
 CREATE OR REPLACE FUNCTION importFromRoster(Term INTEGER, Course VARCHAR(8), 
    SectionNumber VARCHAR(3), enrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
@@ -41,7 +44,7 @@ $$
    INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
    SELECT r.FName, r.MName, r.MName, r.ID, r.email, r.Major, r.class
    FROM rosterStaging r
-   ON CONFLICT (SchoolIssuedID) DO UPDATE FName = EXCLUDED.FName, MName = 
+   ON CONFLICT (SchoolIssuedID) DO UPDATE SET FName = EXCLUDED.FName, MName = 
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.email, 
 		 Major = EXCLUDED.Major, Year = EXCLUDED.Year;
    
@@ -50,10 +53,9 @@ $$
    WITH sectionID AS (
       SELECT ID
 	  FROM public.Section S
-	  WHERE Term = S.Term AND Course = S.course AND SectionNumber = S.sectionNumber
+	  WHERE S.Term = $1 AND S.course = $2 AND S.sectionNumber = $3
    )
    SELECT Stu.ID, sectionID.ID, $4, r.class, r.Major
    FROM rosterStaging r JOIN public.Student Stu ON r.ID = Stu.schoolIssuedID,
         sectionID;
-$$ LANGUAGE SQL
-   SET search_path TO '$user, public';
+$$ LANGUAGE SQL;
