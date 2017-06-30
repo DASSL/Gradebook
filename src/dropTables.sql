@@ -14,17 +14,17 @@
 --use hyphen in table names when combining multiple table names as in that for a m-n relationship
 
 
-DROP TABLE Course CASCADE;
-DROP TABLE Term CASCADE;
-DROP TABLE Instructor CASCADE;
-DROP TABLE Section CASCADE;
-DROP TABLE Grade CASCADE;
-DROP TABLE Section_GradeTier CASCADE;
-DROP TABLE Student CASCADE;
-DROP TABLE Enrollee CASCADE;
-DROP TABLE AttendanceStatus CASCADE;
-DROP TABLE AttendanceRecord CASCADE;
-DROP TABLE Section_AssessmentComponent CASCADE;
-DROP TABLE Section_AssessmentItem CASCADE;
-DROP TABLE Enrollee_AssessmentItem CASCADE;
-DROP TABLE opencloseimport CASCADE;
+DROP TABLE IF EXISTS Course CASCADE;
+DROP TABLE IF EXISTS Term CASCADE;
+DROP TABLE IF EXISTS Instructor CASCADE;
+DROP TABLE IF EXISTS Section CASCADE;
+DROP TABLE IF EXISTS Grade CASCADE;
+DROP TABLE IF EXISTS Section_GradeTier CASCADE;
+DROP TABLE IF EXISTS Student CASCADE;
+DROP TABLE IF EXISTS Enrollee CASCADE;
+DROP TABLE IF EXISTS AttendanceStatus CASCADE;
+DROP TABLE IF EXISTS AttendanceRecord CASCADE;
+DROP TABLE IF EXISTS Section_AssessmentComponent CASCADE;
+DROP TABLE IF EXISTS Section_AssessmentItem CASCADE;
+DROP TABLE IF EXISTS Enrollee_AssessmentItem CASCADE;
+DROP TABLE IF EXISTS opencloseimport CASCADE;
