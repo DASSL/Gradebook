@@ -56,7 +56,7 @@ $$
    ), sectionID AS (
       SELECT ID
 	  FROM Section S JOIN termID T ON S.Term = T.ID
-	  WHERE S.Term = T.ID AND S.Course = $3 AND S.SectionNumber = $4 -- may not need the "WHERE S.Term = T.ID" as it is joined on that same condition
+	  WHERE S.Course = $3 AND S.SectionNumber = $4
    )
    SELECT Stu.ID, SectionID.ID, $5, r.Class, r.Major
    FROM rosterStaging r JOIN Student Stu ON r.ID = Stu.SchoolIssuedID,
