@@ -68,25 +68,6 @@ $$
    FROM termDates
    ON CONFLICT DO NOTHING;
 
-   --Use the instructorUnnest function to convert csv instructor fields to
-   --individual rows
-   WITH instructorNames AS
-   (
-      SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
-      FROM openCloseStaging
-      WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
-                                 --are missing a first or last name
-                                 --also ignores "names" like 'TBA'
-                                 --LIKE '% %' checks for at least one space
-   )
-   INSERT INTO Instructor (FName, MName, LName)
-   SELECT "Name"[1], CASE
-      WHEN array_length("Name", 1) = 2 THEN  NULL
-      ELSE (SELECT string_agg(n, ' ') FROM unnest("Name"[2:array_length("Name", 1) - 1]) n)
-   END, "Name"[array_length("Name", 1)]
-   FROM instructorNames
-   ON CONFLICT DO NOTHING;
-
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Course("Number", Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
@@ -95,9 +76,22 @@ $$
    AND NOT course IS NULL
    ON CONFLICT DO NOTHING;
 
-   --Insert into Section.  Get Term ID based on input paramenters.
-   --Get the start and end dates of a course by
-   --Splitting the date field in openCloseStaging
+    WITH instructorFullNames AS (
+      INSERT INTO Instructor (FName, MName, LName)
+      SELECT "Name"[1], CASE
+         WHEN array_length("Name", 1) = 2 THEN  NULL
+         ELSE (SELECT string_agg(n, ' ') FROM unnest("Name"[2:array_length("Name", 1) - 1]) n)
+      END, "Name"[array_length("Name", 1)]
+      FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
+              FROM openCloseStaging
+              WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
+                                         --are missing a first or last name
+                                         --also ignores "names" like 'TBA'
+                                         --LIKE '% %' checks for at least one space
+            ) instructorNames
+      RETURNING id, FName || ' ' || COALESCE(MName, '') || ' ' || LName as FullName
+      )
+
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
       Location, Instructor1, Instructor2, Instructor3) --Split the date on -
    SELECT oc.crn, oc.subject || oc.course, oc."Section", t.id, oc.days,
@@ -108,12 +102,9 @@ $$
    JOIN Term t ON t."Year" = $1 AND t.Season = $2 --Get one instructor record
                                                   --matching is position in
                                                   --the instructor field csv
-   JOIN Instructor i1 ON (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FName || ' ' ||
-      COALESCE(i1.MName, '') || ' ' || i1.LName || '%'
-   JOIN Instructor i2 ON (string_to_array(oc.instructor, ','))[2] LIKE '%' || i2.FName || ' ' ||
-      COALESCE(i2.MName, '') || ' ' || i2.LName || '%' AND NOT i2.id = i1.id
-   JOIN Instructor i3 ON (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FName || ' ' ||
-      COALESCE(i3.MName, '') || ' ' || i3.LName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
+   JOIN instructorFullNames i1 ON (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FullName || '%'
+   LEFT OUTER JOIN InstructorFullNames i2 ON (string_to_array(oc.instructor, ','))[2] LIKE '%' || i2.FullName || '%' AND NOT i2.id = i1.id
+   LEFT OUTER JOIN InstructorFullNames i3 ON (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FullName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
    WHERE NOT oc.crn IS NULL
    ON CONFLICT DO NOTHING;
 
