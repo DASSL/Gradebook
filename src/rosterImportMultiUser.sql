@@ -50,7 +50,7 @@ $$
    FROM rosterStaging r
    ON CONFLICT (SchoolIssuedID) DO UPDATE SET FName = EXCLUDED.FName, MName = 
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.Email, 
-		 Major = EXCLUDED.Major, Year = EXCLUDED.Year;
+         Major = EXCLUDED.Major, Year = EXCLUDED.Year;
    
    INSERT INTO public.Enrollee(Student, Section, DateEnrolled, YearEnrolled,
                 MajorEnrolled)
@@ -60,8 +60,8 @@ $$
       WHERE T."Year" = $1 AND T.Season = $2
    ),   sectionID AS (
       SELECT S.ID
-	  FROM public.Section S JOIN termID T ON S.Term = T.ID
-	  WHERE S.Course = $3 AND S.SectionNumber = $4
+      FROM public.Section S JOIN termID T ON S.Term = T.ID
+      WHERE S.Course = $3 AND S.SectionNumber = $4
    )
    SELECT Stu.ID, sectionID.ID, $5, r.Class, r.Major
    FROM rosterStaging r JOIN public.Student Stu ON r.ID = Stu.SchoolIssuedID,
