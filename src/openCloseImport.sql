@@ -79,7 +79,7 @@ $$
     WITH instructorFullNames AS (
       INSERT INTO Instructor (FName, MName, LName)
       SELECT "Name"[1], CASE
-         WHEN array_length("Name", 1) = 2 THEN  NULL
+         WHEN array_length("Name", 1) < 3 THEN  NULL
          ELSE (SELECT string_agg(n, ' ') FROM unnest("Name"[2:array_length("Name", 1) - 1]) n)
       END, "Name"[array_length("Name", 1)]
       FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
@@ -96,8 +96,8 @@ $$
       Location, Instructor1, Instructor2, Instructor3) --Split the date on -
    SELECT oc.crn, oc.subject || oc.course, oc."Section", t.id, oc.days,
       to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD'),
-      to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'), oc.location,
-      i1.id, i2.id, i3.id
+      to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'),
+      oc.location, i1.id, i2.id, i3.id
    FROM openCloseStaging oc
    JOIN Term t ON t."Year" = $1 AND t.Season = $2 --Get one instructor record
                                                   --matching is position in
