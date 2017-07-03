@@ -35,13 +35,15 @@ TRUNCATE rosterStaging;
 
 --This function imports students that are currently in the rosterStaging folder.
 -- The sectionID corresponds to a section in the Section table from the Gradebook
--- schema, which is determined by Term, Course, and SectionNumber
+-- schema, which is determined by Term (through Year and Season), Course, and 
+-- SectionNumber
 --Currently, it is assumed that the Gradebook tables are in the public schema,
 -- and that the search_path for the user running the function is set to:
 -- '$user, public' (this is the default search-path). 
 
-CREATE OR REPLACE FUNCTION importFromRoster(Term INTEGER, Course VARCHAR(8), 
-   SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
+CREATE OR REPLACE FUNCTION importFromRoster("Year" INTEGER, Season VARCHAR(10),
+   Course VARCHAR(8), SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date)
+   RETURNS VOID AS
 $$
    INSERT INTO public.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
    SELECT r.FName, r.MName, r.LName, r.ID, r.email, r.Major, r.Class
@@ -52,12 +54,16 @@ $$
    
    INSERT INTO public.Enrollee(Student, Section, DateEnrolled, YearEnrolled,
                 MajorEnrolled)
-   WITH sectionID AS (
+   WITH termID AS (
       SELECT ID
-	  FROM public.Section S
-	  WHERE S.Term = $1 AND S.Course = $2 AND S.SectionNumber = $3
+      FROM public.Term T
+      WHERE T."Year" = $1 AND T.Season = $2
+   ),   sectionID AS (
+      SELECT S.ID
+	  FROM public.Section S JOIN termID T ON S.Term = T.ID
+	  WHERE S.Course = $3 AND S.SectionNumber = $4
    )
-   SELECT Stu.ID, sectionID.ID, $4, r.Class, r.Major
+   SELECT Stu.ID, sectionID.ID, $5, r.Class, r.Major
    FROM rosterStaging r JOIN public.Student Stu ON r.ID = Stu.SchoolIssuedID,
         sectionID;
 $$ LANGUAGE SQL;

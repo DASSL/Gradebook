@@ -35,10 +35,12 @@ TRUNCATE rosterStaging;
 
 --This function imports students that are currently in the rosterStaging folder.
 -- The sectionID corresponds to a section in the Section table from the Gradebook
--- schema, which is determined by Term, Course, and SectionNumber
+-- schema, which is determined by Term (through Year and Season), Course, and 
+-- SectionNumber
 
-CREATE OR REPLACE FUNCTION importFromRoster("Year" INTEGER, Season VARCHAR(10), Course VARCHAR(8), 
-   SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date) RETURNS VOID AS
+CREATE OR REPLACE FUNCTION importFromRoster("Year" INTEGER, Season VARCHAR(10), 
+   Course VARCHAR(8), SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date)
+   RETURNS VOID AS
 $$
    INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
    SELECT r.FName, r.MName, r.LName, r.ID, r.Email, r.Major, r.Class
@@ -53,8 +55,8 @@ $$
       SELECT ID
       FROM Term T
       WHERE T."Year" = $1 AND T.Season = $2
-   ), sectionID AS (
-      SELECT ID
+   ),   sectionID AS (
+      SELECT S.ID
 	  FROM Section S JOIN termID T ON S.Term = T.ID
 	  WHERE S.Course = $3 AND S.SectionNumber = $4
    )
