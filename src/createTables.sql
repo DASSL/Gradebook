@@ -22,16 +22,22 @@ CREATE TABLE Course
 );
 
 
+CREATE TABLE Season
+(
+   "Order" NUMERIC(1,0) PRIMARY KEY, --sequence of seasons within a year
+   Name VARCHAR(20) NOT NULL UNIQUE,
+   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'U', 'F', 'W', etc.
+);
+
+
 CREATE TABLE Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
    "Year" NUMERIC(4,0) NOT NULL CHECK ("Year" > 0), --'2017'
-   Season VARCHAR(10) NOT NULL,
+   Season NUMERIC(1,0) NOT NULL REFERENCES Season,
    StartDate DATE NOT NULL, --date the term begins
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
-   UNIQUE("Year", Season),
-   CONSTRAINT SeasonChoices --an alternative is to define a Season table
-      CHECK (Season IN ('Fall', 'Winter', 'Spring', 'Summer', 'Spring Break'))
+   UNIQUE("Year", Season)
 );
 
 
