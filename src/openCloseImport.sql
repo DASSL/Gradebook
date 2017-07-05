@@ -53,18 +53,23 @@ $$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION termImport("Year" INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
 $$
-    WITH latestYear AS(
-    SELECT "Year", Season
-    FROM Term
-    WHERE "Year" = (SELECT MAX("Year") FROM Term);
+    WITH latestYear AS
+    (
+      SELECT "Year", Season
+      FROM Term
+      WHERE "Year" = (SELECT MAX("Year") FROM Term)
+   )
+   SELECT
+   (
+      MAX(LY."Year") * (SELECT COUNT(*) FROM Season) + MAX(S."Order") + 1
+   ) =
+   (
+      $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
+   )
+   FROM latestYear LY
+   JOIN Season S on S."Order" = LY.Season
 
-)
-
-    SELECT MAX(S."Order") + LY."Year" + 1 = "Year" + (SELECT Order FROM Season WHERE Name = Season)
-    FROM latestYear LY
-    JOIN Season S on S."Order" = LY.Season;
-
-SS LANGUAGE sql;
+$$ LANGUAGE sql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
