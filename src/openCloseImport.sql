@@ -14,16 +14,16 @@ DROP TABLE IF EXISTS openCloseStaging;
 CREATE TABLE openCloseStaging
 (
    Status VARCHAR(6),
-   "Level" VARCHAR(2),
+   Level VARCHAR(2),
    CRN  VARCHAR(5),
    Subject VARCHAR(4),
    Course VARCHAR(6),
-   "Section" VARCHAR(3),
+   Section VARCHAR(3),
    Credits VARCHAR(15),
    Title VARCHAR(100),
    Days VARCHAR(7),
-   "Time" VARCHAR(30),
-   "Date" VARCHAR(15),
+   Time VARCHAR(30),
+   Date VARCHAR(15),
    Capacity INTEGER,
    Actual INTEGER,
    Remaining INTEGER,
@@ -34,8 +34,9 @@ CREATE TABLE openCloseStaging
    Instructor VARCHAR(200)
 );
 
-CREATE OR REPLACE FUNCTION instructorUnnest("instructorNames" VARCHAR(200))
-RETURNS TABLE("Name" VARCHAR(100)) AS
+DROP FUNCTION IF EXISTS instructorUnnest(instructorNames VARCHAR(200));
+CREATE FUNCTION instructorUnnest(instructorNames VARCHAR(200))
+RETURNS TABLE(Name VARCHAR(100)) AS
 $$
    SELECT
    trim(
@@ -46,7 +47,7 @@ $$
             replace($1, '(P)', ''), ','
          )
       )
-   ) "Name"
+   ) "name"
 $$ LANGUAGE sql;
 
 --Checks if the supplied year and season belong to the next term in sequence.
@@ -57,23 +58,28 @@ $$ LANGUAGE sql;
 -- Essentially, each year is mapped to a scale counting for the number of
 -- seasons that are in gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
-CREATE OR REPLACE FUNCTION checkTermSequence("Year" INT, Season VARCHAR(10))
+DROP FUNCTION IF EXISTS checkTermSequence(Year INT, Season VARCHAR(10));
+CREATE FUNCTION checkTermSequence(Year INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
 $$
    --Get each term from the latest year
-    WITH latestYear AS
-    (
-      SELECT "Year", Season
+   WITH latestYear AS
+   (
+      SELECT Year, Season
       FROM Term
-      WHERE "Year" = (SELECT MAX("Year") FROM Term)
+      WHERE Year = (SELECT MAX(Year) FROM Term)
    )
-   SELECT
-   (
-      MAX(LY."Year") * (SELECT COUNT(*) FROM Season) + MAX(LY.Season) + 1
-   ) =
-   (
-      $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
-   )
+   SELECT CASE
+      WHEN (SELECT COUNT(*) FROM Term) > 0 THEN
+         (
+            MAX(LY.Year) * (SELECT COUNT(*) FROM Season) + MAX(LY.Season) + 1
+         ) =
+         (
+            $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
+         )
+      ELSE
+         TRUE
+      END
    FROM latestYear LY
 
 $$ LANGUAGE sql;
@@ -83,8 +89,8 @@ $$ LANGUAGE sql;
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
-DROP FUNCTION IF EXISTS openCloseImport("Year" INT, Season VARCHAR(10));
-CREATE OR REPLACE FUNCTION openCloseImport("Year" INT, Season VARCHAR(10))
+DROP FUNCTION IF EXISTS openCloseImport(Year INT, Season VARCHAR(10));
+CREATE FUNCTION openCloseImport(Year INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
 BEGIN
@@ -95,17 +101,17 @@ BEGIN
    WITH termDates AS
    ( --Get the extreme dates from the openClose data to find the term start/end
      --this appears to get dates that are not quite correct currently
-      SELECT to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD') sDate,
-             to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD') eDate
+      SELECT to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD') sDate,
+             to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD') eDate
       FROM openCloseStaging
    )
-   INSERT INTO Term("Year", Season, StartDate, EndDate)
-   SELECT $1, (SELECT "Order" FROM Season WHERE Season."Name" = $2), MIN(sDate), MAX(eDate)
+   INSERT INTO Term(Year, Season, StartDate, EndDate)
+   SELECT $1, (SELECT "Order" FROM Season WHERE Season.Name = $2), MIN(sDate), MAX(eDate)
    FROM termDates
    ON CONFLICT DO NOTHING;
 
    --Insert course into Course, concat subject || course to make 'Number'
-   INSERT INTO Course("Number", Title)
+   INSERT INTO Course(Number, Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
    FROM openCloseStaging
    WHERE NOT subject IS NULL
@@ -114,11 +120,11 @@ BEGIN
 
     WITH instructorFullNames AS (
       INSERT INTO Instructor (FName, MName, LName)
-      SELECT "Name"[1], CASE
-         WHEN array_length("Name", 1) < 3 THEN  NULL
-         ELSE (SELECT string_agg(n, ' ') FROM unnest("Name"[2:array_length("Name", 1) - 1]) n)
-      END, "Name"[array_length("Name", 1)]
-      FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "Name"
+      SELECT Name[1], CASE
+         WHEN array_length(Name, 1) < 3 THEN  NULL
+         ELSE (SELECT string_agg(n, ' ') FROM unnest(Name[2:array_length(Name, 1) - 1]) n)
+      END, Name[array_length(Name, 1)]
+      FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "name"
               FROM openCloseStaging
               WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
                                          --are missing a first or last name
@@ -130,12 +136,12 @@ BEGIN
 
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
       Location, Instructor1, Instructor2, Instructor3) --Split the date on -
-   SELECT oc.crn, oc.subject || oc.course, oc."Section", t.id, oc.days,
-      to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD'),
-      to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD'),
+   SELECT oc.crn, oc.subject || oc.course, oc.Section, t.id, oc.days,
+      to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
+      to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
       oc.location, i1.id, i2.id, i3.id
    FROM openCloseStaging oc
-   JOIN Term t ON t."Year" = $1 AND t.Season = $2 --Get one instructor record
+   JOIN Term t ON t.Year = $1 AND t.Season = $2 --Get one instructor record
                                                   --matching is position in
                                                   --the instructor field csv
    JOIN instructorFullNames i1 ON (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FullName || '%'
