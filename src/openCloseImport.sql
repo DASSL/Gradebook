@@ -88,9 +88,9 @@ CREATE OR REPLACE FUNCTION openCloseImport("Year" INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
 BEGIN
-   --IF NOT SELECT checkTermSequence($1, $2) THEN
-   --   RAISE EXCEPTION 'Error - Supplied term is out of sequence';
-   --END IF;
+   IF NOT (SELECT checkTermSequence($1, $2)) THEN
+      RAISE EXCEPTION 'Error - Supplied term is out of sequence';
+   END IF;
 
    WITH termDates AS
    ( --Get the extreme dates from the openClose data to find the term start/end
