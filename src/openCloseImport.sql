@@ -61,13 +61,12 @@ $$
    )
    SELECT
    (
-      MAX(LY."Year") * (SELECT COUNT(*) FROM Season) + MAX(S."Order") + 1
+      MAX(LY."Year") * (SELECT COUNT(*) FROM Season) + MAX(LY.Season) + 1
    ) =
    (
       $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
    )
    FROM latestYear LY
-   JOIN Season S on S."Order" = LY.Season
 
 $$ LANGUAGE sql;
 
