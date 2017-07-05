@@ -1,6 +1,6 @@
 --populateFromOpenClose.sql - GradeBook
 
---Steven Rollo, Sean Murthy
+--Zach Boylan, Zaid Bhujwala, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
@@ -49,10 +49,18 @@ $$
    ) "Name"
 $$ LANGUAGE sql;
 
-
-CREATE OR REPLACE FUNCTION termImport("Year" INT, Season VARCHAR(10))
+--Checks if the supplied year and season belong to the next term in sequence.
+-- Returns true if the supplied term is the next term, otherwise false.
+-- This is accomplished using the expression:
+-- currentYear * COUNT(Seasons) + Season + 1 =
+-- newYear * COUNT(Seasons) + Season
+-- Essentially, each year is mapped to a scale counting for the number of
+-- seasons that are in gradebook.  This allows a simple equality check to see
+-- if the supplied term is in sequence
+CREATE OR REPLACE FUNCTION checkTermSequence("Year" INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
 $$
+   --Get each term from the latest year
     WITH latestYear AS
     (
       SELECT "Year", Season
@@ -60,10 +68,11 @@ $$
       WHERE "Year" = (SELECT MAX("Year") FROM Term)
    )
    SELECT
-   (
+   (  --Calculate the year + term scale value for the latest term
       MAX(LY."Year") * (SELECT COUNT(*) FROM Season) + MAX(S."Order") + 1
-   ) =
-   (
+   ) = --Compare with...
+   (  --The calculated value for the new term
+      --we have to select the season order from Season as well
       $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
    )
    FROM latestYear LY
