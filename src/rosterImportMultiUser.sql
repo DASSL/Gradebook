@@ -41,7 +41,7 @@ TRUNCATE rosterStaging;
 -- and that the search_path for the user running the function is set to:
 -- '$user, public' (this is the default search-path). 
 
-CREATE OR REPLACE FUNCTION importFromRoster("Year" INTEGER, Season VARCHAR(10),
+CREATE OR REPLACE FUNCTION importFromRoster(Year INTEGER, Season VARCHAR(10),
    Course VARCHAR(8), SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date)
    RETURNS VOID AS
 $$
@@ -57,7 +57,7 @@ $$
    WITH termID AS (
       SELECT ID
       FROM public.Term T
-      WHERE T."Year" = $1 AND T.Season = $2
+      WHERE T.Year = $1 AND T.Season = $2
    ),   sectionID AS (
       SELECT S.ID
       FROM public.Section S JOIN termID T ON S.Term = T.ID
