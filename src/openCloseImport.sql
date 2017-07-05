@@ -69,7 +69,8 @@ $$
       FROM Term
       WHERE Year = (SELECT MAX(Year) FROM Term)
    )
-   SELECT CASE
+   SELECT CASE --Check for the case when there are no terms, as we can't check
+               --the sequence if it hasn't been started yet
       WHEN (SELECT COUNT(*) FROM Term) > 0 THEN
          (
             MAX(LY.Year) * (SELECT COUNT(*) FROM Season) + MAX(LY.Season) + 1
@@ -141,9 +142,10 @@ BEGIN
       to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
       oc.location, i1.id, i2.id, i3.id
    FROM openCloseStaging oc
-   JOIN Term t ON t.Year = $1 AND t.Season = $2 --Get one instructor record
-                                                  --matching is position in
-                                                  --the instructor field csv
+   JOIN Term t ON t.Year = $1 AND t.Season = (SELECT "Order" FROM Season WHERE Season.Name = $2)
+   --Get one instructor record
+   --matching is position in
+   --the instructor field csv
    JOIN instructorFullNames i1 ON (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FullName || '%'
    LEFT OUTER JOIN InstructorFullNames i2 ON (string_to_array(oc.instructor, ','))[2] LIKE '%' || i2.FullName || '%' AND NOT i2.id = i1.id
    LEFT OUTER JOIN InstructorFullNames i3 ON (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FullName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
