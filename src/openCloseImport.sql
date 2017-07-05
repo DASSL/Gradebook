@@ -76,7 +76,7 @@ $$
             MAX(LY.Year) * (SELECT COUNT(*) FROM Season) + MAX(LY.Season) + 1
          ) =
          (
-            $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2)
+            $1 * (SELECT COUNT(*) FROM Season) + (SELECT "Order" FROM Season WHERE name = $2 OR code = $2)
          )
       ELSE
          TRUE
