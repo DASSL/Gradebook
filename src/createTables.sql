@@ -17,7 +17,7 @@
 CREATE TABLE Course
 (
    --Wonder if this table will eventually need a separate ID field
-   "Number" VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
+   Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
    Title VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
 );
 
@@ -33,11 +33,11 @@ CREATE TABLE Season
 CREATE TABLE Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
-   "Year" NUMERIC(4,0) NOT NULL CHECK ("Year" > 0), --'2017'
+   Year NUMERIC(4,0) NOT NULL CHECK (Year > 0), --'2017'
    Season NUMERIC(1,0) NOT NULL REFERENCES Season,
    StartDate DATE NOT NULL, --date the term begins
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
-   UNIQUE("Year", Season)
+   UNIQUE(Year, Season)
 );
 
 
@@ -170,9 +170,9 @@ CREATE TABLE AttendanceRecord
 (
    Student INTEGER NOT NULL,
    Section INTEGER NOT NULL,
-   "Date" DATE NOT NULL,
+   Date DATE NOT NULL,
    Status CHAR(1) NOT NULL REFERENCES AttendanceStatus,
-   PRIMARY KEY (Student, Section, "Date"),
+   PRIMARY KEY (Student, Section, Date),
    FOREIGN KEY (Student, Section) REFERENCES Enrollee
 );
 
@@ -180,10 +180,10 @@ CREATE TABLE AttendanceRecord
 CREATE TABLE Section_AssessmentComponent
 (
    Section INTEGER NOT NULL REFERENCES Section,
-   "Type" VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
+   Type VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
    Weight NUMERIC(3,2) NOT NULL CHECK (Weight >= 0), --a percentage value: 0.25, 0.5,...
    NumItems INTEGER NOT NULL DEFAULT 1,
-   PRIMARY KEY (Section, "Type")
+   PRIMARY KEY (Section, Type)
 );
 
 
