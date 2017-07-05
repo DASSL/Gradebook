@@ -100,7 +100,7 @@ BEGIN
       FROM openCloseStaging
    )
    INSERT INTO Term("Year", Season, StartDate, EndDate)
-   SELECT $1, (SELECT "Order" FROM Season WHERE "Name" = $2), MIN(sDate), MAX(eDate)
+   SELECT $1, (SELECT "Order" FROM Season WHERE Season."Name" = $2), MIN(sDate), MAX(eDate)
    FROM termDates
    ON CONFLICT DO NOTHING;
 
