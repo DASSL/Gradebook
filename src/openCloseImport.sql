@@ -78,13 +78,20 @@ $$
 
 $$ LANGUAGE sql;
 
+
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
+DROP FUNCTION IF EXISTS openCloseImport("Year" INT, Season VARCHAR(10));
 CREATE OR REPLACE FUNCTION openCloseImport("Year" INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
+BEGIN
+   --IF NOT SELECT checkTermSequence($1, $2) THEN
+   --   RAISE EXCEPTION 'Error - Supplied term is out of sequence';
+   --END IF;
+
    WITH termDates AS
    ( --Get the extreme dates from the openClose data to find the term start/end
      --this appears to get dates that are not quite correct currently
@@ -93,7 +100,7 @@ $$
       FROM openCloseStaging
    )
    INSERT INTO Term("Year", Season, StartDate, EndDate)
-   SELECT $1, $2, MIN(sDate), MAX(eDate)
+   SELECT $1, (SELECT "Order" FROM Season WHERE "Name" = $2), MIN(sDate), MAX(eDate)
    FROM termDates
    ON CONFLICT DO NOTHING;
 
@@ -136,5 +143,5 @@ $$
    LEFT OUTER JOIN InstructorFullNames i3 ON (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FullName || '%' AND NOT (i3.id = i2.id OR i3.id = i1.id)
    WHERE NOT oc.crn IS NULL
    ON CONFLICT DO NOTHING;
-
-$$ LANGUAGE sql;
+END
+$$ LANGUAGE plpgsql;
