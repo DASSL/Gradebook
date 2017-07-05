@@ -24,7 +24,7 @@ CREATE TABLE Course
 
 CREATE TABLE Season
 (
-   "Order" NUMERIC(1,0) PRIMARY KEY, --sequence of seasons within a year
+   "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0), --sequence of seasons within a year
    Name VARCHAR(20) NOT NULL UNIQUE,
    Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'U', 'F', 'W', etc.
 );
