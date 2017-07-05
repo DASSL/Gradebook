@@ -107,7 +107,7 @@ BEGIN
       FROM openCloseStaging
    )
    INSERT INTO Term(Year, Season, StartDate, EndDate)
-   SELECT $1, (SELECT "Order" FROM Season WHERE Season.Name = $2), MIN(sDate), MAX(eDate)
+   SELECT $1, (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2), MIN(sDate), MAX(eDate)
    FROM termDates
    ON CONFLICT DO NOTHING;
 
@@ -142,7 +142,7 @@ BEGIN
       to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
       oc.location, i1.id, i2.id, i3.id
    FROM openCloseStaging oc
-   JOIN Term t ON t.Year = $1 AND t.Season = (SELECT "Order" FROM Season WHERE Season.Name = $2)
+   JOIN Term t ON t.Year = $1 AND t.Season = (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2)
    --Get one instructor record
    --matching is position in
    --the instructor field csv
