@@ -10,8 +10,10 @@ REM Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
 
 REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-REM Batch file to importFromRoster Data
-REM USAGE: importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port
+REM Batch file to importFromRoster data
+REM Up to 9 additional parameters can be provided following the required ones
+
+REM USAGE: importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port optional-psql-commands
 
 IF "%1"=="" GOTO usage
 
@@ -43,7 +45,7 @@ IF "%8"=="" (
 
 IF "%port%"=="" SET port=5432
 
-REM Shifts parameters already set in variables out of scope
+REM SHIFT /1 moves parameters down by 1, making %1 out of scope, and allowing a new paramater to be referenced
 SHIFT /1
 SHIFT /1
 SHIFT /1
@@ -53,18 +55,22 @@ SHIFT /1
 SHIFT /1
 SHIFT /1
 
-REM batch parameters are now extra and will be ignored
-psql %1 %2 %3 %4 %5 %6 %7 %8 %9 -h %hostname% -p %port% -d %database% -U %username% -c "TRUNCATE rosterStaging;" -c "\COPY rosterStaging FROM %filename% WITH csv HEADER" -c "SELECT importFromRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
+REM Empty parameters are extra and will be ignored
+REM Using ^ allows a command to continue onto the next line
+psql %1 %2 %3 %4 %5 %6 %7 %8 %9 -h %hostname% -p %port% -d %database% -U %username%^
+ --single-transaction -c "TRUNCATE rosterStaging;"^
+ -c "\COPY rosterStaging FROM %filename% WITH csv HEADER"^
+ -c "SELECT importFromRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
 goto end
 
 :argError
-ECHO You must supply at least Five arguments (filename year season courseNumber sectionNumber)
+ECHO You must supply at least five arguments (filename year season courseNumber sectionNumber)
 
 :usage
-ECHO importRosterCSV.bat: Imports a CSV from student roster into Gradebook
+ECHO importRosterCSV.bat: Imports a CSV from a student roster into the Gradebook schema
 ECHO Takes 5-8+ space separated arguments
 ECHO Usage:
-ECHO importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port
+ECHO importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port optional-psql-commands
 
 :end
 pause
