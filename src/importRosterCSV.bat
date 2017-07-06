@@ -1,7 +1,7 @@
 @ECHO OFF
 REM importRosterCSV.bat - Gradebook
 
-REM Kyle Bella, Andrew Figueroa, Sean Murthy
+REM Kyle Bella, Andrew Figueroa, Steven Rollo, Sean Murthy
 
 REM CC 4.0 BY-NC-SA
 REM https://creativecommons.org/licenses/by-nc-sa/4.0/
@@ -15,7 +15,7 @@ REM USAGE: importRosterCSV.bat "filename" year season courseNumber sectionNumber
 
 IF "%1"=="" GOTO usage
 
-IF "%4"=="" GOTO argError
+IF "%5"=="" GOTO argError
 
 SET filename=%1
 SET year=%2
