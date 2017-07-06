@@ -58,7 +58,7 @@ SHIFT /1
 REM Empty parameters are extra and will be ignored
 REM Using ^ allows a command to continue onto the next line
 psql %1 %2 %3 %4 %5 %6 %7 %8 %9 -h %hostname% -p %port% -d %database% -U %username%^
- --single-transaction -c "TRUNCATE rosterStaging;"^
+ --single-transaction -f "rosterImport.sql"^
  -c "\COPY rosterStaging FROM %filename% WITH csv HEADER"^
  -c "SELECT importFromRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
 goto end
