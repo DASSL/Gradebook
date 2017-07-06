@@ -1,6 +1,6 @@
---populateFromOpenClose.sql - GradeBook
+--openCloseImport.sql - GradeBook
 
---Zach Boylan, Zaid Bhujwala, Steven Rollo, Sean Murthy
+--Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
@@ -9,30 +9,9 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 --A function to return individual rows when given a list of instructors that include csv lists
-DROP TABLE IF EXISTS openCloseStaging;
+START TRANSACTION;
 
-CREATE TABLE openCloseStaging
-(
-   Status VARCHAR(6),
-   Level VARCHAR(2),
-   CRN  VARCHAR(5),
-   Subject VARCHAR(4),
-   Course VARCHAR(6),
-   Section VARCHAR(3),
-   Credits VARCHAR(15),
-   Title VARCHAR(100),
-   Days VARCHAR(7),
-   Time VARCHAR(30),
-   Date VARCHAR(15),
-   Capacity INTEGER,
-   Actual INTEGER,
-   Remaining INTEGER,
-   XL_Capacity INTEGER,
-   XL_Actual INTEGER,
-   XL_Remaining INTEGER,
-   Location VARCHAR(25),
-   Instructor VARCHAR(200)
-);
+SET LOCAL SCHEMA 'gradebook';
 
 DROP FUNCTION IF EXISTS instructorUnnest(instructorNames VARCHAR(200));
 CREATE FUNCTION instructorUnnest(instructorNames VARCHAR(200))
@@ -62,6 +41,8 @@ DROP FUNCTION IF EXISTS checkTermSequence(Year INT, Season VARCHAR(10));
 CREATE FUNCTION checkTermSequence(Year INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
 $$
+   SET LOCAL SCHEMA 'gradebook';
+ 
    --Get each term from the latest year
    WITH latestYear AS
    (
@@ -90,21 +71,51 @@ $$ LANGUAGE sql;
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
-DROP FUNCTION IF EXISTS openCloseImport(Year INT, Season VARCHAR(10));
-CREATE FUNCTION openCloseImport(Year INT, Season VARCHAR(10))
+DROP FUNCTION IF EXISTS openCloseImport(INT, VARCHAR(10), BOOLEAN);
+CREATE FUNCTION openCloseImport(Year INT, Season VARCHAR(10), useSequence BOOLEAN DEFAULT TRUE)
 RETURNS VOID AS
 $$
 BEGIN
-   IF NOT (SELECT checkTermSequence($1, $2)) THEN
+   SET LOCAL SCHEMA 'gradebook';
+
+   IF NOT (SELECT checkTermSequence($1, $2)) AND useSequence THEN
       RAISE EXCEPTION 'Error - Supplied term is out of sequence';
+   ELSIF NOT (SELECT checkTermSequence($1, $2)) AND NOT useSequence THEN
+      RAISE NOTICE 'Sequence check failed, but will be overriden';
    END IF;
+
+   DROP TABLE IF EXISTS pg_temp.openCloseStaging;
+
+   CREATE TABLE pg_temp.openCloseStaging
+   (
+      Status VARCHAR(6),
+      Level VARCHAR(2),
+      CRN  VARCHAR(5),
+      Subject VARCHAR(4),
+      Course VARCHAR(6),
+      Section VARCHAR(3),
+      Credits VARCHAR(15),
+      Title VARCHAR(100),
+      Days VARCHAR(7),
+      Time VARCHAR(30),
+      Date VARCHAR(15),
+      Capacity INTEGER,
+      Actual INTEGER,
+      Remaining INTEGER,
+      XL_Capacity INTEGER,
+      XL_Actual INTEGER,
+      XL_Remaining INTEGER,
+      Location VARCHAR(25),
+      Instructor VARCHAR(200)
+   );
+
 
    WITH termDates AS
    ( --Get the extreme dates from the openClose data to find the term start/end
      --this appears to get dates that are not quite correct currently
       SELECT to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD') sDate,
              to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD') eDate
-      FROM openCloseStaging
+      FROM pg_temp.openCloseStaging
    )
    INSERT INTO Term(Year, Season, StartDate, EndDate)
    SELECT $1, (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2), MIN(sDate), MAX(eDate)
@@ -114,7 +125,7 @@ BEGIN
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Course(Number, Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
-   FROM openCloseStaging
+   FROM pg_temp.openCloseStaging
    WHERE NOT subject IS NULL
    AND NOT course IS NULL
    ON CONFLICT DO NOTHING;
@@ -126,7 +137,7 @@ BEGIN
          ELSE (SELECT string_agg(n, ' ') FROM unnest(Name[2:array_length(Name, 1) - 1]) n)
       END, Name[array_length(Name, 1)]
       FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "name"
-              FROM openCloseStaging
+              FROM pg_temp.openCloseStaging
               WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
                                          --are missing a first or last name
                                          --also ignores "names" like 'TBA'
@@ -141,7 +152,7 @@ BEGIN
       to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
       to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
       oc.location, i1.id, i2.id, i3.id
-   FROM openCloseStaging oc
+   FROM pg_temp.openCloseStaging oc
    JOIN Term t ON t.Year = $1 AND t.Season = (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2)
    --Get one instructor record
    --matching is position in
@@ -153,3 +164,5 @@ BEGIN
    ON CONFLICT DO NOTHING;
 END
 $$ LANGUAGE plpgsql;
+
+COMMIT;
