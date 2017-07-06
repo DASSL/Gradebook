@@ -42,7 +42,7 @@ CREATE FUNCTION checkTermSequence(Year INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
 $$
    SET LOCAL SCHEMA 'gradebook';
- 
+
    --Get each term from the latest year
    WITH latestYear AS
    (
@@ -67,6 +67,36 @@ $$
 $$ LANGUAGE sql;
 
 
+DROP FUNCTION IF EXISTS createOpenCloseStaging();
+CREATE FUNCTION createOpenCloseStaging()
+RETURNS VOID AS
+$$
+  DROP TABLE IF EXISTS pg_temp.openCloseStaging;
+  CREATE TABLE pg_temp.openCloseStaging
+  (
+     Status VARCHAR(6),
+     Level VARCHAR(2),
+     CRN  VARCHAR(5),
+     Subject VARCHAR(4),
+     Course VARCHAR(6),
+     Section VARCHAR(3),
+     Credits VARCHAR(15),
+     Title VARCHAR(100),
+     Days VARCHAR(7),
+     Time VARCHAR(30),
+     Date VARCHAR(15),
+     Capacity INTEGER,
+     Actual INTEGER,
+     Remaining INTEGER,
+     XL_Capacity INTEGER,
+     XL_Actual INTEGER,
+     XL_Remaining INTEGER,
+     Location VARCHAR(25),
+     Instructor VARCHAR(200)
+  );
+$$
+
+
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
@@ -83,32 +113,6 @@ BEGIN
    ELSIF NOT (SELECT checkTermSequence($1, $2)) AND NOT useSequence THEN
       RAISE NOTICE 'Sequence check failed, but will be overriden';
    END IF;
-
-   DROP TABLE IF EXISTS pg_temp.openCloseStaging;
-
-   CREATE TABLE pg_temp.openCloseStaging
-   (
-      Status VARCHAR(6),
-      Level VARCHAR(2),
-      CRN  VARCHAR(5),
-      Subject VARCHAR(4),
-      Course VARCHAR(6),
-      Section VARCHAR(3),
-      Credits VARCHAR(15),
-      Title VARCHAR(100),
-      Days VARCHAR(7),
-      Time VARCHAR(30),
-      Date VARCHAR(15),
-      Capacity INTEGER,
-      Actual INTEGER,
-      Remaining INTEGER,
-      XL_Capacity INTEGER,
-      XL_Actual INTEGER,
-      XL_Remaining INTEGER,
-      Location VARCHAR(25),
-      Instructor VARCHAR(200)
-   );
-
 
    WITH termDates AS
    ( --Get the extreme dates from the openClose data to find the term start/end
