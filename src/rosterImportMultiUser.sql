@@ -10,7 +10,7 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 
-CREATE TABLE IF NOT EXISTS rosterStaging
+CREATE TEMPORARY TABLE IF NOT EXISTS rosterStaging
 (
    LName VARCHAR(32),
    FName VARCHAR(32),
@@ -27,10 +27,6 @@ CREATE TABLE IF NOT EXISTS rosterStaging
 );
 
 TRUNCATE rosterStaging;
-
-
---psql command:
---\COPY rosterStaging FROM <filename> WITH csv HEADER
 
 
 --This function imports students that are currently in the rosterStaging folder.
