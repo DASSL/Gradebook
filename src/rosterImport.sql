@@ -26,9 +26,6 @@ CREATE TEMPORARY TABLE IF NOT EXISTS rosterStaging
    Email VARCHAR(100)
 );
 
-TRUNCATE rosterStaging;
-
-
 /*This function imports students that are currently in the rosterStaging folder.
 The sectionID corresponds to a section in the Section table from the Gradebook
 schema, which is determined by Term (through Year and Season), Course, and
@@ -38,7 +35,7 @@ We will later need to worry about access control in a later version and
 revisions may be needed here.
 */
 
-CREATE OR REPLACE FUNCTION importFromRoster(Year INTEGER, Season VARCHAR(10),
+CREATE OR REPLACE FUNCTION importFromRoster(Year INTEGER, Season NUMERIC(1,0),
    Course VARCHAR(8), SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date)
    RETURNS VOID AS
 $$
