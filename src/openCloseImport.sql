@@ -57,15 +57,16 @@ CREATE OR REPLACE FUNCTION openCloseImport("Year" INT, Season VARCHAR(10))
 RETURNS VOID AS
 $$
    WITH termDates AS
-   ( --Get the extreme dates from the openClose data to find the term start/end
-     --this appears to get dates that are not quite correct currently
-      SELECT to_date($1 || '/' || (string_to_array("Date", '-'))[1], 'YYYY/MM/DD') sDate,
-             to_date($1 || '/' || (string_to_array("Date", '-'))[2], 'YYYY/MM/DD') eDate
-      FROM openCloseStaging
-   )
-   INSERT INTO Term("Year", Season, StartDate, EndDate)
-   SELECT $1, $2, MIN(sDate), MAX(eDate)
-   FROM termDates
+         ( --make a list of the start and end dates for each class
+            SELECT string_to_aray(substring("Date" FROM '*-'), '/') sDate,
+                   string_to_aray(substring("Date" FROM '-*'), '/') eDate
+            FROM openCloseStaging
+         )
+         --Select from the Table TermDates the most extrem start and
+         --end date
+         INSERT INTO Term("Year", Season, StartDate, EndDate)
+         SELECT $1, $2, MIN(to_date($1 || sDate[1] || sDate[2])), MAX(to_date($1 || eDate[1] || eDate[2]))
+         FROM termDates
    ON CONFLICT DO NOTHING;
 
    --Insert course into Course, concat subject || course to make 'Number'
