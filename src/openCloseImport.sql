@@ -94,7 +94,7 @@ $$
      Location VARCHAR(25),
      Instructor VARCHAR(200)
   );
-$$
+$$ LANGUAGE sql;
 
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
