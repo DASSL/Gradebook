@@ -1,7 +1,7 @@
 @ECHO OFF
 REM importRosterCSV.bat - Gradebook
 
-REM Kyle Bella, Andrew Figueroa, Sean Murthy
+REM Kyle Bella, Andrew Figueroa, Steven Rollo, Sean Murthy
 
 REM CC 4.0 BY-NC-SA
 REM https://creativecommons.org/licenses/by-nc-sa/4.0/
@@ -13,7 +13,11 @@ REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOU
 REM Batch file to importFromRoster data
 REM Up to 9 additional parameters can be provided following the required ones
 
-REM USAGE: importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port optional-psql-commands
+REM USAGE: importRosterCSV.bat "filename" year season 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
+REM year like 2017
+REM season is the "order" attribute of the Season table
+REM courseNumber like 'CS110'
+REM sectionNumber like '01'
 
 IF "%1"=="" GOTO usage
 
@@ -68,9 +72,9 @@ ECHO You must supply at least five arguments (filename year season courseNumber 
 
 :usage
 ECHO importRosterCSV.bat: Imports a CSV from a student roster into the Gradebook schema
-ECHO Takes 5-8+ space separated arguments
+ECHO Takes 5+ space separated arguments
 ECHO Usage:
-ECHO importRosterCSV.bat "filename" year season courseNumber sectionNumber username database server:port optional-psql-commands
+ECHO importRosterCSV.bat "filename" year season 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
 
 :end
 pause
