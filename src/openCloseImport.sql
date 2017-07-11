@@ -58,14 +58,14 @@ RETURNS VOID AS
 $$
    WITH termDates AS
          ( --make a list of the start and end dates for each class
-            SELECT string_to_aray(substring("Date" FROM '*-'), '/') sDate,
-                   string_to_aray(substring("Date" FROM '-*'), '/') eDate
+            SELECT substring("Date" FROM '*-') sDate,
+                   substring("Date" FROM '-*') eDate
             FROM openCloseStaging
          )
          --Select from the Table TermDates the most extrem start and
          --end date
          INSERT INTO Term("Year", Season, StartDate, EndDate)
-         SELECT $1, $2, MIN(to_date($1 || sDate[1] || sDate[2])), MAX(to_date($1 || eDate[1] || eDate[2]))
+         SELECT $1, $2, MIN(to_date($1 || sDate)), MAX(to_date($1 || eDate))
          FROM termDates
    ON CONFLICT DO NOTHING;
 
