@@ -8,7 +8,11 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---A function to return individual rows when given a list of instructors that include csv lists
+--Creating temporary table for openCloseStaging
+
+--START TRANSACTION;
+
+SET LOCAL SCHEMA 'gradebook';
 
 CREATE TEMPORARY TABLE openCloseStaging
 (

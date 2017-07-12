@@ -12,7 +12,6 @@
 START TRANSACTION;
 
 SET LOCAL SCHEMA 'gradebook';
-
 DROP FUNCTION IF EXISTS instructorUnnest(instructorNames VARCHAR(200));
 CREATE FUNCTION instructorUnnest(instructorNames VARCHAR(200))
 RETURNS TABLE(Name VARCHAR(100)) AS
@@ -37,6 +36,7 @@ $$ LANGUAGE sql;
 -- Essentially, each year is mapped to a scale counting for the number of
 -- seasons that are in gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
+SET LOCAL SCHEMA 'gradebook';
 DROP FUNCTION IF EXISTS checkTermSequence(Year INT, Season VARCHAR(10));
 CREATE FUNCTION checkTermSequence(Year INT, Season VARCHAR(10))
 RETURNS BOOLEAN AS
@@ -66,44 +66,15 @@ $$
 
 $$ LANGUAGE sql;
 
-
-/*
-DROP FUNCTION IF EXISTS createOpenCloseStaging();
-CREATE FUNCTION createOpenCloseStaging()
-RETURNS VOID AS
-$$
-  DROP TABLE IF EXISTS pg_temp.openCloseStaging;
-  CREATE TABLE pg_temp.openCloseStaging
-  (
-     Status VARCHAR(6),
-     Level VARCHAR(2),
-     CRN  VARCHAR(5),
-     Subject VARCHAR(4),
-     Course VARCHAR(6),
-     Section VARCHAR(3),
-     Credits VARCHAR(15),
-     Title VARCHAR(100),
-     Days VARCHAR(7),
-     Time VARCHAR(30),
-     Date VARCHAR(15),
-     Capacity INTEGER,
-     Actual INTEGER,
-     Remaining INTEGER,
-     XL_Capacity INTEGER,
-     XL_Actual INTEGER,
-     XL_Remaining INTEGER,
-     Location VARCHAR(25),
-     Instructor VARCHAR(200)
-  );
-$$ LANGUAGE sql;
-*/
+COMMIT;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
-DROP FUNCTION IF EXISTS openCloseImport(INT, VARCHAR(10), BOOLEAN);
-CREATE FUNCTION openCloseImport(Year INT, Season VARCHAR(10), useSequence BOOLEAN DEFAULT TRUE)
+SET LOCAL SCHEMA 'gradebook';
+DROP FUNCTION IF EXISTS importOpenClose(INT, VARCHAR(10), BOOLEAN);
+CREATE FUNCTION importOpenClose(Year INT, Season VARCHAR(10), useSequence BOOLEAN DEFAULT TRUE)
 RETURNS VOID AS
 $$
 BEGIN
