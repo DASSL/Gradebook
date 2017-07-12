@@ -29,8 +29,16 @@ CREATE TABLE Gradebook.Season
 (
    "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0), --sequence of seasons within a year
    Name VARCHAR(20) NOT NULL UNIQUE,
-   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'U', 'F', 'W', etc.
+   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'M', 'F', 'I', etc.
 );
+
+--Populate the Season table
+--Values based on Term information found in OpenClose
+INSERT INTO Gradebook.Season VALUES('0','Spring','S');
+INSERT INTO Gradebook.Season VALUES('1','Spring_Break','B');
+INSERT INTO Gradebook.Season VALUES('2','Summer','M');
+INSERT INTO Gradebook.Season VALUES('3','Fall','F');
+INSERT INTO Gradebook.Season VALUES('4','Intersession','I');
 
 
 CREATE TABLE Gradebook.Term
