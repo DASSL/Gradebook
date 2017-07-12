@@ -14,7 +14,10 @@
 --use hyphen in table names when combining multiple table names as in that for a m-n relationship
 
 
-CREATE TABLE Course
+CREATE SCHEMA IF NOT EXISTS gradebook;
+
+
+CREATE TABLE gradebook.Course
 (
    --Wonder if this table will eventually need a separate ID field
    Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
@@ -22,7 +25,7 @@ CREATE TABLE Course
 );
 
 
-CREATE TABLE Season
+CREATE TABLE gradebook.Season
 (
    "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0), --sequence of seasons within a year
    Name VARCHAR(20) NOT NULL UNIQUE,
@@ -30,7 +33,7 @@ CREATE TABLE Season
 );
 
 
-CREATE TABLE Term
+CREATE TABLE gradebook.Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
    Year NUMERIC(4,0) NOT NULL CHECK (Year > 0), --'2017'
@@ -41,7 +44,7 @@ CREATE TABLE Term
 );
 
 
-CREATE TABLE Instructor
+CREATE TABLE gradebook.Instructor
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50) NOT NULL,
@@ -51,7 +54,7 @@ CREATE TABLE Instructor
 );
 
 
-CREATE TABLE Section
+CREATE TABLE gradebook.Section
 (
    ID SERIAL PRIMARY KEY,
    Term INTEGER NOT NULL REFERENCES Term,
@@ -76,12 +79,12 @@ CREATE TABLE Section
 
 
 --Removed Section_Instructor by accommodating 3 instructors in Section table
---CREATE TABLE Section_Instructor();
+--CREATE TABLE gradebook.Section_Instructor();
 
 
 --Table to store all possible letter grades
 --some universities permit A+
-CREATE TABLE Grade
+CREATE TABLE gradebook.Grade
 (
    Letter VARCHAR(2) NOT NULL PRIMARY KEY,
    GPA NUMERIC(4,3) NOT NULL,
@@ -95,25 +98,25 @@ CREATE TABLE Grade
 
 
 --Values used by most US universities: move to a different file
-INSERT INTO Grade VALUES('A+', 4.333);
-INSERT INTO Grade VALUES('A', 4);
-INSERT INTO Grade VALUES('A-', 3.667);
-INSERT INTO Grade VALUES('B+', 3.333);
-INSERT INTO Grade VALUES('B', 3);
-INSERT INTO Grade VALUES('B-', 2.667);
-INSERT INTO Grade VALUES('C+', 2.333);
-INSERT INTO Grade VALUES('C', 2);
-INSERT INTO Grade VALUES('C-', 1.667);
-INSERT INTO Grade VALUES('D+', 1.333);
-INSERT INTO Grade VALUES('D', 1);
-INSERT INTO Grade VALUES('D-', 0.667);
-INSERT INTO Grade VALUES('F', 0);
-INSERT INTO Grade VALUES('W', 0);
-INSERT INTO Grade VALUES('SA', 0);
+INSERT INTO gradebook.Grade VALUES('A+', 4.333);
+INSERT INTO gradebook.Grade VALUES('A', 4);
+INSERT INTO gradebook.Grade VALUES('A-', 3.667);
+INSERT INTO gradebook.Grade VALUES('B+', 3.333);
+INSERT INTO gradebook.Grade VALUES('B', 3);
+INSERT INTO gradebook.Grade VALUES('B-', 2.667);
+INSERT INTO gradebook.Grade VALUES('C+', 2.333);
+INSERT INTO gradebook.Grade VALUES('C', 2);
+INSERT INTO gradebook.Grade VALUES('C-', 1.667);
+INSERT INTO gradebook.Grade VALUES('D+', 1.333);
+INSERT INTO gradebook.Grade VALUES('D', 1);
+INSERT INTO gradebook.Grade VALUES('D-', 0.667);
+INSERT INTO gradebook.Grade VALUES('F', 0);
+INSERT INTO gradebook.Grade VALUES('W', 0);
+INSERT INTO gradebook.Grade VALUES('SA', 0);
 
 
 --Table to store mapping of percentage score to a letter grade: varies by section
-CREATE TABLE Section_GradeTier
+CREATE TABLE gradebook.Section_GradeTier
 (
    Section INTEGER REFERENCES Section,
    LetterGrade VARCHAR(2) NOT NULL REFERENCES Grade,
@@ -124,7 +127,7 @@ CREATE TABLE Section_GradeTier
 );
 
 
-CREATE TABLE Student
+CREATE TABLE gradebook.Student
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50), --at least one of the name fields must be used: see below
@@ -139,7 +142,7 @@ CREATE TABLE Student
 );
 
 
-CREATE TABLE Enrollee
+CREATE TABLE gradebook.Enrollee
 (
    Student INTEGER NOT NULL REFERENCES Student,
    Section INTEGER REFERENCES Section,
@@ -159,14 +162,14 @@ CREATE TABLE Enrollee
 
 
 --Table to store all possible attendance statuses
-CREATE TABLE AttendanceStatus
+CREATE TABLE gradebook.AttendanceStatus
 (
    Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', E', ...
    Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', 'Explained', ...
 );
 
 
-CREATE TABLE AttendanceRecord
+CREATE TABLE gradebook.AttendanceRecord
 (
    Student INTEGER NOT NULL,
    Section INTEGER NOT NULL,
@@ -177,7 +180,7 @@ CREATE TABLE AttendanceRecord
 );
 
 
-CREATE TABLE Section_AssessmentComponent
+CREATE TABLE gradebook.Section_AssessmentComponent
 (
    Section INTEGER NOT NULL REFERENCES Section,
    Type VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
@@ -187,7 +190,7 @@ CREATE TABLE Section_AssessmentComponent
 );
 
 
-CREATE TABLE Section_AssessmentItem
+CREATE TABLE gradebook.Section_AssessmentItem
 (
    Section INTEGER NOT NULL,
    Component VARCHAR(20) NOT NULL,
@@ -201,7 +204,7 @@ CREATE TABLE Section_AssessmentItem
 );
 
 
-CREATE TABLE Enrollee_AssessmentItem
+CREATE TABLE gradebook.Enrollee_AssessmentItem
 (
    Student INTEGER NOT NULL,
    Section INTEGER NOT NULL,

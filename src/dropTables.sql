@@ -13,6 +13,12 @@
 --use camel case for table/field names containing more than one word
 --use hyphen in table names when combining multiple table names as in that for a m-n relationship
 
+START TRANSACTION;
+
+
+--Remove the following line to drop tables from default schema instead
+SET LOCAL SCHEMA 'gradebook';
+
 
 DROP TABLE IF EXISTS Course CASCADE;
 DROP TABLE IF EXISTS Season CASCADE;
@@ -29,3 +35,6 @@ DROP TABLE IF EXISTS Section_AssessmentComponent CASCADE;
 DROP TABLE IF EXISTS Section_AssessmentItem CASCADE;
 DROP TABLE IF EXISTS Enrollee_AssessmentItem CASCADE;
 DROP TABLE IF EXISTS openCloseStaging CASCADE;
+
+
+COMMIT;
