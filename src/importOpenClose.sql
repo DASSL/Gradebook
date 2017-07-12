@@ -67,6 +67,7 @@ $$
 $$ LANGUAGE sql;
 
 
+/*
 DROP FUNCTION IF EXISTS createOpenCloseStaging();
 CREATE FUNCTION createOpenCloseStaging()
 RETURNS VOID AS
@@ -95,7 +96,7 @@ $$
      Instructor VARCHAR(200)
   );
 $$ LANGUAGE sql;
-
+*/
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
@@ -119,7 +120,7 @@ BEGIN
      --this appears to get dates that are not quite correct currently
       SELECT to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD') sDate,
              to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD') eDate
-      FROM pg_temp.openCloseStaging
+      FROM openCloseStaging
    )
    INSERT INTO Term(Year, Season, StartDate, EndDate)
    SELECT $1, (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2), MIN(sDate), MAX(eDate)
@@ -129,7 +130,7 @@ BEGIN
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Course(Number, Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
-   FROM pg_temp.openCloseStaging
+   FROM openCloseStaging
    WHERE NOT subject IS NULL
    AND NOT course IS NULL
    ON CONFLICT DO NOTHING;
@@ -141,7 +142,7 @@ BEGIN
          ELSE (SELECT string_agg(n, ' ') FROM unnest(Name[2:array_length(Name, 1) - 1]) n)
       END, Name[array_length(Name, 1)]
       FROM  ( SELECT DISTINCT string_to_array(instructorUnnest(instructor), ' ') "name"
-              FROM pg_temp.openCloseStaging
+              FROM openCloseStaging
               WHERE instructor LIKE '% %'--Right now we can't handle names that clearly
                                          --are missing a first or last name
                                          --also ignores "names" like 'TBA'
@@ -156,7 +157,7 @@ BEGIN
       to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
       to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
       oc.location, i1.id, i2.id, i3.id
-   FROM pg_temp.openCloseStaging oc
+   FROM openCloseStaging oc
    JOIN Term t ON t.Year = $1 AND t.Season = (SELECT "Order" FROM Season WHERE Season.Name = $2 OR Season.Code = $2)
    --Get one instructor record
    --matching is position in
