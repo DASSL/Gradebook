@@ -1,5 +1,5 @@
 /*
-Zaid Bhujwala, Steven Rollo
+Zach Boylan, Zaid Bhujwala, Steven Rollo
 
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
