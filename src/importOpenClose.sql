@@ -119,7 +119,7 @@ BEGIN
                                          --also ignores "names" like 'TBA'
                                          --LIKE '% %' checks for at least one space
             ) instructorNames
-      RETURNING id, FName || ' ' || COALESCE(MName, '') || ' ' || LName as FullName
+      RETURNING id, FName || ' ' || COALESCE(MName || ' ', '') || LName as FullName
       )
 
    INSERT INTO Section(CRN, Course, SectionNumber, Term, Schedule, StartDate, EndDate,
