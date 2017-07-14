@@ -1,6 +1,6 @@
 --createOpenCloseStagingTable.sql - GradeBook
 
---Zaid Bhujwala
+--Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
@@ -8,13 +8,10 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---Creating temporary table for openCloseStaging
+--Creating temporary table for openCloseStaging. Table will be used to copy from CSV files and later to be
+--used to populate the database. 
 
---START TRANSACTION;
-
-SET LOCAL SCHEMA 'gradebook';
-
-CREATE TEMPORARY TABLE openCloseStaging
+CREATE TEMPORARY TABLE gradebook.openCloseStaging
 (
    Status VARCHAR(6),
    Level VARCHAR(2),
