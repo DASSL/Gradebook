@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<!--
+index.html - DASSL Gradebook
+
+Elly Griffin, Andrew Figueroa, Sean Murthy
+Data Science & Systems Lab (DASSL), Western Connecticut State University
+
+Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
+Licenced to others under CC 4.0 BY-NC-SA
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+This HTML page serves as the main access point for an instructor's use of Gradebook.
+Currently, only attendance information will be served
+-->
+<html>
+	<head>
+	<title>Gradebook - Attendance</title>
+	<!--Import Google Icon Font-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!--Import Materialize framework Learn more: http://materializecss.com/-->
+	<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+	</head>
+	<body>
+	
+	<nav class="nav-extended">
+		<div class="nav-wrapper">
+			<a href="#" class="brand-logo">Gradebook</a>
+		</div>
+		<div class="nav-content">
+			<ul class="tabs tabs-transparent">
+				<li class="tab"><a href="#">Attendance</a></li>
+				<li class="tab disabled"><a href="#">Grades</a></li>
+				<li class="tab disabled"><a href="#">Reports</a></li>
+				<!--See http://materializecss.com/navbar.html#navbar-tabs for examples on
+					 how to (later) use tabs for navigation-->
+			</ul>
+		</div>
+	</nav>
+	
+	
+	<div class="container"> <!--Adds left and right spacing for content-->
+	<div class="section"> <!--Adds spacing between navbar and content-->
+	
+	<div class="row">
+		<div class="input-field col s12 m6 l3">
+			<input id="host" type="text" placeholder="localhost"/>
+			<label for="host">Host name</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<input id="port" type="text" placeholder="5432"/>
+			<label for="port">Port</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<input id="database" type="text"/>
+			<label for="database">Database</label>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="input-field col s12 m6 l3">
+			<input id="user" type="text"/>
+			<label for="user">Username</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<input id="passwordBox" type="password"/></td>
+			<label for="passwordBox">Password</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<input id="instructorId" type="text"/>
+			<label for="instructorId">Instructor ID</label> 
+		</div>
+		<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
+	</div>
+	
+	<div class="divider"></div>
+	<div class="row section">
+		<div class="input-field col s12 m6 l3">
+			<select id="yearSelect" disabled="true">
+				<option value="" disabled="true" selected="true">Choose year</option>
+			</select>
+			<label>Year</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<select id="seasonSelect" disabled="true">
+				<option value="" disabled="true" selected="true">Choose season</option>
+			</select>
+			<label>Season</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<select id="courseSelect" disabled="true">
+				<option value="" disabled="true" selected="true">Choose course</option>
+			</select>
+			<label>Course</label>
+		</div>
+		<div class="input-field col s12 m6 l3">
+			<select id="sectionSelect" disabled="true">
+				<option value="" disabled="true" selected="true">Choose section</option>
+			</select>
+			<label>Section</label>
+		</div>
+	</div>
+	
+	<div class="divider"</div>
+	<div id="attendanceData"></div>
+
+	</div>
+	</div>
+  </body>
+
+	<script src="https://bitwiseshiftleft.github.io/sjcl/sjcl.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="js/materialize.min.js"></script>
+	<script type="text/javascript" src="js/attendance.js"></script>
+
+</html>
