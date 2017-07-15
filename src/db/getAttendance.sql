@@ -1,4 +1,4 @@
--- getAttendance.sql
+-- getAttendance.sql - Gradebook
 
 -- Kyle Bella, Steven Rollo, Zaid Bhujwala, Andrew Figueroa, Elly Griffin, Sean Murthy
 
@@ -25,7 +25,7 @@
 --SELECT * FROM datesFromSchedule(to_date('2017-01-01', 'YYYY-MM-DD'),
 --   to_date('2017-05-01', 'YYYY-MM-DD'), 'TR');
 
-CREATE OR REPLACE FUNCTION datesFromSchedule(startDate DATE, endDate DATE, schedule VARCHAR(7))
+CREATE OR REPLACE FUNCTION Gradebook.datesFromSchedule(startDate DATE, endDate DATE, schedule VARCHAR(7))
 RETURNS TABLE (MeetingDate DATE)
 AS $$
    --Create a list of all dates between startDate and endDate using a recursive CTE
@@ -53,8 +53,8 @@ AS $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION createAttendancePivot(sectionID INTEGER)
-RETURNS TABLE(dataStr TEXT) AS
+CREATE OR REPLACE FUNCTION getAttendance(sectionID INTEGER)
+RETURNS TABLE(csvwheadattnrec TEXT) AS
 $$
     -- Will give the start and end dates and the ID of the term
     WITH curSec AS
@@ -62,13 +62,20 @@ $$
         SELECT N.ID, N.Schedule s, COALESCE(N.StartDate, T.StartDate) sd, COALESCE(N.EndDate, T.EndDate) ed
         FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term=T.ID
         WHERE N.ID = $1
+    -- Needed to make a more stable version of datesFromSchedule() output
+    ), datesFromScheduleTable AS
+    (
+        -- this cross join will return the same amount of rows as the table that datesFromSchedule() outputs
+        -- since curSec will have at most 1 row
+        SELECT d.MeetingDate
+        FROM curSec cs, datesFromSchedule(cs.sd, cs.ed, cs.s) d
     -- Needed to "create" a dates table
     ), dates AS
     (
         -- In the Summer DASSL version, dates acted as a relationship table of student and attendanceRecord
         -- Hence, a cross join is necessary here
         SELECT e.student id, ds.MeetingDate md
-        FROM Gradebook.enrollee e, datesFromSchedule((SELECT sd FROM curSec), (SELECT ed FROM curSec), (SELECT s FROM curSec)) ds
+        FROM Gradebook.enrollee e, datesFromScheduleTable ds
     -- Will give the final table to format
     ), sdar AS
     (
@@ -78,30 +85,25 @@ $$
         WHERE e.section = $1
     )
     -- This will format the final table to a user-friendly format
-    SELECT 'Last' || ',' || 'First' || ',' || 'Middle' || ',' || string_agg(to_char(d, 'MM-DD-YYYY'), ',' ORDER BY d) csv_data
+    SELECT 'Last' || ',' || 'First' || ',' || 'Middle' || ',' || string_agg(to_char(d, 'MM-DD-YYYY'), ',' ORDER BY d) csv_header
     FROM (SELECT DISTINCT d FROM sdar) dd
     UNION ALL
-    SELECT st.LName || ',' || st.FName || ',' || COALESCE(st.MName, '') || ',' || string_agg(c, ',' ORDER BY d) AS csv
+    SELECT st.LName || ',' || st.FName || ',' || COALESCE(st.MName, '') || ',' || string_agg(c, ',' ORDER BY d)
     FROM sdar JOIN Gradebook.Student st ON sdar.i=st.id
     GROUP BY st.id;
 
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
-RETURNS VOID AS
+RETURNS TABLE(csvwheadattnrec TEXT) AS
 $$
-DECLARE
-    sectionID INTEGER;
-BEGIN
     WITH curTerm AS
     (
       SELECT T.ID
       FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order"=T.Season
       WHERE T.Year = $1 AND (S.Name = $2 OR S.Code = $2)
     )
-    SELECT N.ID INTO sectionID
+    SELECT getAttendance(N.ID)
     FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
     WHERE N.Course = $3 AND N.SectionNumber = $4;
-    SELECT createAttendancePivot(sectionID);
-END
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE sql;
