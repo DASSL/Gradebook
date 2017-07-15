@@ -91,20 +91,20 @@ app.get('/favicon.ico', function (request, response) {
 
 //Serve our homepage when a user goes to the root
 app.get('/', function(request, response) {
-   response.sendFile('client/index.html');
+   response.sendFile('client/index.html', {root: __dirname});
 });
 
 //Serve css and js dependencies
 app.get('/css/materialize.min.css', function(request, response) {
-	response.sendFile('client/css/materialize.min.css');
+	response.sendFile('client/css/materialize.min.css', {root: __dirname});
 });
 
 app.get('/js/materialize.min.js', function(request, response) {
-	response.sendFile('client/js/materialize.min.js');
+	response.sendFile('client/js/materialize.min.js', {root: __dirname});
 });
 
-app.get('/js/attendance.js', function(request, response) {
-	response.sendFile('client/js/attendance.js');
+app.get('/js/index.js', function(request, response) {
+	response.sendFile('client/js/index.js', {root: __dirname});
 });
 
 //Return a list of years a certain instructor has taught sections
@@ -248,15 +248,12 @@ app.get('/gradebook/attendance', function(request, response) {
    var config = createConnectionParams(request.query.user, request.query.database,
       passwordText, request.query.host, request.query.port);
 
-   //Get attendance params
-   var year = request.query.year;
-   var season = request.query.season;
-   var course = request.query.course;
-   var sectionNumber = request.query.sectionNumber;
+   //Get attendance param
+   var sectionID = request.query.sectionid;
 
    //Set the query text and package the parameters in an array
-   var queryText = 'SELECT * FROM gradebook.getAttendance($1, $2, $3, $4);';
-   var queryParams = [year, season, course, sectionNumber];
+   var queryText = 'SELECT * FROM gradebook.getAttendance($1);';
+   var queryParams = [sectionID];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
       var table = '<table>';
@@ -268,12 +265,12 @@ app.get('/gradebook/attendance', function(request, response) {
 
       var maxMonth = 0; //Stores the lastest month found
       var months = ''; //Stores a csv of months
-      var days = dateRow[0]; //Stores a csv of days
+      var days = [dateRow[0], dateRow[1], dateRow[2]]; //Stores a csv of days
 
       var monthSpanWidths =[]; //Stores the span associated with each month
       var currentSpanWidth = 1; //Width of the current span
 
-      for(i = 1; i < rowLen; i++) { //For each date in the date row
+      for(i = 3; i < rowLen; i++) { //For each date in the date row
          splitDate = dateRow[i].split('-');
          if(splitDate[0] > maxMonth) { //If the month part is a new month
             maxMonth = splitDate[0];
@@ -307,7 +304,7 @@ app.get('/gradebook/attendance', function(request, response) {
             var spanWidth = 1;
             //Correctly format student names (lname, fnmame mname)
             var cellContents = splitRow[cell];
-            if(splitRow[0] != 'Student' && splitRow[0] != '' && cell == 0) {
+            if(splitRow[0] != '' && cell == 0) {
                cellContents = splitRow[cell] + ', ' + splitRow[cell + 1] + ' ' + splitRow[cell + 2];
                cell += 2;
             }
@@ -323,7 +320,12 @@ app.get('/gradebook/attendance', function(request, response) {
          }
       });
       table += '</table>'
-      response.send(table);
+
+      //Place table into a JSON object
+      table = {
+         attendancetable: table
+      }
+      response.send(JSON.stringify(table));
    });
 });
 
