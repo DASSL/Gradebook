@@ -9,12 +9,16 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
+Gradebook node.js web server
+This program serves a Gradebook home page that allows an instructor to
+view attendance based on a year, season, course, and section provided
+Currently, database connection parameters must also be provided - these must
+point to a database with Gradebook installed.  Additionally, the server expects
+all Gradebook objects to exist in a schema called "gradebook".
 
-
-
-
-
-
+A static page is served at '/', along with some js and css dependencies
+Additionally, five REST calls are implemented that this pages uses to
+get data from the Gradebook db
 */
 //Super secret password - Used for a temporary password encryption scheme
 const superSecret = 'dassl2017';
