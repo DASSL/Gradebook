@@ -4,7 +4,7 @@ Zach Boylan, Zaid Bhujwala, Steven Rollo
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
-Liscenced to others under CC 4.0 BY-NC-SA
+Licensed to others under CC 4.0 BY-NC-SA
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
@@ -16,10 +16,10 @@ ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OW
 
 
 */
-//Super secret password - Used for a temporary encryption scheme
+//Super secret password - Used for a temporary password encryption scheme
 const superSecret = 'dassl2017';
 
-//List of month names for display purposes
+//List of month names used when generating the attendance table
 const monthNames = [
    'Jan.',
    'Feb.',
@@ -42,12 +42,13 @@ var express = require('express'); //Express module | https://github.com/expressj
 var app = express();
 
 /*
+This function creates and returns a config object for the pg module based on some
+supplied parameters.
 */
 function createConnectionParams(user, database, password, host, port) {
    var config = {
       user: user,
       database: database,
-      //Decrypt the password we got
       password: password,
       host: host,
       port: port
@@ -88,7 +89,7 @@ app.get('/', function(request, response) {
    //Change root to match wherever index.html will be in relation to nodejs
    //Don't change the path of 'index.html' directly, or nodejs will complain about
    //file permissions
-   response.sendFile('index.html', {root: __dirname});
+   response.sendFile('client/index.html');
 });
 
 //Tell the browser we don't have a favicon
@@ -96,7 +97,7 @@ app.get('/favicon.ico', function (request, response) {
    response.status(204).send(); //No content
 });
 
-//Return a list of years a certin instructor has taught sections
+//Return a list of years a certain instructor has taught sections
 app.get('/gradebook/year', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
@@ -115,7 +116,7 @@ app.get('/gradebook/year', function(request, response) {
 
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
-      var years = []; //Put the rows from the query into a json format
+      var years = []; //Put the rows from the query into json format
       for(row in result.rows) {
          years.push(result.rows[row].year);
       }
@@ -151,7 +152,7 @@ app.get('/gradebook/season', function(request, response) {
          seasons.push(
             {
                "seasonorder": result.rows[row].seasonorder,
-               "sesonname": result.rows[row].seasonname
+               "seasonname": result.rows[row].seasonname
             }
          );
       }
@@ -185,7 +186,7 @@ app.get('/gradebook/course', function(request, response) {
          courses.push(result.rows[row].course);
       }
       var jsonReturn = {
-         "Courses": courses
+         "courses": courses
       };
       response.send(JSON.stringify(jsonReturn));
    });
@@ -221,7 +222,7 @@ app.get('/gradebook/section', function(request, response) {
          );
       }
       var jsonReturn = {
-         "Sections": sections
+         "sections": sections
       };
       response.send(JSON.stringify(jsonReturn));
    });
