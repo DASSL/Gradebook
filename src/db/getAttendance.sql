@@ -10,7 +10,6 @@
 -- ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 -- Adaptation of the Summer DASSL 2017 csvPivotExample.sql to the Gradebook schema
--- ONLY RUN THE QUERY AFTER IMPORTING ROSTER AND OPENCLOSE CSVS
 
 --Function to generate a list of meeting dates from a class schedule (ex. 'MWF' - meaning it meets Mondays, Wednesdays and Fridays)
 --as well as a start date and end date to bound the dates.
@@ -25,10 +24,6 @@
 --Example usage; returns the date of all Tuesdays and Thursdays between '2017-01-01' and '2017-05-01'
 --SELECT * FROM datesFromSchedule(to_date('2017-01-01', 'YYYY-MM-DD'),
 --   to_date('2017-05-01', 'YYYY-MM-DD'), 'TR');
-
-START TRANSACTION;
-
-SET LOCAL SCHEMA 'gradebook';
 
 CREATE OR REPLACE FUNCTION datesFromSchedule(startDate DATE, endDate DATE, schedule VARCHAR(7))
 RETURNS TABLE (MeetingDate DATE)
@@ -58,15 +53,14 @@ AS $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION getAttendance(SectionID INTEGER)
+CREATE OR REPLACE FUNCTION createAttendancePivot(sectionID INTEGER)
 RETURNS TABLE(dataStr TEXT) AS
 $$
-    SET LOCAL SCHEMA 'gradebook';
     -- Will give the start and end dates and the ID of the term
     WITH curSec AS
     (
         SELECT N.ID, N.Schedule s, COALESCE(N.StartDate, T.StartDate) sd, COALESCE(N.EndDate, T.EndDate) ed
-        FROM Section N JOIN Term T ON N.Term=T.ID
+        FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term=T.ID
         WHERE N.ID = $1
     -- Needed to "create" a dates table
     ), dates AS
@@ -74,45 +68,40 @@ $$
         -- In the Summer DASSL version, dates acted as a relationship table of student and attendanceRecord
         -- Hence, a cross join is necessary here
         SELECT e.student id, ds.MeetingDate md
-        FROM enrollee e, datesFromSchedule((SELECT sd FROM curSec), (SELECT ed FROM curSec), (SELECT s FROM curSec)) ds
+        FROM Gradebook.enrollee e, datesFromSchedule((SELECT sd FROM curSec), (SELECT ed FROM curSec), (SELECT s FROM curSec)) ds
     -- Will give the final table to format
     ), sdar AS
     (
         SELECT e.student i, da.md d, COALESCE(ar.Status, 'P') c
-        FROM enrollee e JOIN dates da ON e.student=da.id
-        LEFT OUTER JOIN attendanceRecord ar ON ar.student=e.student AND ar.Date=da.md
-        WHERE e.section = (SELECT ID FROM curSec)
+        FROM Gradebook.enrollee e JOIN dates da ON e.student=da.id
+        LEFT OUTER JOIN Gradebook.attendanceRecord ar ON ar.student=e.student AND ar.Date=da.md
+        WHERE e.section = $1
     )
     -- This will format the final table to a user-friendly format
     SELECT 'Last' || ',' || 'First' || ',' || 'Middle' || ',' || string_agg(to_char(d, 'MM-DD-YYYY'), ',' ORDER BY d) csv_data
     FROM (SELECT DISTINCT d FROM sdar) dd
     UNION ALL
-    SELECT st.LName || ',' || st.FName || ',' || COALESCE(st.MName, '') || ',' || string_agg(c, ',' ORDER BY d)
-    FROM sdar JOIN Student st ON sdar.i=st.id
-    GROUP BY sdar.i, st.LName, st.FName, st.MName;
+    SELECT st.LName || ',' || st.FName || ',' || COALESCE(st.MName, '') || ',' || string_agg(c, ',' ORDER BY d) AS csv
+    FROM sdar JOIN Gradebook.Student st ON sdar.i=st.id
+    GROUP BY st.id;
 
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION getSectionID(Year NUMERIC(4,0), SeasonName VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
-RETURNS INTEGER AS
+CREATE OR REPLACE FUNCTION getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
+RETURNS VOID AS
 $$
-    SET LOCAL SCHEMA 'gradebook';
+DECLARE
+    sectionID INTEGER;
+BEGIN
     WITH curTerm AS
     (
       SELECT T.ID
-      FROM Season S JOIN Term T ON S."Order"=T.Season
+      FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order"=T.Season
       WHERE T.Year = $1 AND (S.Name = $2 OR S.Code = $2)
     )
-    SELECT N.ID
-    FROM Section N JOIN curTerm C ON N.Term=C.ID
+    SELECT N.ID INTO sectionID
+    FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
     WHERE N.Course = $3 AND N.SectionNumber = $4;
-$$ LANGUAGE sql;
-COMMIT;
-
--- stub
-START TRANSACTION;
-SET LOCAL SCHEMA 'gradebook';
-SELECT getAttendance(getSectionID(2017, 'Spring', 'CS110', '05'));
-SELECT getAttendance(getSectionID(2017, 'Spring', 'CS110', '72'));
-SELECT getAttendance(getSectionID(2017, 'Spring', 'CS110', '74'));
-ROLLBACK;
+    SELECT createAttendancePivot(sectionID);
+END
+$$ LANGUAGE plpgsql;
