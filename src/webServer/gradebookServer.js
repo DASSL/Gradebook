@@ -84,17 +84,27 @@ function executeQuery(response, config, queryText, queryParams, queryCallback) {
    });
 }
 
-//Serve our homepage when a user goes to the root
-app.get('/', function(request, response) {
-   //Change root to match wherever index.html will be in relation to nodejs
-   //Don't change the path of 'index.html' directly, or nodejs will complain about
-   //file permissions
-   response.sendFile('client/index.html');
-});
-
 //Tell the browser we don't have a favicon
 app.get('/favicon.ico', function (request, response) {
    response.status(204).send(); //No content
+});
+
+//Serve our homepage when a user goes to the root
+app.get('/', function(request, response) {
+   response.sendFile('client/index.html');
+});
+
+//Serve css and js dependencies
+app.get('/css/materialize.min.css', function(request, response) {
+	response.sendFile('client/css/materialize.min.css');
+});
+
+app.get('/js/materialize.min.js', function(request, response) {
+	response.sendFile('client/js/materialize.min.js');
+});
+
+app.get('/js/attendance.js', function(request, response) {
+	response.sendFile('client/js/attendance.js');
 });
 
 //Return a list of years a certain instructor has taught sections
@@ -147,7 +157,7 @@ app.get('/gradebook/season', function(request, response) {
 
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
-      var seasons = []; //Put the rows from the query into a json format
+      var seasons = []; //Put the rows from the query into json format
       for(row in result.rows) {
          seasons.push(
             {
