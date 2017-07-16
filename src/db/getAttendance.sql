@@ -54,7 +54,7 @@ $$ LANGUAGE sql;
 
 
 CREATE OR REPLACE FUNCTION getAttendance(sectionID INTEGER)
-RETURNS TABLE(csvwheadattnrec TEXT) AS
+RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     -- Will give the start and end dates and the ID of the term
     WITH curSec AS
@@ -95,7 +95,7 @@ $$
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
-RETURNS TABLE(csvwheadattnrec TEXT) AS
+RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     WITH curTerm AS
     (
