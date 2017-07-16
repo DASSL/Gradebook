@@ -1,5 +1,5 @@
 /*
-attendance.js - DASSL Gradebook
+index.js - Gradebook
 
 Andrew Figueroa, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University
@@ -9,11 +9,16 @@ Licenced to others under CC 4.0 BY-NC-SA
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+This JavaScript file provides the client-side JS code that is used by the index.html
+page. The functionality provided includes accessing the REST API provided by the web
+server component of the Gradebook webapp, along with providing interactivity for the
+index.html webpage. 
 */
 
 
 $(document).ready(function() {
-	//load downdown boxes
+	//load dropdown boxes
 	$('select').material_select();
 	
 	
