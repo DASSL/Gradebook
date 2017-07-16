@@ -72,25 +72,15 @@ function getConnectionInfo(){
 	
 	pw = JSON.stringify(sjcl.encrypt('dassl2017', pw));
 	
-	var connInfo = {"host":host, "port":port, "db":db, "uname":uname, "pw":pw, "instId":instId};
-
+	var connInfo = {'host':host, 'port':port, 'database':db, 'user':uname, 'password':pw, 'instructorid':instId};
 	return connInfo;
 };
 
 function popYears(connInfo){
 	var url = 'gradebook/year';
 	$.ajax(url, {
-		type: "GET",
-		async: true,
-		dataType: "json",
-		data: {
-			user: connInfo.uname,
-			database: connInfo.db,
-			password: connInfo.pw,
-			host: connInfo.host,
-			port: connInfo.port,
-			instructorid: connInfo.instId
-		},
+		dataType: 'json',
+		data: connInfo,
 		success: function(result) {
 			var years = '<option value="" disabled="true" selected="true">Choose year</option>';
 			for(var i = 0; i < result.years.length; i++) {
@@ -110,18 +100,8 @@ function popYears(connInfo){
 function popSeasons(connInfo, year){
 	var url = 'gradebook/season';
 	$.ajax(url, {
-		type: "GET",
-		async: true,
-		dataType: "json",
-		data: {
-			user: connInfo.uname,
-			database: connInfo.db,
-			password: connInfo.pw,
-			host: connInfo.host,
-			port: connInfo.port,
-			instructorid: connInfo.instId,
-			year: year
-		},
+		dataType: 'json',
+		data: connInfo, 'year': year,
 		success: function(result) {
 			var seasons = '<option value="" disabled="true" selected="true">Choose season</option>';
 			for(var i = 0; i < result.seasons.length; i++) {
@@ -141,19 +121,8 @@ function popSeasons(connInfo, year){
 function popCourses(connInfo, year, seasonorder){
 	var url = 'gradebook/course'
 	$.ajax(url, {
-		type: "GET",
-		async: true,
-		dataType: "json",
-		data: {
-			user: connInfo.uname,
-			database: connInfo.db,
-			password: connInfo.pw,
-			host: connInfo.host,
-			port: connInfo.port,
-			instructorid: connInfo.instId,
-			year: year,
-			seasonorder: seasonorder
-		},
+		dataType: 'json',
+		data: connInfo, 'year': year, 'seasonorder': seasonorder,
 		success: function(result) {
 			var courses = '<option value="" disabled="true" selected="true">Choose course</option>';
 			for(var i = 0; i < result.courses.length; i++) {
@@ -173,20 +142,8 @@ function popCourses(connInfo, year, seasonorder){
 function popSections(connInfo, year, seasonorder, coursenumber){
 	var url = 'gradebook/section'
 	$.ajax(url, {
-		type: "GET",
-		async: true,
-		dataType: "json",
-		data: {
-			user: connInfo.uname,
-			database: connInfo.db,
-			password: connInfo.pw,
-			host: connInfo.host,
-			port: connInfo.port,
-			instructorid: connInfo.instId,
-			year: year,
-			seasonorder: seasonorder,
-			coursenumber: coursenumber
-		},
+		dataType: 'json',
+		data: connInfo, 'year': year, 'seasonorder': seasonorder, 'coursenumber': coursenumber,
 		success: function(result) {
 			var sections = '<option value="" disabled="true" selected="true">Choose section</option>';
 			for (var i = 0; i < result.sections.length; i++) {
