@@ -66,20 +66,20 @@ $$ LANGUAGE sql;
 --Function to get the section number(s) of a course that an instructor teaches
 
 DROP FUNCTION IF EXISTS
-   getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8));
+   gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8));
 CREATE FUNCTION
-   getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8))
+   gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8))
 RETURNS TABLE(SectionID INTEGER, SectionNumber VARCHAR(3)) AS
 $$
 
 SELECT DISTINCT Section.ID, SectionNumber
-FROM Gradebook.Course, Gradebook.Season, Gradebook.TERM JOIN Gradebook.Section ON Term.ID = Section.Term
+FROM Gradebook.Season, Gradebook.TERM JOIN Gradebook.Section ON Term.ID = Section.Term
 WHERE Section.Instructor1 = instructorID
     OR Section.Instructor2 = instructorID
     OR Section.Instructor3 = instructorID
     AND Term.Year = year
     AND Season."Order" = seasonOrder
-    AND Course.Number = courseNumber
+    AND Section.Course = courseNumber
 ORDER BY Section.ID
 
 $$ LANGUAGE sql;
