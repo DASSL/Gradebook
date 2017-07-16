@@ -17,10 +17,10 @@ Currently, only attendance information will be served
 -->
 <html>
 	<head>
-	<title>Gradebook - Attendance</title>
+	<title>Gradebook</title>
 	<!--Import Google Icon Font-->
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<!--Import Materialize framework Learn more: http://materializecss.com/-->
+	<!--Import Materialize framework - Learn more: http://materializecss.com/-->
 	<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
 	</head>
 	<body>
@@ -46,11 +46,11 @@ Currently, only attendance information will be served
 	
 	<div class="row">
 		<div class="input-field col s12 m6 l3">
-			<input id="host" type="text" placeholder="localhost"/>
+			<input id="host" type="text" value="localhost"/>
 			<label for="host">Host name</label>
 		</div>
 		<div class="input-field col s12 m6 l3">
-			<input id="port" type="text" placeholder="5432"/>
+			<input id="port" type="text" value="5432"/>
 			<label for="port">Port</label>
 		</div>
 		<div class="input-field col s12 m6 l3">
@@ -76,6 +76,7 @@ Currently, only attendance information will be served
 	</div>
 	
 	<div class="divider"></div>
+	
 	<div class="row section">
 		<div class="input-field col s12 m6 l3">
 			<select id="yearSelect" disabled="true">
@@ -110,9 +111,9 @@ Currently, only attendance information will be served
 	</div>
   </body>
 
-	<script src="https://bitwiseshiftleft.github.io/sjcl/sjcl.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" src="js/materialize.min.js"></script>
-	<script type="text/javascript" src="js/attendance.js"></script>
+	<script type="text/javascript" src="js/index.js"></script>
+	<script src="https://bitwiseshiftleft.github.io/sjcl/sjcl.js"></script>
 
 </html>
