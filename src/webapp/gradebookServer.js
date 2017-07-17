@@ -112,7 +112,7 @@ app.get('/js/index.js', function(request, response) {
 });
 
 //Return a list of years a certain instructor has taught sections
-app.get('/gradebook/year', function(request, response) {
+app.get('/year', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -142,7 +142,7 @@ app.get('/gradebook/year', function(request, response) {
 });
 
 //Return a list of seasons an instructor taught in during a certain year
-app.get('/gradebook/season', function(request, response) {
+app.get('/season', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -178,7 +178,7 @@ app.get('/gradebook/season', function(request, response) {
 });
 
 //Returns a list of courses an instructor has taugh in a certain year
-app.get('/gradebook/course', function(request, response) {
+app.get('/course', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -208,7 +208,7 @@ app.get('/gradebook/course', function(request, response) {
 });
 
 //Returns a list of sesctions an instructor taught in a certain term
-app.get('/gradebook/section', function(request, response) {
+app.get('/section', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -243,7 +243,7 @@ app.get('/gradebook/section', function(request, response) {
 });
 
 //Return a table containing the attendance for a single section
-app.get('/gradebook/attendance', function(request, response) {
+app.get('/attendance', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -325,12 +325,10 @@ app.get('/gradebook/attendance', function(request, response) {
       });
       table += '</table>'
 
-      //Place table into a JSON object
-      table = {
-         attendancetable: table
-      }
-      response.send(JSON.stringify(table));
+      //Set the response type to html since we are sending the striaght html taable
+      response.header("Content-Type", "text/html");
+      response.send(table);
    });
 });
 
-server = app.listen(3000);
+server = app.listen(80);
