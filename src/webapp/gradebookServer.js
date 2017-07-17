@@ -98,6 +98,11 @@ app.get('/', function(request, response) {
    response.sendFile('client/index.html', {root: __dirname});
 });
 
+//Serve our homepage when a user goes to the root
+app.get('/index.html', function(request, response) {
+   response.sendFile('client/index.html', {root: __dirname});
+});
+
 //Serve css and js dependencies
 app.get('/css/materialize.min.css', function(request, response) {
 	response.sendFile('client/css/materialize.min.css', {root: __dirname});
