@@ -25,17 +25,20 @@ $(document).ready(function() {
 	//currently, getConnectionInfo() is being called with every API call, however,
 	// this information will at a later point be stored as session login information
 	$('#btnLogin').click(function() {
+		resetYears();
 		var connInfo = getConnectionInfo();
 		popYears(connInfo);
 	});
 	
 	$('#yearSelect').change(function() {
+		resetSeasons();
 		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		popSeasons(connInfo, year);
 	});
 	
 	$('#seasonSelect').change(function() {
+		resetCourses();
 		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		var season = $('#seasonSelect').val();
@@ -43,6 +46,7 @@ $(document).ready(function() {
 	});
 	
 	$('#courseSelect').change(function() {
+		resetSections();
 		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		var season = $('#seasonSelect').val();
@@ -98,10 +102,11 @@ function popYears(connInfo){
 };
 
 function popSeasons(connInfo, year){
+	connInfo.year = year;
 	var url = 'gradebook/season';
 	$.ajax(url, {
 		dataType: 'json',
-		data: connInfo, 'year': year,
+		data: connInfo,
 		success: function(result) {
 			var seasons = '<option value="" disabled="true" selected="true">Choose season</option>';
 			for(var i = 0; i < result.seasons.length; i++) {
@@ -119,10 +124,12 @@ function popSeasons(connInfo, year){
 };
 
 function popCourses(connInfo, year, seasonorder){
+	connInfo.year = year;
+	connInfo.seasonorder = seasonorder;
 	var url = 'gradebook/course'
 	$.ajax(url, {
 		dataType: 'json',
-		data: connInfo, 'year': year, 'seasonorder': seasonorder,
+		data: connInfo,
 		success: function(result) {
 			var courses = '<option value="" disabled="true" selected="true">Choose course</option>';
 			for(var i = 0; i < result.courses.length; i++) {
@@ -140,10 +147,13 @@ function popCourses(connInfo, year, seasonorder){
 };
 
 function popSections(connInfo, year, seasonorder, coursenumber){
+	connInfo.year = year;
+	connInfo.seasonorder = seasonorder;
+	connInfo.coursenumber = coursenumber;
 	var url = 'gradebook/section'
 	$.ajax(url, {
 		dataType: 'json',
-		data: connInfo, 'year': year, 'seasonorder': seasonorder, 'coursenumber': coursenumber,
+		data: connInfo,
 		success: function(result) {
 			var sections = '<option value="" disabled="true" selected="true">Choose section</option>';
 			for (var i = 0; i < result.sections.length; i++) {
@@ -158,4 +168,35 @@ function popSections(connInfo, year, seasonorder, coursenumber){
 			console.log(result);
 		}
 	});
+};
+
+function resetYears(){
+	var placeholder = '<option value="" disabled="true" selected="true">Choose year</option>';
+	$('#yearSelect').html(placeholder); //remove years from dropdown
+	$('#yearSelect').prop('disabled', true); //disable dropdown
+	$('#yearSelect').material_select(); //reload dropdown
+	resetSeasons();
+};
+
+function resetSeasons(){
+	var placeholder = '<option value="" disabled="true" selected="true">Choose season</option>';
+	$('#seasonSelect').html(placeholder); //remove years from dropdown
+	$('#seasonSelect').prop('disabled', true); //disable dropdown
+	$('#seasonSelect').material_select(); //reload dropdown
+	resetCourses();
+};
+
+function resetCourses(){
+	var placeholder = '<option value="" disabled="true" selected="true">Choose course</option>';
+	$('#courseSelect').html(placeholder); //remove years from dropdown
+	$('#courseSelect').prop('disabled', true); //disable dropdown
+	$('#courseSelect').material_select(); //reload dropdown
+	resetSections();
+};
+
+function resetSections(){
+	var placeholder = '<option value="" disabled="true" selected="true">Choose section</option>';
+	$('#sectionSelect').html(placeholder); //remove years from dropdown
+	$('#sectionSelect').prop('disabled', true); //disable dropdown
+	$('#sectionSelect').material_select(); //reload dropdown
 };
