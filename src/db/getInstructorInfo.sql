@@ -1,4 +1,4 @@
---getInstructorInfo.sql - GradeBook
+--getInstructorInfo.sql - Gradebook
 
 --Zaid Bhujwala, Elly Griffin, Steven Rollo, Andrew Figueroa, Sean Murthy
 
@@ -13,12 +13,12 @@
 
 --Function to get all the years that an instructor has taught in
 
-DROP FUNCTION IF EXISTS gradebook.getYears(instructorID INT);
-CREATE FUNCTION gradebook.getYears(instructorID INT)
+DROP FUNCTION IF EXISTS Gradebook.getYears(instructorID INT);
+CREATE FUNCTION Gradebook.getYears(instructorID INT)
 RETURNS TABLE(Year NUMERIC(4,0)) AS
 $$
    SELECT DISTINCT Year
-   FROM gradebook.Term JOIN gradebook.Section ON Term.ID  = Section.Term
+   FROM Gradebook.Term JOIN Gradebook.Section ON Term.ID  = Section.Term
    WHERE Section.Instructor1 = instructorID
         OR Section.Instructor2 = instructorID
         OR Section.Instructor3 = instructorID
@@ -28,13 +28,13 @@ $$ LANGUAGE sql;
 
 --Function to get all seasons in a specfied year that an instructor has taught in
 
-DROP FUNCTION IF EXISTS gradebook.getSeasons(instructorID INT, year NUMERIC(4,0));
+DROP FUNCTION IF EXISTS Gradebook.getSeasons(instructorID INT, year NUMERIC(4,0));
 CREATE FUNCTION getSeasons(instructorID INT, year NUMERIC(4,0))
 RETURNS TABLE(SeasonOrder NUMERIC(1,0), SeasonName VARCHAR(20)) AS
 $$
 
 SELECT DISTINCT Season."Order", Season.Name
-FROM gradebook.Season, gradebook.Term JOIN gradebook.Section ON Term.ID  = Section.Term
+FROM Gradebook.Season, Gradebook.Term JOIN Gradebook.Section ON Term.ID  = Section.Term
 WHERE Section.Instructor1 = instructorID
     OR Section.Instructor2 = instructorID
     OR Section.Instructor3 = instructorID
@@ -47,13 +47,13 @@ $$ LANGUAGE sql;
 --Function to get all courses in a specfied season,year pair
 --that the instructor has taught
 
-DROP FUNCTION IF EXISTS gradebook.getCourses( instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0));
-CREATE FUNCTION gradebook.getCourses( instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0))
+DROP FUNCTION IF EXISTS Gradebook.getCourses( instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0));
+CREATE FUNCTION Gradebook.getCourses( instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0))
 RETURNS TABLE(Course VARCHAR(8)) AS
 $$
 
 SELECT DISTINCT Course
-FROM gradebook.Course, gradebook.Season, gradebook.TERM JOIN gradebook.Section ON Term.ID = Section.Term
+FROM Gradebook.Course, Gradebook.Season, Gradebook.TERM JOIN Gradebook.Section ON Term.ID = Section.Term
 WHERE Section.Instructor1 = instructorID
     OR Section.Instructor2 = instructorID
     OR Section.Instructor3 = instructorID
@@ -66,14 +66,14 @@ $$ LANGUAGE sql;
 --Function to get the section number(s) of a course that an instructor teaches
 
 DROP FUNCTION IF EXISTS
-   gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8));
+   Gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8));
 CREATE FUNCTION
-   gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8))
+   Gradebook.getSections(instructorID INT, year NUMERIC(4,0), seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8))
 RETURNS TABLE(SectionID INTEGER, SectionNumber VARCHAR(3)) AS
 $$
 
 SELECT DISTINCT Section.ID, SectionNumber
-FROM gradebook.Season, gradebook.TERM JOIN gradebook.Section ON Term.ID = Section.Term
+FROM Gradebook.Season, Gradebook.TERM JOIN Gradebook.Section ON Term.ID = Section.Term
 WHERE Section.Instructor1 = instructorID
     OR Section.Instructor2 = instructorID
     OR Section.Instructor3 = instructorID

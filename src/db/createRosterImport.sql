@@ -29,35 +29,35 @@ CREATE TEMPORARY TABLE IF NOT EXISTS rosterStaging
 /*This function imports students that are currently in the rosterStaging table.
 The sectionID corresponds to a section in the Section table from the Gradebook
 schema, which is determined by Term (through Year and Season), Course, and
-SectionNumber. Users running the function for now will be using the gradebook
+SectionNumber. Users running the function for now will be using the Gradebook
 schema.
 We will later need to worry about access control in a later version and
 revisions may be needed here.
 */
 
-CREATE OR REPLACE FUNCTION gradebook.importFromRoster(Year INTEGER, Season NUMERIC(1,0),
+CREATE OR REPLACE FUNCTION Gradebook.importFromRoster(Year INTEGER, Season NUMERIC(1,0),
    Course VARCHAR(8), SectionNumber VARCHAR(3), EnrollmentDate DATE DEFAULT current_date)
    RETURNS VOID AS
 $$
-   INSERT INTO gradebook.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
+   INSERT INTO Gradebook.Student(FName, MName, LName, SchoolIssuedID, Email, Major, Year)
    SELECT r.FName, r.MName, r.LName, r.ID, r.email, r.Major, r.Class
    FROM rosterStaging r
    ON CONFLICT (SchoolIssuedID) DO UPDATE SET FName = EXCLUDED.FName, MName =
          EXCLUDED.MName, LName = EXCLUDED.LName, Email = EXCLUDED.Email,
          Major = EXCLUDED.Major, Year = EXCLUDED.Year;
 
-   INSERT INTO gradebook.Enrollee(Student, Section, DateEnrolled, YearEnrolled,
+   INSERT INTO Gradebook.Enrollee(Student, Section, DateEnrolled, YearEnrolled,
                 MajorEnrolled)
    WITH termID AS (
       SELECT ID
-      FROM gradebook.Term T
+      FROM Gradebook.Term T
       WHERE T.Year = $1 AND T.Season = $2
    ),   sectionID AS (
       SELECT S.ID
-      FROM gradebook.Section S JOIN termID T ON S.Term = T.ID
+      FROM Gradebook.Section S JOIN termID T ON S.Term = T.ID
       WHERE S.Course = $3 AND S.SectionNumber = $4
    )
    SELECT Stu.ID, sectionID.ID, $5, r.Class, r.Major
-   FROM rosterStaging r JOIN gradebook.Student Stu ON r.ID = Stu.SchoolIssuedID,
+   FROM rosterStaging r JOIN Gradebook.Student Stu ON r.ID = Stu.SchoolIssuedID,
         sectionID;
 $$ LANGUAGE SQL;
