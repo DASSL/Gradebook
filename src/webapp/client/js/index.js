@@ -55,18 +55,19 @@ $(document).ready(function() {
 	});
 	
 	$('#sectionSelect').change(function() {
-		//fill attendance table
-		alert('Attendance data is not ready');
+		var connInfo = getConnectionInfo();
+		var sectionID = $('#sectionSelect').val();
+		popAttendance(connInfo, sectionID);
 	});
 });
 
-function getConnectionInfo(){
-	var host = $('#host').val();
-	var port = $('#port').val();
-	var db = $('#database').val();
-	var uname = $('#user').val();
-	var pw =  $('#passwordBox').val();
-	var instId = $('#instructorId').val();
+function getConnectionInfo() {
+	var host = $('#host').val().trim();
+	var port = $('#port').val().trim();
+	var db = $('#database').val().trim();
+	var uname = $('#user').val().trim();
+	var pw =  $('#passwordBox').val().trim();
+	var instId = $('#instructorId').val().trim();
 	
 	if (host === "" || port === "" || db === "" || uname === "" || instId === "" || pw === "")
 	{
@@ -80,8 +81,8 @@ function getConnectionInfo(){
 	return connInfo;
 };
 
-function popYears(connInfo){
-	var url = 'gradebook/year';
+function popYears(connInfo) {
+	var url = 'year';
 	$.ajax(url, {
 		dataType: 'json',
 		data: connInfo,
@@ -95,15 +96,15 @@ function popYears(connInfo){
 			$('#yearSelect').material_select(); //reload dropdown
 		},
 		error: function(result) {
-			alert('Error while retrieving years');
+			alert('Error while retrieving years - ensure connection information is correct');
 			console.log(result);
 		}
 	});
 };
 
-function popSeasons(connInfo, year){
+function popSeasons(connInfo, year) {
 	connInfo.year = year;
-	var url = 'gradebook/season';
+	var url = 'season';
 	$.ajax(url, {
 		dataType: 'json',
 		data: connInfo,
@@ -123,10 +124,10 @@ function popSeasons(connInfo, year){
 	});
 };
 
-function popCourses(connInfo, year, seasonorder){
+function popCourses(connInfo, year, seasonorder) {
 	connInfo.year = year;
 	connInfo.seasonorder = seasonorder;
-	var url = 'gradebook/course'
+	var url = 'course';
 	$.ajax(url, {
 		dataType: 'json',
 		data: connInfo,
@@ -146,11 +147,11 @@ function popCourses(connInfo, year, seasonorder){
 	});
 };
 
-function popSections(connInfo, year, seasonorder, coursenumber){
+function popSections(connInfo, year, seasonorder, coursenumber) {
 	connInfo.year = year;
 	connInfo.seasonorder = seasonorder;
 	connInfo.coursenumber = coursenumber;
-	var url = 'gradebook/section'
+	var url = 'section';
 	$.ajax(url, {
 		dataType: 'json',
 		data: connInfo,
@@ -170,7 +171,31 @@ function popSections(connInfo, year, seasonorder, coursenumber){
 	});
 };
 
-function resetYears(){
+function popAttendance(connInfo, sectionid) {
+	connInfo.sectionid = sectionid;
+	var url = 'attendance';
+	$.ajax(url, {
+		dataType: 'html',
+		data: connInfo,
+		success: function(result) {
+			var attnTable = result;
+			if (attnTable.substring(0, 7) === '<table>') {
+				attnTable = '<table class="striped" style="display:block;margin:auto;overflow-x:auto">' + attnTable.substring(7);
+			}
+			else {
+				console.log('WARN: Unable to style attendance table; first 7 chars did not match "<table>"');
+			}
+			$('#attendanceData').html(attnTable);
+		},
+		error: function(result) {
+			alert('Error while retrieving attendance data');
+			resetAttendance();
+			console.log(result);
+		}
+	});
+};
+
+function resetYears() {
 	var placeholder = '<option value="" disabled="true" selected="true">Choose year</option>';
 	$('#yearSelect').html(placeholder); //remove years from dropdown
 	$('#yearSelect').prop('disabled', true); //disable dropdown
@@ -178,7 +203,7 @@ function resetYears(){
 	resetSeasons();
 };
 
-function resetSeasons(){
+function resetSeasons() {
 	var placeholder = '<option value="" disabled="true" selected="true">Choose season</option>';
 	$('#seasonSelect').html(placeholder); //remove years from dropdown
 	$('#seasonSelect').prop('disabled', true); //disable dropdown
@@ -186,7 +211,7 @@ function resetSeasons(){
 	resetCourses();
 };
 
-function resetCourses(){
+function resetCourses() {
 	var placeholder = '<option value="" disabled="true" selected="true">Choose course</option>';
 	$('#courseSelect').html(placeholder); //remove years from dropdown
 	$('#courseSelect').prop('disabled', true); //disable dropdown
@@ -194,9 +219,14 @@ function resetCourses(){
 	resetSections();
 };
 
-function resetSections(){
+function resetSections() {
 	var placeholder = '<option value="" disabled="true" selected="true">Choose section</option>';
 	$('#sectionSelect').html(placeholder); //remove years from dropdown
 	$('#sectionSelect').prop('disabled', true); //disable dropdown
 	$('#sectionSelect').material_select(); //reload dropdown
+	resetAttendance();
 };
+
+function resetAttendance() {
+	$('#attendanceData').html('');
+}
