@@ -93,14 +93,14 @@ BEGIN
          ( --make a list of the start and end dates for each class
             SELECT substring("Date" FROM '*-') sDate,
                    substring("Date" FROM '-*') eDate
-            FROM openCloseStaging
+            FROM pg_temp.openCloseStaging
          )
          --Select from the Table TermDates the most extreme start and
          --end date
          INSERT INTO Term("Year", Season, StartDate, EndDate)
          SELECT $1,
-         (SELECT "Order" FROM Gradebook.Season
-         WHERE Season.Name = $2 OR Season.Code = $2
+         (SELECT "Order" FROM Gradebook.Season s
+         WHERE s.Name = $2 OR s.Code = $2
          ),
          $1 || MIN(to_date(sDate)),
          $1 || MAX(to_date(eDate))
