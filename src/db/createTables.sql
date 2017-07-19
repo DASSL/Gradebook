@@ -14,7 +14,10 @@
 --use hyphen in table names when combining multiple table names as in that for a m-n relationship
 
 
-CREATE TABLE Course
+CREATE SCHEMA IF NOT EXISTS Gradebook;
+
+
+CREATE TABLE Gradebook.Course
 (
    --Wonder if this table will eventually need a separate ID field
    Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
@@ -22,40 +25,49 @@ CREATE TABLE Course
 );
 
 
-CREATE TABLE Season
+CREATE TABLE Gradebook.Season
 (
    "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0), --sequence of seasons within a year
    Name VARCHAR(20) NOT NULL UNIQUE,
-   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'U', 'F', 'W', etc.
+   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'M', 'F', 'I', etc.
 );
 
+--Populate the Season table
+--Values based on Term information found in OpenClose
+INSERT INTO Gradebook.Season VALUES('0','Spring','S');
+INSERT INTO Gradebook.Season VALUES('1','Spring_Break','B');
+INSERT INTO Gradebook.Season VALUES('2','Summer','M');
+INSERT INTO Gradebook.Season VALUES('3','Fall','F');
+INSERT INTO Gradebook.Season VALUES('4','Intersession','I');
 
-CREATE TABLE Term
+
+CREATE TABLE Gradebook.Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
    Year NUMERIC(4,0) NOT NULL CHECK (Year > 0), --'2017'
-   Season NUMERIC(1,0) NOT NULL REFERENCES Season,
+   Season NUMERIC(1,0) NOT NULL REFERENCES Gradebook.Season,
    StartDate DATE NOT NULL, --date the term begins
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
    UNIQUE(Year, Season)
 );
 
 
-CREATE TABLE Instructor
+CREATE TABLE Gradebook.Instructor
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50) NOT NULL,
    MName VARCHAR(50),
    LName VARCHAR(50) NOT NULL,
-   Department VARCHAR(30)
+   Department VARCHAR(30),
+   UNIQUE(FName, MName, LName)
 );
 
 
-CREATE TABLE Section
+CREATE TABLE Gradebook.Section
 (
    ID SERIAL PRIMARY KEY,
-   Term INTEGER NOT NULL REFERENCES Term,
-   Course VARCHAR(8) NOT NULL REFERENCES Course,
+   Term INTEGER NOT NULL REFERENCES Gradebook.Term,
+   Course VARCHAR(8) NOT NULL REFERENCES Gradebook.Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
    Schedule VARCHAR(7),  --days the class meets: 'MW', 'TR', 'MWF', etc.
@@ -63,9 +75,9 @@ CREATE TABLE Section
    StartDate DATE, --first date the section meets
    EndDate DATE, --last date the section meets
    MidtermDate DATE, --date of the "middle" of term: used to compute mid-term grade
-   Instructor1 INTEGER NOT NULL REFERENCES Instructor, --primary instructor
-   Instructor2 INTEGER REFERENCES Instructor, --optional 2nd instructor
-   Instructor3 INTEGER REFERENCES Instructor, --optional 3rd instructor
+   Instructor1 INTEGER NOT NULL REFERENCES Gradebook.Instructor, --primary instructor
+   Instructor2 INTEGER REFERENCES Gradebook.Instructor, --optional 2nd instructor
+   Instructor3 INTEGER REFERENCES Gradebook.Instructor, --optional 3rd instructor
    UNIQUE(Term, Course, SectionNumber),
    CONSTRAINT DistinctSectionInstructors --make sure instructors are distinct
         CHECK (Instructor1 <> Instructor2
@@ -76,12 +88,12 @@ CREATE TABLE Section
 
 
 --Removed Section_Instructor by accommodating 3 instructors in Section table
---CREATE TABLE Section_Instructor();
+--CREATE TABLE Gradebook.Section_Instructor();
 
 
 --Table to store all possible letter grades
 --some universities permit A+
-CREATE TABLE Grade
+CREATE TABLE Gradebook.Grade
 (
    Letter VARCHAR(2) NOT NULL PRIMARY KEY,
    GPA NUMERIC(4,3) NOT NULL,
@@ -95,28 +107,28 @@ CREATE TABLE Grade
 
 
 --Values used by most US universities: move to a different file
-INSERT INTO Grade VALUES('A+', 4.333);
-INSERT INTO Grade VALUES('A', 4);
-INSERT INTO Grade VALUES('A-', 3.667);
-INSERT INTO Grade VALUES('B+', 3.333);
-INSERT INTO Grade VALUES('B', 3);
-INSERT INTO Grade VALUES('B-', 2.667);
-INSERT INTO Grade VALUES('C+', 2.333);
-INSERT INTO Grade VALUES('C', 2);
-INSERT INTO Grade VALUES('C-', 1.667);
-INSERT INTO Grade VALUES('D+', 1.333);
-INSERT INTO Grade VALUES('D', 1);
-INSERT INTO Grade VALUES('D-', 0.667);
-INSERT INTO Grade VALUES('F', 0);
-INSERT INTO Grade VALUES('W', 0);
-INSERT INTO Grade VALUES('SA', 0);
+INSERT INTO Gradebook.Grade VALUES('A+', 4.333);
+INSERT INTO Gradebook.Grade VALUES('A', 4);
+INSERT INTO Gradebook.Grade VALUES('A-', 3.667);
+INSERT INTO Gradebook.Grade VALUES('B+', 3.333);
+INSERT INTO Gradebook.Grade VALUES('B', 3);
+INSERT INTO Gradebook.Grade VALUES('B-', 2.667);
+INSERT INTO Gradebook.Grade VALUES('C+', 2.333);
+INSERT INTO Gradebook.Grade VALUES('C', 2);
+INSERT INTO Gradebook.Grade VALUES('C-', 1.667);
+INSERT INTO Gradebook.Grade VALUES('D+', 1.333);
+INSERT INTO Gradebook.Grade VALUES('D', 1);
+INSERT INTO Gradebook.Grade VALUES('D-', 0.667);
+INSERT INTO Gradebook.Grade VALUES('F', 0);
+INSERT INTO Gradebook.Grade VALUES('W', 0);
+INSERT INTO Gradebook.Grade VALUES('SA', 0);
 
 
 --Table to store mapping of percentage score to a letter grade: varies by section
-CREATE TABLE Section_GradeTier
+CREATE TABLE Gradebook.Section_GradeTier
 (
-   Section INTEGER REFERENCES Section,
-   LetterGrade VARCHAR(2) NOT NULL REFERENCES Grade,
+   Section INTEGER REFERENCES Gradebook.Section,
+   LetterGrade VARCHAR(2) NOT NULL REFERENCES Gradebook.Grade,
    LowPercentage NUMERIC(4,2) NOT NULL CHECK (LowPercentage > 0),
    HighPercentage NUMERIC(5,2) NOT NULL CHECK (HighPercentage > 0),
    PRIMARY KEY(Section, LetterGrade),
@@ -124,7 +136,7 @@ CREATE TABLE Section_GradeTier
 );
 
 
-CREATE TABLE Student
+CREATE TABLE Gradebook.Student
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50), --at least one of the name fields must be used: see below
@@ -139,10 +151,10 @@ CREATE TABLE Student
 );
 
 
-CREATE TABLE Enrollee
+CREATE TABLE Gradebook.Enrollee
 (
-   Student INTEGER NOT NULL REFERENCES Student,
-   Section INTEGER REFERENCES Section,
+   Student INTEGER NOT NULL REFERENCES Gradebook.Student,
+   Section INTEGER REFERENCES Gradebook.Section,
    DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
    YearEnrolled VARCHAR(30) NOT NULL,
    MajorEnrolled VARCHAR(50) NOT NULL,
@@ -153,33 +165,33 @@ CREATE TABLE Enrollee
    FinalGradeComputed VARCHAR(2),  --will eventually move to a view
    FinalGradeAwarded VARCHAR(2), --actual grade assigned
    PRIMARY KEY (Student, Section),
-   FOREIGN KEY (Section, MidtermGradeAwarded) REFERENCES Section_GradeTier,
-   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Section_GradeTier
+   FOREIGN KEY (Section, MidtermGradeAwarded) REFERENCES Gradebook.Section_GradeTier,
+   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Gradebook.Section_GradeTier
 );
 
 
 --Table to store all possible attendance statuses
-CREATE TABLE AttendanceStatus
+CREATE TABLE Gradebook.AttendanceStatus
 (
    Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', E', ...
    Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', 'Explained', ...
 );
 
 
-CREATE TABLE AttendanceRecord
+CREATE TABLE Gradebook.AttendanceRecord
 (
    Student INTEGER NOT NULL,
    Section INTEGER NOT NULL,
    Date DATE NOT NULL,
-   Status CHAR(1) NOT NULL REFERENCES AttendanceStatus,
+   Status CHAR(1) NOT NULL REFERENCES Gradebook.AttendanceStatus,
    PRIMARY KEY (Student, Section, Date),
-   FOREIGN KEY (Student, Section) REFERENCES Enrollee
+   FOREIGN KEY (Student, Section) REFERENCES Gradebook.Enrollee
 );
 
 
-CREATE TABLE Section_AssessmentComponent
+CREATE TABLE Gradebook.Section_AssessmentComponent
 (
-   Section INTEGER NOT NULL REFERENCES Section,
+   Section INTEGER NOT NULL REFERENCES Gradebook.Section,
    Type VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
    Weight NUMERIC(3,2) NOT NULL CHECK (Weight >= 0), --a percentage value: 0.25, 0.5,...
    NumItems INTEGER NOT NULL DEFAULT 1,
@@ -187,7 +199,7 @@ CREATE TABLE Section_AssessmentComponent
 );
 
 
-CREATE TABLE Section_AssessmentItem
+CREATE TABLE Gradebook.Section_AssessmentItem
 (
    Section INTEGER NOT NULL,
    Component VARCHAR(20) NOT NULL,
@@ -197,11 +209,11 @@ CREATE TABLE Section_AssessmentItem
    AssignedDate Date,
    DueDate Date,
    PRIMARY KEY(Section, Component, SequenceInComponent),
-   FOREIGN KEY (Section, Component) REFERENCES Section_AssessmentComponent
+   FOREIGN KEY (Section, Component) REFERENCES Gradebook.Section_AssessmentComponent
 );
 
 
-CREATE TABLE Enrollee_AssessmentItem
+CREATE TABLE Gradebook.Enrollee_AssessmentItem
 (
    Student INTEGER NOT NULL,
    Section INTEGER NOT NULL,
@@ -212,6 +224,6 @@ CREATE TABLE Enrollee_AssessmentItem
    SubmissionDate DATE,
    Penalty NUMERIC(5,2) CHECK (Penalty >= 0),
    PRIMARY KEY(Student, Section, Component, SequenceInComponent),
-   FOREIGN KEY (Student, Section) REFERENCES Enrollee,
-   FOREIGN KEY (Section, Component, SequenceInComponent) REFERENCES Section_AssessmentItem
+   FOREIGN KEY (Student, Section) REFERENCES Gradebook.Enrollee,
+   FOREIGN KEY (Section, Component, SequenceInComponent) REFERENCES Gradebook.Section_AssessmentItem
 );
