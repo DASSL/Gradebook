@@ -1,5 +1,5 @@
 /*
-Zaid Bhujwala, Andrew Figueroa, Sean Murthy
+Zaid Bhujwala, Andrew Figueroa, Steven Rollo, Sean Murthy, Zachary Boylan, Kyle Bella, Elly Griffen
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 
