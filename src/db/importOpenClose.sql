@@ -1,6 +1,6 @@
 --openCloseImport.sql - Gradebook
 
---Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Sean Murthy
+--Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Hunter Schloss, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
