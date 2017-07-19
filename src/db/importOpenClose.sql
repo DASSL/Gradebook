@@ -90,19 +90,16 @@ BEGIN
    END IF;
 
    WITH termDates AS
-   ( --Get the extreme dates from the openClose data to find the term start/end
-     --this appears to get dates that are not quite correct currently
-      SELECT to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD') sDate,
-             to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD') eDate
-      FROM pg_temp.openCloseStaging
-   )
-   INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
-   SELECT $1,
-          (SELECT "Order" FROM Gradebook.Season
-          WHERE Season.Name = $2 OR Season.Code = $2
-          ),
-          MIN(sDate), MAX(eDate)
-   FROM termDates
+         ( --make a list of the start and end dates for each class
+            SELECT substring("Date" FROM '*-') sDate,
+                   substring("Date" FROM '-*') eDate
+            FROM openCloseStaging
+         )
+         --Select from the Table TermDates the most extreme start and
+         --end date
+         INSERT INTO Term("Year", Season, StartDate, EndDate)
+         SELECT $1, $2, $1 || MIN(to_date(sDate)), $1 || MAX(to_date(eDate))
+         FROM termDates
    ON CONFLICT DO NOTHING;
 
    --Insert course into Course, concat subject || course to make 'Number'
