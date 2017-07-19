@@ -26,7 +26,7 @@ IF "%6"=="" (
 
 IF "%port%"=="" SET port=5432
 
-psql -h %hostname% -p %port% -d %database% -U %username% -c "SELECT gradebook.createOpenCloseStaging();" -c "\COPY pg_temp.openCloseStaging FROM %1 WITH csv HEADER" -c "SELECT gradebook.openCloseImport(%2, '%3');"
+psql -h %hostname% -p %port% -d %database% -U %username% --single-transaction -c "\i createOpenCloseStagingTable.sql" -c "\COPY openCloseStaging FROM %1 WITH csv HEADER" -c "SELECT Gradebook.importOpenClose(%2, '%3', false);"
 goto end
 
 :argError
