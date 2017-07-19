@@ -9,11 +9,11 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script creates a temporary staging table to import OpenClose database
+--This script creates a temporary staging table to import OpenClose data
 -- the table is used to stage data from CSV file as part of the import process
 
 --This script should be the first to run when importing OpenClose data
--- there should be no need to run this script separately, because it is
+-- there should be no need to run this script directly, because it is
 -- incorporated into the import process batch file importOpenCloseCSV.bat
 
 CREATE TEMPORARY TABLE openCloseStaging
