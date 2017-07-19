@@ -98,7 +98,12 @@ BEGIN
          --Select from the Table TermDates the most extreme start and
          --end date
          INSERT INTO Term("Year", Season, StartDate, EndDate)
-         SELECT $1, $2, $1 || MIN(to_date(sDate)), $1 || MAX(to_date(eDate))
+         SELECT $1,
+         (SELECT "Order" FROM Gradebook.Season
+         WHERE Season.Name = $2 OR Season.Code = $2
+         ),
+         $1 || MIN(to_date(sDate)),
+         $1 || MAX(to_date(eDate))
          FROM termDates
    ON CONFLICT DO NOTHING;
 
