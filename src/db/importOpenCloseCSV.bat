@@ -1,4 +1,15 @@
 @ECHO OFF
+REM importRosterCSV.bat - Gradebook
+
+REM Steven Rollo, Zaid Bhujwala, Sean Murthy
+
+REM CC 4.0 BY-NC-SA
+REM https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+REM Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
+
+REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
 REM Batch file to import openclose Data
 REM USAGE: importOpenCloseCSV.bat "filename" year season username database server:port
 
