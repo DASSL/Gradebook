@@ -1,4 +1,15 @@
 @ECHO OFF
+REM importRosterCSV.bat - Gradebook
+
+REM Steven Rollo, Zaid Bhujwala, Sean Murthy
+
+REM CC 4.0 BY-NC-SA
+REM https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+REM Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
+
+REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
 REM Batch file to import openclose Data
 REM USAGE: importOpenCloseCSV.bat "filename" year season username database server:port
 
@@ -26,7 +37,7 @@ IF "%6"=="" (
 
 IF "%port%"=="" SET port=5432
 
-psql -h %hostname% -p %port% -d %database% -U %username% -c "SELECT gradebook.createOpenCloseStaging();" -c "\COPY pg_temp.openCloseStaging FROM %1 WITH csv HEADER" -c "SELECT gradebook.openCloseImport(%2, '%3');"
+psql -h %hostname% -p %port% -d %database% -U %username% --single-transaction -c "\i createOpenCloseStagingTable.sql" -c "\COPY openCloseStaging FROM %1 WITH csv HEADER" -c "SELECT Gradebook.importOpenClose(%2, '%3', false);"
 goto end
 
 :argError
