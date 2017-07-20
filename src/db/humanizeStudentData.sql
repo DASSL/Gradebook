@@ -1,20 +1,21 @@
 /*
-Zaid Bhujwala, Andrew Figueroa, Steven Rollo, Sean Murthy, Zachary Boylan, Kyle Bella, Elly Griffen
+Zaid Bhujwala, Andrew Figueroa, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 
 (C) 2017- DASSL. ALL RIGHTS RESERVED.
-Licensed to others under CC 4.0 BY-SA-NC: https://creativecommons.org/licenses/by-nc-sa/4.0/
+Licensed to others under CC 4.0 BY-SA-NC:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 This file is used to convert hashed name values to readable human names. The
-way it does this is by scanning the Student table, checking if the name field
-contains a number [0-9] to determine if the name field is hashed, and randomly
-assigns a name to the respective name field.
-This file works on a few assumptions:
-    -Student table is populated with either hashed or non-hashed names in fName,
-    mName, and lName
+way it does this is by scanning the Student table, checking if the first name
+field contains a number 0-9 to determine if the name field is hashed, and
+randomly assigns a name to the respective name field.
+
+This file works on the assumption that the Student table is populated with
+either hashed or non-hashed names in fName, mName, and lName
 
 Name list recieved from:
     -https://www.census.gov/topics/population/genealogy/data/2010_surnames.html
@@ -24,6 +25,7 @@ Name list recieved from:
 --Creating a table for actual human names. Used for replacing hash values in the
 --Student table
 --These are temporary tables and will be dropped after the session ends
+
 
 CREATE TEMPORARY TABLE HumanFirstNames(
     id INTEGER PRIMARY KEY,
@@ -143,16 +145,16 @@ INSERT INTO HumanFirstNames VALUES (99, 'Cheyenne');
 INSERT INTO HumanFirstNames VALUES (100, 'Paul');
 
 --Inserting 25 random middle names in middle names table
-INSERT INTO HumanMiddleNames VALUES (1, 'James');
-INSERT INTO HumanMiddleNames VALUES (2, 'Jerry');
-INSERT INTO HumanMiddleNames VALUES (3, 'Mathew');
-INSERT INTO HumanMiddleNames VALUES (4, 'G');
-INSERT INTO HumanMiddleNames VALUES (5, 'O');
-INSERT INTO HumanMiddleNames VALUES (6, 'Vinny');
-INSERT INTO HumanMiddleNames VALUES (7, 'V');
-INSERT INTO HumanMiddleNames VALUES (8, 'Jonathan');
-INSERT INTO HumanMiddleNames VALUES (9, 'Kevin');
-INSERT INTO HumanMiddleNames VALUES (10, 'B');
+INSERT INTO HumanMiddleNames VALUES (1, '');
+INSERT INTO HumanMiddleNames VALUES (2, '');
+INSERT INTO HumanMiddleNames VALUES (3, '');
+INSERT INTO HumanMiddleNames VALUES (4, '');
+INSERT INTO HumanMiddleNames VALUES (5, '');
+INSERT INTO HumanMiddleNames VALUES (6, '');
+INSERT INTO HumanMiddleNames VALUES (7, '');
+INSERT INTO HumanMiddleNames VALUES (8, '');
+INSERT INTO HumanMiddleNames VALUES (9, '');
+INSERT INTO HumanMiddleNames VALUES (10, '');
 INSERT INTO HumanMiddleNames VALUES (11, 'Mark');
 INSERT INTO HumanMiddleNames VALUES (12, 'Amanda');
 INSERT INTO HumanMiddleNames VALUES (13, 'Luis');
@@ -271,24 +273,43 @@ INSERT INTO HumanLastNames VALUES (98, 'Ross');
 INSERT INTO HumanLastNames VALUES (99, 'Foster');
 INSERT INTO HumanLastNames VALUES (100, 'Jimenez');
 
---Updating the fName, mName, and lName field if fName has a number anywhere in it
-UPDATE Gradebook.Student
-SET fName = (SELECT name
-            FROM HumanFirstNames
-            WHERE fName LIKE '%' AND HumanFirstNames.id = trunc(random() * 100) + 1  --Why fName LIKE '%' ? Subquery is non-volatile unless it is correlated to the outer query
-            --ORDER BY random()       --Order the table randomly, pick the top row, use it's values. This is an alternate way to get a random name
-            LIMIT 1),
-    mName = CASE
-        WHEN random() > .6 THEN (  --60% chance that a person gets a middle name
-            SELECT name
-            FROM HumanMiddleNames
-            WHERE mName LIKE '%' AND HumanMiddleNames.id = trunc(random() * 25) + 1
-            LIMIT 1)
-        ELSE
-            NULL
-    END,
-    lName = (SELECT name
-            FROM HumanLastNames
-            WHERE lName LIKE '%' AND HumanLastNames.id = trunc(random() * 100) + 1
-            LIMIT 1)
-WHERE fName ~ '[^0-9]';
+DO $$
+DECLARE
+    numOfFirstNames NUMERIC(4,0);
+    numOfMiddleNames NUMERIC(4,0);
+    numOfLastNames NUMERIC(4,0);
+BEGIN
+    SELECT COUNT(*) - 1
+        INTO numOfFirstNames
+    FROM HumanFirstNames;
+
+    SELECT COUNT(*) - 1
+        INTO numOfFirstNames
+    FROM HumanFirstNames;
+
+    SELECT COUNT(*) - 1
+        INTO numOfFirstNames
+    FROM HumanFirstNames;
+
+    --Updating the fName, mName, and lName field if fName has a number anywhere
+    --in it
+    UPDATE Gradebook.Student
+    SET fName = (SELECT name
+                FROM HumanFirstNames
+                WHERE fName LIKE '%'
+                AND HumanFirstNames.id = trunc(random() * numOfFirstNames) + 1
+                --Why fName LIKE '%' ? Subquery is non-volatile unless it is
+                --correlated to the outer query
+                LIMIT 1),
+        mName = (SELECT name
+                FROM HumanMiddleNames
+                WHERE mName LIKE '%'
+                AND HumanMiddleNames.id = trunc(random() * numOfMiddleNames) + 1
+                LIMIT 1),
+        lName = (SELECT name
+                FROM HumanLastNames
+                WHERE lName LIKE '%'
+                AND HumanLastNames.id = trunc(random() * numOfLastNames) + 1
+                LIMIT 1)
+    WHERE fName ~ '[^0-9]';
+END $$;
