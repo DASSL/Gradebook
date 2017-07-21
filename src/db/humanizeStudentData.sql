@@ -26,19 +26,18 @@ Name list recieved from:
 --Student table
 --These are temporary tables and will be dropped after the session ends
 
-
 CREATE TEMPORARY TABLE HumanFirstNames(
-    id INTEGER PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     Name VARCHAR(50) NOT NULL
 );
 
 CREATE TEMPORARY TABLE HumanMiddleNames(
-    id INTEGER PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     Name VARCHAR(50) NOT NULL
 );
 
 CREATE TEMPORARY TABLE HumanLastNames(
-    id INTEGER PRIMARY KEY,
+    ID SERIAL PRIMARY KEY,
     Name VARCHAR(50) NOT NULL
 );
 
@@ -145,28 +144,28 @@ INSERT INTO HumanFirstNames VALUES (99, 'Cheyenne');
 INSERT INTO HumanFirstNames VALUES (100, 'Paul');
 
 --Inserting 25 random middle names in middle names table
-INSERT INTO HumanMiddleNames VALUES (1, '');
+INSERT INTO HumanMiddleNames VALUES (1, 'Mark');
 INSERT INTO HumanMiddleNames VALUES (2, '');
-INSERT INTO HumanMiddleNames VALUES (3, '');
-INSERT INTO HumanMiddleNames VALUES (4, '');
+INSERT INTO HumanMiddleNames VALUES (3, 'Amanda');
+INSERT INTO HumanMiddleNames VALUES (4, 'Luis');
 INSERT INTO HumanMiddleNames VALUES (5, '');
-INSERT INTO HumanMiddleNames VALUES (6, '');
+INSERT INTO HumanMiddleNames VALUES (6, 'P');
 INSERT INTO HumanMiddleNames VALUES (7, '');
 INSERT INTO HumanMiddleNames VALUES (8, '');
-INSERT INTO HumanMiddleNames VALUES (9, '');
+INSERT INTO HumanMiddleNames VALUES (9, 'Rebecca');
 INSERT INTO HumanMiddleNames VALUES (10, '');
-INSERT INTO HumanMiddleNames VALUES (11, 'Mark');
-INSERT INTO HumanMiddleNames VALUES (12, 'Amanda');
-INSERT INTO HumanMiddleNames VALUES (13, 'Luis');
-INSERT INTO HumanMiddleNames VALUES (14, 'P');
+INSERT INTO HumanMiddleNames VALUES (11, '');
+INSERT INTO HumanMiddleNames VALUES (12, 'Mary');
+INSERT INTO HumanMiddleNames VALUES (13, '');
+INSERT INTO HumanMiddleNames VALUES (14, 'Warren');
 INSERT INTO HumanMiddleNames VALUES (15, 'Frank');
-INSERT INTO HumanMiddleNames VALUES (16, 'Rebecca');
+INSERT INTO HumanMiddleNames VALUES (16, '');
 INSERT INTO HumanMiddleNames VALUES (17, 'L');
 INSERT INTO HumanMiddleNames VALUES (18, 'Gary');
-INSERT INTO HumanMiddleNames VALUES (19, 'Mary');
+INSERT INTO HumanMiddleNames VALUES (19, '');
 INSERT INTO HumanMiddleNames VALUES (20, 'Donald');
 INSERT INTO HumanMiddleNames VALUES (21, 'T');
-INSERT INTO HumanMiddleNames VALUES (22, 'Warren');
+INSERT INTO HumanMiddleNames VALUES (22, '');
 INSERT INTO HumanMiddleNames VALUES (23, 'Pam');
 INSERT INTO HumanMiddleNames VALUES (24, 'Eric');
 INSERT INTO HumanMiddleNames VALUES (25, 'X');
@@ -275,41 +274,42 @@ INSERT INTO HumanLastNames VALUES (100, 'Jimenez');
 
 DO $$
 DECLARE
-    numOfFirstNames NUMERIC(4,0);
-    numOfMiddleNames NUMERIC(4,0);
-    numOfLastNames NUMERIC(4,0);
+    numOfFirstNames INTEGER;
+    numOfMiddleNames INTEGER;
+    numOfLastNames INTEGER;
 BEGIN
-    SELECT COUNT(*) - 1
+    SELECT COUNT(*)
         INTO numOfFirstNames
     FROM HumanFirstNames;
 
-    SELECT COUNT(*) - 1
-        INTO numOfFirstNames
-    FROM HumanFirstNames;
+    SELECT COUNT(*)
+        INTO numOfMiddleNames
+    FROM HumanMiddleNames;
 
-    SELECT COUNT(*) - 1
-        INTO numOfFirstNames
-    FROM HumanFirstNames;
+    SELECT COUNT(*)
+        INTO numOfLastNames
+    FROM HumanLastNames;
 
     --Updating the fName, mName, and lName field if fName has a number anywhere
-    --in it
+    --in it. The WHERE clause with `LIKE '%'` is used to make the subquery
+    --non-volatile by making a dependency on the outer query
     UPDATE Gradebook.Student
-    SET fName = (SELECT name
+    SET FName = (SELECT name
                 FROM HumanFirstNames
-                WHERE fName LIKE '%'
+                WHERE FName LIKE '%'
                 AND HumanFirstNames.id = trunc(random() * numOfFirstNames) + 1
-                --Why fName LIKE '%' ? Subquery is non-volatile unless it is
-                --correlated to the outer query
                 LIMIT 1),
-        mName = (SELECT name
+        MName = (SELECT name
                 FROM HumanMiddleNames
-                WHERE mName LIKE '%'
+                WHERE MName LIKE '%'
                 AND HumanMiddleNames.id = trunc(random() * numOfMiddleNames) + 1
                 LIMIT 1),
-        lName = (SELECT name
+        LName = (SELECT name
                 FROM HumanLastNames
-                WHERE lName LIKE '%'
+                WHERE LName LIKE '%'
                 AND HumanLastNames.id = trunc(random() * numOfLastNames) + 1
                 LIMIT 1)
-    WHERE fName ~ '[^0-9]';
+    WHERE concat(COALESCE(FName, ''),
+        COALESCE(MName, ''),
+        COALESCE(LName, '') )  ~ '[0-9A-F]';
 END $$;
