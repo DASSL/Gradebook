@@ -1,0 +1,59 @@
+Status,Lvl,CRN,Subj,Crse,Sec,Cred,Title,Days,Time,Date (MM/DD),Cap,Act,Rem,XL Cap,XL Act,XL Rem,Location,Instructor
+Open,GR,20030,BIO,598,81,3,Learning Elem School Biology,MTWRF,04:00 pm-08:00 pm,01/03-01/21,30,26,4,,,,SB 135,Theodora Pinou (P)
+Open,UG,20018,COM,161,81,3,Decision Making Groups ONLINE,,TBA,12/27-01/21,24,23,1,,,,ONLINE,Truman Ryan Keys (P)
+Open,UG,20019,COM,162,81,3,Interpersonal Comm ONLINE,,TBA,12/27-01/21,24,23,1,,,,ONLINE,Katie M. Lever-Mazzuto (P)
+Open,UG,20035,COM,162,82,3,Interpersonal Comm ONLINE,,TBA,12/27-01/21,24,23,1,,,,ONLINE,Katie M. Lever-Mazzuto (P)
+Open,UG,20020,COM,290,81,3,Communication Theory ONLINE,,TBA,12/27-01/21,25,23,2,,,,ONLINE,Jessica J. Eckstein (P)
+Open,UG,20031,CS,110,81,3,Website Production,MTWR,05:30 pm-08:55 pm,01/03-01/21,25,17,8,,,,WS 116,"Gancho F. Ganchev (P), Todor F. Ivanov"
+Closed,UG,20065,CS,199,81,3,Intro to Wind Prog w/Vis Basic,,TBA,12/27-01/21,0,1,-1,,,,TBA,Rona N. Gurkewitz (P)
+Closed,UG,20034,ED,298,81,3,CANCELLED: Biracial & Multirac,TBA,,01/03-01/21,0,0,0,,,,TBA,TBA
+Closed,UG,20063,ED,298,82,3,Reading Review Session,M,08:00 am-03:00 pm,01/03-01/03,25,27,-2,,,,WS 518,Darla H. Shaw (P)
+,,,,,,,,T,08:00 am-12:00 pm,01/11-01/11,,,,,,,WS 518,Darla H. Shaw (P)
+,,,,,,,,F,08:00 am-03:00 pm,01/21-01/21,,,,,,,WS 518,Darla H. Shaw (P)
+Open,UG,20004,ENG,106,W81,3,Introduction to Fiction ONLINE,,TBA,01/03-01/21,38,27,11,,,,ONLINE,Shouhua Qi (P)
+Closed,UG,20061,ENG,499,81,3,Major Works/Aut Children's Lit,,TBA,12/27-01/21,0,1,-1,,,,TBA,Margaret Judith Sullivan (P)
+Open,UG,20021,HPX,160,81,2,First Aid and Safety,MTWR,06:00 pm-10:00 pm,01/03-01/13,28,17,11,,,,WH 023,John Debenedetto (P)
+Closed,UG,20022,HPX,177,81,1,Fitness for Life: Lecture,MTWRF,09:00 am-09:50 am,01/03-01/21,60,67,-7,,,,HI 114,Jody Rajcula (P)
+Closed,UG,20023,HPX,177,82,1,Fit for Life: Multimethods,MTWRF,10:00 am-10:50 am,01/03-01/21,30,32,-2,,,,BR GYM N,Jody Rajcula (P)
+Closed,UG,20024,HPX,177,83,1,Fitness for Life: Tai Chi,MTWRF,10:00 am-10:50 am,01/03-01/21,30,30,0,,,,BR GYM S,Helena Ellen Hollenbeck (P)
+Open,UG,20025,HPX,293,81,1,Cross-Cultrl Health & Healing,F,05:30 pm-09:45 pm,01/07-01/07,30,11,19,,,,BR 102,Robyn A. Housemann (P)
+,,,,,,,,S,09:00 am-06:00 pm,01/08-01/08,,,,,,,BR 102,Robyn A. Housemann (P)
+Closed,UG,20058,HPX,299,1,0.5,Student Developed Study,,TBA,12/27-01/21,0,0,0,,,,TBA,Jody Rajcula (P)
+Open,UG,20015,HIS,149,81,3,American Hist Sinc 1877 ONLINE,M,12:00 pm-01:30 pm,12/27-12/27,38,31,7,,,,WA 303,Martha E. May (P)
+,,,,,,,,,TBA,12/28-01/22,,,,,,,ONLINE,Martha E. May (P)
+Open,UG,20016,HIS,298,81,3,Films about War,MTWRF,12:00 pm-03:00 pm,12/27-01/21,38,17,21,,,,WA 226,Kevin R. C. Gutzman (P)
+Open,UG,20029,HIS,298,82,3,Money and Power ONLINE,,TBA,12/27-01/21,38,31,7,,,,ONLINE,Martha E. May (P)
+Closed,UG,20064,HIS,399,81,3,"American War Films, 1950-2010",,TBA,12/27-01/21,0,2,-2,,,,TBA,Kevin R. C. Gutzman (P)
+Closed,UG,20027,MGT,250,81,3,CANCELLED: Organiz Behavior,TBA,,01/03-01/21,0,0,0,,,,TBA,TBA
+Closed,UG,20028,MGT,350,81,3,CANCELLED: Mgmnt Negotiations,TBA,,01/03-01/07,0,0,0,,,,TBA,TBA
+Open,UG,20012,MAT,98,81,0,Elementary Algebra ALEKS,MTWR,09:00 am-12:00 pm,12/27-01/22,30,1,29,30,18,12,WA 318,Senan L. Hayes (P)
+Open,UG,20013,MAT,100,81,3,Intermediate Math ALEKS,MTWR,09:00 am-12:00 pm,12/27-01/22,30,17,13,30,18,12,WA 318,Senan L. Hayes (P)
+Closed,UG,20067,MAT,100,82,3,Intermediate Mathematics,,TBA,12/27-01/21,0,2,-2,,,,TBA,TBA
+Closed,UG,20052,MAT,110,81,3,CANCELLED: Great Ideas in Math,TBA,,12/27-01/22,0,0,0,,,,TBA,TBA
+Open,UG,20014,MAT,120,81,3,Elementary Statistics,MTWR,08:00 am-11:45 am,12/27-01/22,30,17,13,,,,HI 210,Nancy D. Caron (P)
+Closed,GR,20062,MAT,592,81,3,The Mathematics of Discovery,,TBA,12/27-01/21,0,0,0,,,,TBA,Josephine S. Hamer (P)
+Closed,UG,20033,MTR,299,81,1,Internship,,TBA,12/27-01/21,0,1,-1,,,,TBA,Albert Owino (P)
+Open,UG,20050,NWC,103,81,3,Chinese Culture ONLINE,,TBA,12/27-01/21,38,11,27,,,,ONLINE,Wynn W. Gadkar-Wilcox (P)
+Open,UG,20003,NWC,104,81,3,Japanese Culture ONLINE,,TBA,12/27-01/21,38,35,3,,,,ONLINE,Peggy H. Southard (P)
+Open,UG,20001,PS,100,W81,3,Introdctn to Political Science,,TBA,12/28-01/21,38,15,23,,,,ONLINE,Scott L. Benjamin (P)
+Open,UG,20002,PS,102,W81,3,American Government,,TBA,12/27-01/21,38,17,21,,,,ONLINE,Christopher L. Kukk (P)
+Closed,UG,20032,SS,299,81,3,Stud of Families in Jamaica,,TBA,12/27-01/21,0,1,-1,,,,TBA,Carina A. Bandhauer (P)
+Open,UG,20006,THR,180,81,3,Introduction to Theatre Arts,MTWRF,09:30 am-05:30 pm,01/10-01/14,20,18,2,,,,BR 114,Pamela D. McDaniel (P)
+Open,UG,20007,THR,181,81,3,Acting I: An Introduction,TWRFS,09:30 am-05:30 pm,01/18-01/22,20,11,9,,,,BR 114,Sal S. Trapani (P)
+Open,GR,20036,WRT,536,81,4,Rdg for Writ I (Primary Genre),,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20056,WRT,536,82,4,Rdg for Writ I (Primary Genre),,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Closed,GR,20037,WRT,537,81,4,Rdg for Writ II (Second Genre),,TBA,12/27-05/21,1,1,0,,,,TBA,Kassia H. Fleisher (P)
+Closed,GR,20038,WRT,537,82,4,Rdg for Writ II (Second Genre),,TBA,12/27-05/21,1,1,0,,,,TBA,Kassia H. Fleisher (P)
+Closed,GR,20055,WRT,537,83,4,Rdg for Writ II (Second Genre),,TBA,12/27-05/21,1,1,0,,,,TBA,Louis M. Orfanella (P)
+Open,GR,20039,WRT,539,81,4,"Genre History, Crit & Theory",,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20040,WRT,571,81,4,Individual Aesthetic & Process,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20041,WRT,571,82,4,Individual Aesthetic & Process,,TBA,12/27-05/21,1,0,1,,,,TBA,Elizabeth D. Cohen (P)
+Closed,GR,20042,WRT,576,81,4,Writ in the Primary Genre II,,TBA,12/27-05/21,1,1,0,,,,TBA,Laurel A. Saville (P)
+Open,GR,20045,WRT,576,82,4,Writ in the Primary Genre II,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20043,WRT,577,81,4,Writing in Primary Genre III,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Closed,GR,20044,WRT,584,81,2,Thesis/PDE,,TBA,12/27-05/21,1,1,0,,,,TBA,Louisa C. Burns-Bisogno (P)
+Closed,GR,20046,WRT,584,82,2,Thesis/PDE,,TBA,12/27-05/21,1,1,0,,,,TBA,Louisa C. Burns-Bisogno (P)
+Open,GR,20047,WRT,584,83,2,Thesis/PDE,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20048,WRT,584,84,2,Thesis/PDE,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20053,WRT,584,85,2,Thesis/PDE,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
+Open,GR,20054,WRT,584,86,2,Thesis/PDE,,TBA,12/27-05/21,1,0,1,,,,TBA,TBA
