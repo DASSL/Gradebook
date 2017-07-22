@@ -1,5 +1,5 @@
 /*
-Zaid Bhujwala, Andrew Figueroa, Sean Murthy
+Zaid Bhujwala, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 
@@ -9,21 +9,18 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-This file is used to convert hashed name values to readable human names. The
-way it does this is by scanning the Student table, checking if the first name
-field contains a number 0-9 to determine if the name field is hashed, and
-randomly assigns a name to the respective name field.
-
-This file works on the assumption that the Student table is populated with
-either hashed or non-hashed names in fName, mName, and lName
+This file is used to convert MD5 hashed name values to readable human names. The
+way it does this is by scanning the Student table, checking if the first,
+middle, and last name fields individually contain a hashed value, then
+randomly assigns a name to their respective name fields.
 
 Name list recieved from:
     -https://www.census.gov/topics/population/genealogy/data/2010_surnames.html
     -https://www.ssa.gov/oact/babynames/
 */
 
---Creating a table for actual human names. Used for replacing hash values in the
---Student table
+--Create a temporary table for actual human names. Used for replacing hash
+--values in the Student table.
 --These are temporary tables and will be dropped after the session ends
 
 CREATE TEMPORARY TABLE HumanFirstNames(
@@ -41,7 +38,7 @@ CREATE TEMPORARY TABLE HumanLastNames(
     Name VARCHAR(50) NOT NULL
 );
 
---Inserting 100 random first names in first names table
+--Insert 100 random first names into HumanFirstNames
 INSERT INTO HumanFirstNames(Name) VALUES ('Jacob');
 INSERT INTO HumanFirstNames(Name) VALUES ('Michael');
 INSERT INTO HumanFirstNames(Name) VALUES ('Madison');
@@ -143,34 +140,52 @@ INSERT INTO HumanFirstNames(Name) VALUES ('Spencer');
 INSERT INTO HumanFirstNames(Name) VALUES ('Cheyenne');
 INSERT INTO HumanFirstNames(Name) VALUES ('Paul');
 
---Inserting 25 random middle names in middle names table
+--Insert 41 random middle names into HumanMiddleNames. Values of '' are used to
+--represent no middle name. ~41% (17/41) of the entries are empty strings.
+INSERT INTO HumanMiddleNames(Name) VALUES ('James');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Jerry');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Mathew');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('G');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('O');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Vinny');
+INSERT INTO HumanMiddleNames(Name) VALUES ('V');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Jonathan');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Kevin');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('B');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Mark');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Amanda');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Luis');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('P');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Frank');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Rebecca');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('L');
+INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Gary');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Mary');
 INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Warren');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Frank');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('L');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Gary');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Donald');
 INSERT INTO HumanMiddleNames(Name) VALUES ('T');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
+INSERT INTO HumanMiddleNames(Name) VALUES ('Warren');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Pam');
 INSERT INTO HumanMiddleNames(Name) VALUES ('Eric');
 INSERT INTO HumanMiddleNames(Name) VALUES ('X');
 
---Inserting 100 random last names in last names table
+--Insert 100 random last names into HumanLastNames
 INSERT INTO HumanLastNames(Name) VALUES ('Smith');
 INSERT INTO HumanLastNames(Name) VALUES ('Johnson');
 INSERT INTO HumanLastNames(Name) VALUES ('Williams');
@@ -274,6 +289,8 @@ INSERT INTO HumanLastNames(Name) VALUES ('Jimenez');
 
 DO $$
 DECLARE
+    --Declare integers that will be used for the upper bounds of the random
+    --generator
     numOfFirstNames INTEGER;
     numOfMiddleNames INTEGER;
     numOfLastNames INTEGER;
@@ -290,27 +307,36 @@ BEGIN
         INTO numOfLastNames
     FROM HumanLastNames;
 
-    --Updating the FName, MName, and LName field if the fields concatenated have
-    --a hex value in it.
-    --The WHERE clause with `LIKE '%'` is used to make the subquery
-    --non-volatile by making a dependency on the outer query
+    --Update Student.FName, Student.MName, and Student.LName field if the
+    --fields individually match the regular expression [0-9A-F]{32} (case insensitive)
+    --or if they are null.
+    --The WHERE clauses with `length(Name) * 0 + 1` is used to make the
+    --subqueries volatile by making a dependency on the outer query thus
+    --ensuring random() is called the appropriate amount of times.
     UPDATE Gradebook.Student
-    SET FName = (SELECT name
+    SET FName = (SELECT Name
                 FROM HumanFirstNames
-                WHERE FName LIKE '%'
-                AND HumanFirstNames.id = trunc(random() * numOfFirstNames) + 1
-                LIMIT 1),
-        MName = (SELECT name
+                WHERE HumanFirstNames.ID = (
+                    SELECT DISTINCT trunc(random() * numOfFirstNames + 1)
+                        * (length(FName) * 0 + 1)
+                )
+            ),
+        MName = (SELECT Name
                 FROM HumanMiddleNames
-                WHERE MName LIKE '%'
-                AND HumanMiddleNames.id = trunc(random() * numOfMiddleNames) + 1
-                LIMIT 1),
-        LName = (SELECT name
+                WHERE HumanMiddleNames.ID = (
+                    SELECT DISTINCT trunc(random() * numOfMiddleNames + 1)
+                        * (length(MName) * 0 + 1)
+                )
+            ),
+        LName = (SELECT Name
                 FROM HumanLastNames
-                WHERE LName LIKE '%'
-                AND HumanLastNames.id = trunc(random() * numOfLastNames) + 1
-                LIMIT 1)
-    WHERE concat(COALESCE(FName, ''),
-        COALESCE(MName, ''),
-        COALESCE(LName, '') )  ~ '[0-9A-F]';
+                WHERE HumanLastNames.ID = (
+                    SELECT DISTINCT trunc(random() * numOfLastNames + 1)
+                        * (length(LName) * 0 + 1 )
+                )
+            )
+    WHERE (FName ~* '[0-9a-f]{32}')
+        OR (MName ~* '[0-9a-f]{32}')
+        OR(LName ~* '[0-9a-f]{32}');
+
 END $$;
