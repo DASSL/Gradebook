@@ -317,21 +317,21 @@ BEGIN
     SET FName = (SELECT Name
                 FROM HumanFirstNames
                 WHERE HumanFirstNames.ID = (
-                    SELECT DISTINCT trunc(random() * numOfFirstNames + 1)
+                    SELECT trunc(random() * numOfFirstNames + 1)
                         * (length(FName) * 0 + 1)
                 )
             ),
         MName = (SELECT Name
                 FROM HumanMiddleNames
                 WHERE HumanMiddleNames.ID = (
-                    SELECT DISTINCT trunc(random() * numOfMiddleNames + 1)
+                    SELECT trunc(random() * numOfMiddleNames + 1)
                         * (length(MName) * 0 + 1)
                 )
             ),
         LName = (SELECT Name
                 FROM HumanLastNames
                 WHERE HumanLastNames.ID = (
-                    SELECT DISTINCT trunc(random() * numOfLastNames + 1)
+                    SELECT trunc(random() * numOfLastNames + 1)
                         * (length(LName) * 0 + 1 )
                 )
             )
