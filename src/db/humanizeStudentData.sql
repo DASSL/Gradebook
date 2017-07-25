@@ -308,35 +308,34 @@ BEGIN
     FROM HumanLastNames;
 
     --Update Student.FName, Student.MName, and Student.LName field if the
-    --fields individually match the regular expression [0-9A-F]{32} (case insensitive)
-    --or if they are null.
+    --fields individually match the regular expression [0-9A-F]{32}
+    --(case insensitive) or if they are null.
     --The WHERE clauses with `length(Name) * 0 + 1` is used to make the
     --subqueries volatile by making a dependency on the outer query thus
     --ensuring random() is called the appropriate amount of times.
+    --NOTE: The `WHERE` clause consists of an error where either multiple random
+    --IDs are chosen or none at all. Updated name fields may be `NULL` 
     UPDATE Gradebook.Student
     SET FName = (SELECT Name
-                FROM HumanFirstNames
-                WHERE HumanFirstNames.ID = (
-                    SELECT trunc(random() * numOfFirstNames + 1)
-                        * (length(FName) * 0 + 1)
-                )
-            ),
+            FROM HumanFirstNames
+            WHERE FName LIKE '%'
+            AND HumanFirstNames.ID = trunc(random() * numOfFirstNames  + 1)
+            LIMIT 1
+        ),
         MName = (SELECT Name
-                FROM HumanMiddleNames
-                WHERE HumanMiddleNames.ID = (
-                    SELECT trunc(random() * numOfMiddleNames + 1)
-                        * (length(MName) * 0 + 1)
-                )
-            ),
+            FROM HumanMiddleNames
+            WHERE MName LIKE '%'
+            AND HumanMiddleNames.ID = trunc(random() * numOfMiddleNames  + 1)
+            LIMIT 1
+        ),
         LName = (SELECT Name
-                FROM HumanLastNames
-                WHERE HumanLastNames.ID = (
-                    SELECT trunc(random() * numOfLastNames + 1)
-                        * (length(LName) * 0 + 1 )
-                )
-            )
+            FROM HumanLastNames
+            WHERE LName LIKE '%'
+            AND HumanLastNames.ID = trunc(random() * numOfLastNames  + 1)
+            LIMIT 1
+        )
     WHERE (FName ~* '[0-9a-f]{32}')
         OR (MName ~* '[0-9a-f]{32}')
-        OR(LName ~* '[0-9a-f]{32}');
+        OR (LName ~* '[0-9a-f]{32}');
 
 END $$;
