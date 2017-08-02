@@ -59,6 +59,7 @@ CREATE TABLE Gradebook.Instructor
    MName VARCHAR(50),
    LName VARCHAR(50) NOT NULL,
    Department VARCHAR(30),
+   Email VARCHAR(100) UNIQUE,
    UNIQUE(FName, MName, LName)
 );
 

@@ -11,6 +11,27 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 
+--Function to get details of the instructor with the given e-mail address
+-- guaranteed to return 0 or 1 record because Instructor.Email is unique
+-- returns all attributes in the Instructor table, except the Email attr.
+DROP FUNCTION IF EXISTS Gradebook.getInstructor(Gradebook.Instructor.Email%TYPE);
+CREATE FUNCTION Gradebook.getInstructor(email Gradebook.Instructor.Email%TYPE)
+RETURNS TABLE
+(  ID Gradebook.Instructor.ID%TYPE,
+   FName Gradebook.Instructor.FName%TYPE,
+   MName Gradebook.Instructor.MName%TYPE,
+   LName Gradebook.Instructor.LName%TYPE,
+   Department Gradebook.Instructor.Department%TYPE
+) AS
+$$
+
+   SELECT ID, FName, MName, LName, Department
+   FROM Gradebook.Instructor
+   WHERE Email = $1;
+
+$$ LANGUAGE sql
+   RETURNS NULL ON NULL INPUT;
+
 --Function to get all the years that an instructor has taught in
 
 DROP FUNCTION IF EXISTS Gradebook.getYears(instructorID INT);
