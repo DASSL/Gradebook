@@ -12,25 +12,29 @@
 
 
 --Function to get details of the instructor with the given e-mail address
--- guaranteed to return 0 or 1 record because Instructor.Email is unique
--- returns all attributes in the Instructor table, except the Email attr.
+-- performs a case-insensitive match of email address
+-- the return type RECORD guarantees 0 or 1 row (Instructor.Email is unique)
+-- DROP FUNCTION does not care about OUT arguments: so OK to omit them
 DROP FUNCTION IF EXISTS Gradebook.getInstructor(Gradebook.Instructor.Email%TYPE);
-CREATE FUNCTION Gradebook.getInstructor(email Gradebook.Instructor.Email%TYPE)
-RETURNS TABLE
-(  ID Gradebook.Instructor.ID%TYPE,
-   FName Gradebook.Instructor.FName%TYPE,
-   MName Gradebook.Instructor.MName%TYPE,
-   LName Gradebook.Instructor.LName%TYPE,
-   Department Gradebook.Instructor.Department%TYPE
-) AS
+CREATE FUNCTION
+   Gradebook.getInstructor(email Gradebook.Instructor.Email%TYPE,
+                           OUT ID Gradebook.Instructor.ID%TYPE,
+                           OUT FName Gradebook.Instructor.FName%TYPE,
+                           OUT MName Gradebook.Instructor.MName%TYPE,
+                           OUT LName Gradebook.Instructor.LName%TYPE,
+                           OUT Department Gradebook.Instructor.Department%TYPE
+                          )
+RETURNS RECORD
+AS
 $$
 
    SELECT ID, FName, MName, LName, Department
    FROM Gradebook.Instructor
-   WHERE Email = $1;
+   WHERE lower(Email) = lower($1);
 
 $$ LANGUAGE sql
-   RETURNS NULL ON NULL INPUT;
+   STABLE --result remains the same for a given input within a transaction
+   RETURNS NULL ON NULL INPUT; --No sense in looking up a NULL value
 
 --Function to get all the years that an instructor has taught in
 
