@@ -33,7 +33,7 @@ $$
    WHERE lower(Email) = lower($1);
 
 $$ LANGUAGE sql
-   STABLE --result remains the same for a given input within a transaction
+   STABLE --result remains the same for a given input within the same stmt
    RETURNS NULL ON NULL INPUT; --No sense in looking up a NULL value
 
 --Function to get all the years that an instructor has taught in
