@@ -9,9 +9,10 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---remove the following two comment lines after discussion
---use camel case for table/field names containing more than one word
---use hyphen in table names when combining multiple table names as in that for a m-n relationship
+--This script creates schema, tables, and indexes for the Gradebook application
+
+--E-mail address management is based on the discussion presented at:
+-- https://gist.github.com/smurthys/feba310d8cc89c4e05bdb797ca0c6cac
 
 
 CREATE SCHEMA IF NOT EXISTS Gradebook;
@@ -32,8 +33,8 @@ CREATE TABLE Gradebook.Season
    Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'M', 'F', 'I', etc.
 );
 
---Populate the Season table
---Values based on Term information found in OpenClose
+--populate the Season table with values found in the OpenClose system at WCSU
+-- move out of this script later
 INSERT INTO Gradebook.Season VALUES('0','Spring','S');
 INSERT INTO Gradebook.Season VALUES('1','Spring_Break','B');
 INSERT INTO Gradebook.Season VALUES('2','Summer','M');
@@ -59,9 +60,13 @@ CREATE TABLE Gradebook.Instructor
    MName VARCHAR(50),
    LName VARCHAR(50) NOT NULL,
    Department VARCHAR(30),
-   Email VARCHAR(100) UNIQUE,
+   Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
    UNIQUE(FName, MName, LName)
 );
+
+--enforce case-insensitive uniqueness of instructor e-mail addresses
+CREATE UNIQUE INDEX idx_Unique_InstructorEmail
+ON Gradebook.Instructor(LOWER(TRIM(Email)));
 
 
 CREATE TABLE Gradebook.Section
@@ -88,10 +93,6 @@ CREATE TABLE Gradebook.Section
 );
 
 
---Removed Section_Instructor by accommodating 3 instructors in Section table
---CREATE TABLE Gradebook.Section_Instructor();
-
-
 --Table to store all possible letter grades
 --some universities permit A+
 CREATE TABLE Gradebook.Grade
@@ -107,7 +108,8 @@ CREATE TABLE Gradebook.Grade
 );
 
 
---Values used by most US universities: move to a different file
+--populate the Grade table with values used at most US universities
+-- move out of this script later
 INSERT INTO Gradebook.Grade VALUES('A+', 4.333);
 INSERT INTO Gradebook.Grade VALUES('A', 4);
 INSERT INTO Gradebook.Grade VALUES('A-', 3.667);
@@ -144,12 +146,16 @@ CREATE TABLE Gradebook.Student
    MName VARCHAR(50), --permit NULL in all 3 fields because some people have only one name: not sure which field will be used
    LName VARCHAR(50), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
    SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE,
-   Email VARCHAR(100) NOT NULL UNIQUE,
+   Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
    Major VARCHAR(50), --non-matriculated students are not required to have a major
    Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
       CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)
 );
+
+--enforce case-insensitive uniqueness of student e-mail addresses
+CREATE UNIQUE INDEX idx_Unique_StudentEmail
+ON Gradebook.Student(LOWER(TRIM(Email)));
 
 
 CREATE TABLE Gradebook.Enrollee

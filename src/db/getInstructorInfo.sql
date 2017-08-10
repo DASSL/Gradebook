@@ -17,7 +17,7 @@
 -- DROP FUNCTION does not care about OUT arguments: so OK to omit them
 DROP FUNCTION IF EXISTS Gradebook.getInstructor(Gradebook.Instructor.Email%TYPE);
 CREATE FUNCTION
-   Gradebook.getInstructor(email Gradebook.Instructor.Email%TYPE,
+   Gradebook.getInstructor(Email Gradebook.Instructor.Email%TYPE,
                            OUT ID Gradebook.Instructor.ID%TYPE,
                            OUT FName Gradebook.Instructor.FName%TYPE,
                            OUT MName Gradebook.Instructor.MName%TYPE,
@@ -30,7 +30,7 @@ $$
 
    SELECT ID, FName, MName, LName, Department
    FROM Gradebook.Instructor
-   WHERE lower(Email) = lower($1);
+   WHERE LOWER(TRIM(Email)) = LOWER(TRIM($1));
 
 $$ LANGUAGE sql
    STABLE --result remains the same for a given input within the same stmt
