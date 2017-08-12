@@ -7,13 +7,13 @@ Elly Griffin, Andrew Figueroa, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
-Licenced to others under CC 4.0 BY-NC-SA
+Licensed to others under CC 4.0 BY-NC-SA
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 This HTML page serves as the main access point for an instructor's use of Gradebook.
-Currently, only attendance information will be served
+Currently, only attendance information is served
 -->
 <html>
 	<head>
@@ -31,12 +31,12 @@ Currently, only attendance information will be served
 		</div>
 		<div class="nav-content">
 			<ul class="tabs tabs-transparent">
-				<li class="tab disabled"><a href="#">Roster</a></li>
+				<li class="tab"><a href="#roster">Roster</a></li>
 				<li class="tab"><a href="#attendance" class="active">Attendance</a></li>
 				<!--Attendance tab is marked active, as it's currently the only tab with content.
 				     Otherwise, the first tab would be automatically marked as active.-->
-				<li class="tab disabled"><a href="#">Grades</a></li>
-				<li class="tab disabled"><a href="#">Reports</a></li>
+				<li class="tab"><a href="#grades">Grades</a></li>
+				<li class="tab"><a href="#reports">Reports</a></li>
 				<li class="tab"><a href="#about">About</a></li>
 				<!--See http://materializecss.com/navbar.html#navbar-tabs for examples on
 					 how to use tabs for navigation-->
@@ -48,7 +48,11 @@ Currently, only attendance information will be served
 	<div class="container"> <!--Adds left and right spacing for content-->
 	<div class="section"> <!--Adds spacing between navbar and content-->
 	
-	<div id = "attendance">
+	<div id="roster">
+		<p class="center-align">The Roster page is not yet complete</p>
+	</div>
+	
+	<div id="attendance">
 	<div class="row">
 		<div class="input-field col s12 m6 l3">
 			<input id="host" type="text" value="localhost"/>
@@ -113,8 +117,16 @@ Currently, only attendance information will be served
 	<div id="attendanceData" class="section"></div>
 	</div>
 	
+	<div id="grades">
+		<p class="center-align">The Grades page is not yet complete</p>
+	</div>
+	
+	<div id="reports">
+		<p class="center-align">The Reports page is not yet complete</p>
+	</div>
+	
 	<div id="about">
-		<p class="center-align">This page is not yet complete</p>
+		<p class="center-align">The About page is not yet complete</p>
 		<br/>
 		<h3>Gradebook</h3>
 		<p>Gradebook is an open-source product to provide a simple means for 
