@@ -32,14 +32,14 @@ Currently, only attendance information will be served
 		<div class="nav-content">
 			<ul class="tabs tabs-transparent">
 				<li class="tab disabled"><a href="#">Roster</a></li>
-				<li class="tab"><a href="#" class="active">Attendance</a></li>
+				<li class="tab"><a href="#attendance" class="active">Attendance</a></li>
 				<!--Attendance tab is marked active, as it's currently the only tab with content.
 				     Otherwise, the first tab would be automatically marked as active.-->
 				<li class="tab disabled"><a href="#">Grades</a></li>
 				<li class="tab disabled"><a href="#">Reports</a></li>
-				<li class="tab disabled"><a href="#">About</a></li>
+				<li class="tab"><a href="#about">About</a></li>
 				<!--See http://materializecss.com/navbar.html#navbar-tabs for examples on
-					 how to (later) use tabs for navigation-->
+					 how to use tabs for navigation-->
 			</ul>
 		</div>
 	</nav>
@@ -48,6 +48,7 @@ Currently, only attendance information will be served
 	<div class="container"> <!--Adds left and right spacing for content-->
 	<div class="section"> <!--Adds spacing between navbar and content-->
 	
+	<div id = "attendance">
 	<div class="row">
 		<div class="input-field col s12 m6 l3">
 			<input id="host" type="text" value="localhost"/>
@@ -110,7 +111,17 @@ Currently, only attendance information will be served
 	
 	<div class="divider"></div>
 	<div id="attendanceData" class="section"></div>
-
+	</div>
+	
+	<div id="about">
+		<p class="center-align">This page is not yet complete</p>
+		<br/>
+		<h3>Gradebook</h3>
+		<p>Gradebook is an open-source product to provide a simple means for 
+			instructors to record student assessment and attendance.</p>
+		<a href="https://github.com/DASSL/Gradebook">View Gradebook on GitHub.com</a>
+	</div>
+	
 	</div>
 	</div>
   </body>
