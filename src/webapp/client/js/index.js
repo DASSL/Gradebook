@@ -25,6 +25,7 @@ var dbInfo = {
 	"host":null, "port":null, "database":null, "user":null, "password":null,
 	 "instructorid":null
 };
+var instInfo = { "fname":null, "mname":null, "lname": null, "dept":null };
 
 /* 
 Each instance of connInfo as a parameter in a function definition refers to an 
@@ -40,8 +41,10 @@ $(document).ready(function() {
 	
 	
 	$('#btnLogin').click(function() {
-		dbInfo = getDBFields();
-		popYears(dbinfo);
+		var email = $.('#email').val();
+		serverLogin(email, function() {
+			popYears(dbInfo);
+		});
 	});
 	
 	$('#yearSelect').change(function() {
@@ -76,9 +79,8 @@ function getDBFields() {
 	var db = $('#database').val().trim();
 	var uname = $('#user').val().trim();
 	var pw =  $('#passwordBox').val().trim();
-	var instId = $('#instructorId').val().trim();
 	
-	if (host === "" || port === "" || db === "" || uname === "" || pw === "" || instId === "")
+	if (host === "" || port === "" || db === "" || uname === "" || pw === "")
 	{
 		alert('One or more fields are empty');
 		return null;
@@ -86,9 +88,27 @@ function getDBFields() {
 	
 	pw = JSON.stringify(sjcl.encrypt('dassl2017', pw));
 	
-	var connInfo = {'host':host, 'port':parseInt(port, 10), 'database':db,
-	 'user':uname, 'password':pw, 'instructorid':parseInt(instId, 10)};
+	var connInfo = { 'host':host, 'port':parseInt(port, 10), 'database':db,
+	 'user':uname, 'password':pw };
 	return connInfo;
+};
+
+function serverLogin(email, callback) {
+	$.ajax('login', {
+		dataType: 'json',
+		data: {email: email} ,
+		success: function(result) {
+			dbInfo = getDBFields();
+			dbInfo.instructorid = result.instructorid;
+			instInfo = { fname:result.fname, mname:result.mname, 
+			 lname:result.lname, dept:result.dept };
+			callback();
+		},
+		error: function(result) {
+			alert('Error while logging into server - ensure email is correct');
+			console.log(result);
+		}
+	});
 };
 
 function popYears(connInfo) {
