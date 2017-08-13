@@ -5,7 +5,7 @@ Andrew Figueroa, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
-Licenced to others under CC 4.0 BY-NC-SA
+Licensed to others under CC 4.0 BY-NC-SA
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
@@ -16,52 +16,61 @@ server component of the Gradebook webapp, along with providing interactivity for
 index.html webpage. 
 */
 
+/*
+Currently, a globally scoped variable is used to store login information.
+ At a later point, it may be stored through a more appropriate manner, such as
+ client cookies.
+*/
+var dbInfo = {
+	"host":null, "port":null, "database":null, "user":null, "password":null,
+	 "instructorid":null
+};
+
+/* 
+Each instance of connInfo as a parameter in a function definition refers to an 
+ object with the following keys, which are used as part of the REST API calls to
+ the Gradebook server:
+	"host":String, "port":Number, "database":String, "user":String,
+	 "password":String, "instructorid":Number
+*/
+
 
 $(document).ready(function() {
-	//load dropdown boxes
-	$('select').material_select();
+	$('select').material_select(); //load dropdown boxes
 	
 	
-	//currently, getConnectionInfo() is being called with every API call, however,
-	// this information will at a later point be stored as session login information
 	$('#btnLogin').click(function() {
-		resetYears();
-		var connInfo = getConnectionInfo();
-		popYears(connInfo);
+		dbInfo = getDBFields();
+		popYears(dbinfo);
 	});
 	
 	$('#yearSelect').change(function() {
-		resetSeasons();
-		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
-		popSeasons(connInfo, year);
+		popSeasons(dbInfo, year);
 	});
 	
 	$('#seasonSelect').change(function() {
-		resetCourses();
-		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		var season = $('#seasonSelect').val();
-		popCourses(connInfo, year, season);
+		popCourses(dbInfo, year, season);
 	});
 	
 	$('#courseSelect').change(function() {
-		resetSections();
 		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		var season = $('#seasonSelect').val();
 		var course = $('#courseSelect').val();
-		popSections(connInfo, year, season, course);
+		popSections(dbInfo, year, season, course);
 	});
 	
 	$('#sectionSelect').change(function() {
 		var connInfo = getConnectionInfo();
 		var sectionID = $('#sectionSelect').val();
-		popAttendance(connInfo, sectionID);
+		popAttendance(dbInfo, sectionID);
 	});
 });
 
-function getConnectionInfo() {
+function getDBFields() {
 	var host = $('#host').val().trim();
 	var port = $('#port').val().trim();
 	var db = $('#database').val().trim();
@@ -69,7 +78,7 @@ function getConnectionInfo() {
 	var pw =  $('#passwordBox').val().trim();
 	var instId = $('#instructorId').val().trim();
 	
-	if (host === "" || port === "" || db === "" || uname === "" || instId === "" || pw === "")
+	if (host === "" || port === "" || db === "" || uname === "" || pw === "" || instId === "")
 	{
 		alert('One or more fields are empty');
 		return null;
@@ -77,23 +86,21 @@ function getConnectionInfo() {
 	
 	pw = JSON.stringify(sjcl.encrypt('dassl2017', pw));
 	
-	var connInfo = {'host':host, 'port':port, 'database':db, 'user':uname, 'password':pw, 'instructorid':instId};
+	var connInfo = {'host':host, 'port':parseInt(port, 10), 'database':db,
+	 'user':uname, 'password':pw, 'instructorid':parseInt(instId, 10)};
 	return connInfo;
 };
 
 function popYears(connInfo) {
-	var url = 'year';
-	$.ajax(url, {
+	$.ajax('year', {
 		dataType: 'json',
 		data: connInfo,
 		success: function(result) {
-			var years = '<option value="" disabled="true" selected="true">Choose year</option>';
-			for(var i = 0; i < result.years.length; i++) {
+			var years = '';
+			for (var i = 0; i < result.years.length; i++) {
 				years += '<option value="' + result.years[i] + '">' + result.years[i] + '</option>';
 			}
-			$('#yearSelect').html(years); //add years to dropdown
-			$('#yearSelect').prop('disabled', false); //enable dropdown
-			$('#yearSelect').material_select(); //reload dropdown
+			setYears(years);
 		},
 		error: function(result) {
 			alert('Error while retrieving years - ensure connection information is correct');
@@ -103,19 +110,17 @@ function popYears(connInfo) {
 };
 
 function popSeasons(connInfo, year) {
-	connInfo.year = year;
-	var url = 'season';
-	$.ajax(url, {
+	var urlParams = connInfo;
+	urlParams.year = year;
+	$.ajax('season', {
 		dataType: 'json',
-		data: connInfo,
+		data: urlParams,
 		success: function(result) {
-			var seasons = '<option value="" disabled="true" selected="true">Choose season</option>';
-			for(var i = 0; i < result.seasons.length; i++) {
+			var seasons = '';
+			for (var i = 0; i < result.seasons.length; i++) {
 				seasons += '<option value="' + result.seasons[i].seasonorder + '">' + result.seasons[i].seasonname + '</option>';
 			}
-			$('#seasonSelect').html(seasons); //add seasons to dropdown
-			$('#seasonSelect').prop('disabled', false); //enable dropdown
-			$('#seasonSelect').material_select(); //reload dropdown
+			setSeasons(seasons);
 		},
 		error: function(result) {
 			alert('Error while retrieving seasons');
@@ -125,20 +130,18 @@ function popSeasons(connInfo, year) {
 };
 
 function popCourses(connInfo, year, seasonorder) {
-	connInfo.year = year;
-	connInfo.seasonorder = seasonorder;
-	var url = 'course';
-	$.ajax(url, {
+	var urlParams = connInfo;
+	urlParams.year = year;
+	urlParams.seasonorder = seasonorder;
+	$.ajax('course', {
 		dataType: 'json',
-		data: connInfo,
+		data: urlParams,
 		success: function(result) {
-			var courses = '<option value="" disabled="true" selected="true">Choose course</option>';
-			for(var i = 0; i < result.courses.length; i++) {
+			var courses = '';
+			for (var i = 0; i < result.courses.length; i++) {
 				courses += '<option value="' + result.courses[i] + '">' + result.courses[i] + '</option>';
 			}
-			$('#courseSelect').html(courses); //add courses to dropdown
-			$('#courseSelect').prop('disabled', false); //enable dropdown
-			$('#courseSelect').material_select(); //reload dropdown
+			setCourses(courses);
 		},
 		error: function(result) {
 			alert('Error while retrieving courses');
@@ -148,21 +151,19 @@ function popCourses(connInfo, year, seasonorder) {
 };
 
 function popSections(connInfo, year, seasonorder, coursenumber) {
-	connInfo.year = year;
-	connInfo.seasonorder = seasonorder;
-	connInfo.coursenumber = coursenumber;
-	var url = 'section';
-	$.ajax(url, {
+	var urlParams = connInfo;
+	urlParams.year = year;
+	urlParams.seasonorder = seasonorder;
+	urlParams.coursenumber = coursenumber;
+	$.ajax('section', {
 		dataType: 'json',
-		data: connInfo,
+		data: urlParams,
 		success: function(result) {
-			var sections = '<option value="" disabled="true" selected="true">Choose section</option>';
+			var sections = '';
 			for (var i = 0; i < result.sections.length; i++) {
 				sections += '<option value="' + result.sections[i].sectionid + '">' + result.sections[i].sectionnumber + '</option>';
 			}
-			$('#sectionSelect').html(sections); //add sections to dropdown
-			$('#sectionSelect').prop('disabled', false); //enable dropdown
-			$('#sectionSelect').material_select(); //reload dropdown
+			setSections(sections);
 		},
 		error: function(result) {
 			alert('Error while retrieving sections');
@@ -172,11 +173,11 @@ function popSections(connInfo, year, seasonorder, coursenumber) {
 };
 
 function popAttendance(connInfo, sectionid) {
-	connInfo.sectionid = sectionid;
-	var url = 'attendance';
-	$.ajax(url, {
+	var urlParams = connInfo;
+	urlParams.sectionid = sectionid;
+	$.ajax('attendance', {
 		dataType: 'html',
-		data: connInfo,
+		data: urlParams,
 		success: function(result) {
 			var attnTable = result;
 			if (attnTable.substring(0, 7) === '<table>') {
@@ -195,38 +196,42 @@ function popAttendance(connInfo, sectionid) {
 	});
 };
 
-function resetYears() {
-	var placeholder = '<option value="" disabled="true" selected="true">Choose year</option>';
-	$('#yearSelect').html(placeholder); //remove years from dropdown
-	$('#yearSelect').prop('disabled', true); //disable dropdown
+function setYears(htmlText) {
+	var content = '<option value="" disabled="true" selected="true">Choose year</option>' + htmlText;
+	$('#yearSelect').html(content);
+	$('#yearSelect').prop('disabled', htmlText == null);
 	$('#yearSelect').material_select(); //reload dropdown
-	resetSeasons();
+	
+	setSeasons(null); //reset dependent fields
 };
 
-function resetSeasons() {
-	var placeholder = '<option value="" disabled="true" selected="true">Choose season</option>';
-	$('#seasonSelect').html(placeholder); //remove years from dropdown
-	$('#seasonSelect').prop('disabled', true); //disable dropdown
+function setSeasons(htmlText) {
+	var content = '<option value="" disabled="true" selected="true">Choose season</option>' + htmlText;
+	$('#seasonSelect').html(content);
+	$('#seasonSelect').prop('disabled', htmlText == null);
 	$('#seasonSelect').material_select(); //reload dropdown
-	resetCourses();
+	
+	setCourses(null); //reset dependent fields
 };
 
-function resetCourses() {
-	var placeholder = '<option value="" disabled="true" selected="true">Choose course</option>';
-	$('#courseSelect').html(placeholder); //remove years from dropdown
-	$('#courseSelect').prop('disabled', true); //disable dropdown
+function setCourses(htmlText) {
+	var content = '<option value="" disabled="true" selected="true">Choose course</option>' + htmlText;
+	$('#courseSelect').html(content);
+	$('#courseSelect').prop('disabled', htmlText == null);
 	$('#courseSelect').material_select(); //reload dropdown
-	resetSections();
+	
+	setSections(null); //reset dependent fields
 };
 
-function resetSections() {
-	var placeholder = '<option value="" disabled="true" selected="true">Choose section</option>';
-	$('#sectionSelect').html(placeholder); //remove years from dropdown
-	$('#sectionSelect').prop('disabled', true); //disable dropdown
+function setSections(htmlText) {
+	var content = '<option value="" disabled="true" selected="true">Choose section</option>' + htmlText;
+	$('#sectionSelect').html(content);
+	$('#sectionSelect').prop('disabled', htmlText == null);
 	$('#sectionSelect').material_select(); //reload dropdown
-	resetAttendance();
+	
+	resetAttendance(); //reset dependent fields
 };
 
 function resetAttendance() {
 	$('#attendanceData').html('');
-}
+};
