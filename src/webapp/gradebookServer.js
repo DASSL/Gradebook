@@ -70,13 +70,13 @@ function executeQuery(response, config, queryText, queryParams, queryCallback) {
    var client = new pg.Client(config); //Connect to pg instance
    client.connect(function(err) {
       if(err) { //If a connection error happens, 500
-         response.status(500).send('500 - Connection error');
+         response.status(500).send('500 - Database connection error');
          console.log(err);
       }
       else { //Try and execute the query
          client.query(queryText, queryParams, function (err, result) {
             if(err) { //If the query returns an error, 500
-               response.status(500).send('500 - Query error');
+               response.status(500).send('500 - Query execution error');
                console.log(err);
             }
             else { //Execute the query callback
@@ -135,8 +135,13 @@ app.get('/login', function(request, response) {
 
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
-      var instructor = result.rows[0]; //getInstructors should return at most one row
-      response.send(JSON.stringify(instructor));
+      if(result.rows.lenght != 1) {
+         response.status(500).send('401 - Login failed - Instructor does not exist');
+      }
+      else {
+         var instructor = result.rows[0]; //getInstructors should return at most one row
+         response.send(JSON.stringify(instructor));
+      }
    });
 });
 
