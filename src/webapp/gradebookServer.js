@@ -139,8 +139,10 @@ app.get('/login', function(request, response) {
          response.status(500).send('401 - Login failed - Instructor does not exist');
       }
       else {
-         var instructor = result.rows[0]; //getInstructors should return at most one row
-         response.send(JSON.stringify(instructor));
+         var jsonReturn = {
+            "instructor": result.rows[0] //getInstructors should return at most one row
+         };
+         response.send(JSON.stringify(jsonReturn));
       }
    });
 });
