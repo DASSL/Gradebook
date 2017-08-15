@@ -117,7 +117,7 @@ app.get('/js/index.js', function(request, response) {
 });
 
 //Return a list of years a certain instructor has taught sections
-app.get('/year', function(request, response) {
+app.get('/years', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -147,7 +147,7 @@ app.get('/year', function(request, response) {
 });
 
 //Return a list of seasons an instructor taught in during a certain year
-app.get('/season', function(request, response) {
+app.get('/seasons', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -183,7 +183,7 @@ app.get('/season', function(request, response) {
 });
 
 //Returns a list of courses an instructor has taugh in a certain year
-app.get('/course', function(request, response) {
+app.get('/courses', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -213,7 +213,7 @@ app.get('/course', function(request, response) {
 });
 
 //Returns a list of sesctions an instructor taught in a certain term
-app.get('/section', function(request, response) {
+app.get('/sections', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
