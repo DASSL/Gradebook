@@ -116,6 +116,30 @@ app.get('/js/index.js', function(request, response) {
 	response.sendFile('client/js/index.js', {root: __dirname});
 });
 
+//Returns instructor id and name from a provided email.
+app.get('/login', function(request, response) {
+   //Decrypt the password recieved from the client.  This is a temporary development
+   //feature, since we don't have ssl set up yet
+   var passwordText = request.query.password;//sjcl.decrypt(superSecret, JSON.parse(request.query.password));
+
+   //Connnection parameters for the Postgres client recieved in the request
+   var config = createConnectionParams(request.query.user, request.query.database,
+      passwordText, request.query.host, request.query.port);
+
+   //Get the params from the url
+   var instructorEmail = request.query.instructoremail;
+
+   //Set the query text
+   var queryText = 'SELECT * FROM gradebook.getInstructor($1);';
+   var queryParams = [instructorEmail];
+
+   //Execute the query
+   executeQuery(response, config, queryText, queryParams, function(result) {
+      var instructor = result.rows[0]; //getInstructors should return at most one row
+      response.send(JSON.stringify(instructor));
+   });
+});
+
 //Return a list of years a certain instructor has taught sections
 app.get('/years', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
@@ -336,4 +360,4 @@ app.get('/attendance', function(request, response) {
    });
 });
 
-server = app.listen(80);
+server = app.listen(5000);
