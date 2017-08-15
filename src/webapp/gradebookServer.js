@@ -120,7 +120,7 @@ app.get('/js/index.js', function(request, response) {
 app.get('/login', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
-   var passwordText = request.query.password;//sjcl.decrypt(superSecret, JSON.parse(request.query.password));
+   var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
 
    //Connnection parameters for the Postgres client recieved in the request
    var config = createConnectionParams(request.query.user, request.query.database,
