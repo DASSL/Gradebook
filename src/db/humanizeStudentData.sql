@@ -9,333 +9,230 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-This file is used to convert MD5 hashed name values to readable human names. The
-way it does this is by scanning the Student table, checking if the first,
-middle, and last name fields individually contain a hashed value, then
-randomly assigns a name to their respective name fields.
+This script replaces hash values that may be in the name columns of Student
+table to readable human names: hashes might have been placed in name columns as
+part of a process to anonymize student details.
 
-Name list recieved from:
-    -https://www.census.gov/topics/population/genealogy/data/2010_surnames.html
-    -https://www.ssa.gov/oact/babynames/
+The script detects an anonymized row by testing if all name columns in the row
+contain only hexadecimal digits. It then replaces the value in each name column
+of matching rows with random entries from an appropriate human-name table.
+
+List of human names obtained from:
+ https://www.census.gov/topics/population/genealogy/data/2010_surnames.html
+ https://www.ssa.gov/oact/babynames/
 */
 
---Create a temporary table for actual human names. Used for replacing hash
---values in the Student table.
---These are temporary tables and will be dropped after the session ends
+--Create temporary tables for actual human names
+-- these tables will be automatically dropped after the session ends;
+-- no constraints are placed on the Name column in these tables for reasons of
+-- performance: the table is created, populated, and dropped here in this script
+
+--drop tables if they exist: they shouldn't exist, but belt and suspenders
+DROP TABLE IF EXISTS
+   pg_temp.HumanFirstNames, pg_temp.HumanMiddleNames, pg_temp.HumanLastNames;
 
 CREATE TEMPORARY TABLE HumanFirstNames(
     ID SERIAL PRIMARY KEY,
-    Name VARCHAR(50) NOT NULL
+    Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
 
-CREATE TEMPORARY TABLE HumanMiddleNames(
+CREATE TEMPORARY TABLE IF NOT EXISTS HumanMiddleNames(
     ID SERIAL PRIMARY KEY,
-    Name VARCHAR(50) NOT NULL
+    Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
 
-CREATE TEMPORARY TABLE HumanLastNames(
+CREATE TEMPORARY TABLE IF NOT EXISTS HumanLastNames(
     ID SERIAL PRIMARY KEY,
-    Name VARCHAR(50) NOT NULL
+    Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
+
 
 --Insert 100 random first names into HumanFirstNames
-INSERT INTO HumanFirstNames(Name) VALUES ('Jacob');
-INSERT INTO HumanFirstNames(Name) VALUES ('Michael');
-INSERT INTO HumanFirstNames(Name) VALUES ('Madison');
-INSERT INTO HumanFirstNames(Name) VALUES ('Joshua');
-INSERT INTO HumanFirstNames(Name) VALUES ('Sarah');
-INSERT INTO HumanFirstNames(Name) VALUES ('Nicholas');
-INSERT INTO HumanFirstNames(Name) VALUES ('Andrew');
-INSERT INTO HumanFirstNames(Name) VALUES ('Joseph');
-INSERT INTO HumanFirstNames(Name) VALUES ('Elizabeth');
-INSERT INTO HumanFirstNames(Name) VALUES ('Tyler');
-INSERT INTO HumanFirstNames(Name) VALUES ('William');
-INSERT INTO HumanFirstNames(Name) VALUES ('Alyssa');
-INSERT INTO HumanFirstNames(Name) VALUES ('Kayla');
-INSERT INTO HumanFirstNames(Name) VALUES ('John');
-INSERT INTO HumanFirstNames(Name) VALUES ('Brianna');
-INSERT INTO HumanFirstNames(Name) VALUES ('David');
-INSERT INTO HumanFirstNames(Name) VALUES ('Emma');
-INSERT INTO HumanFirstNames(Name) VALUES ('James');
-INSERT INTO HumanFirstNames(Name) VALUES ('Justin');
-INSERT INTO HumanFirstNames(Name) VALUES ('Alexander');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jonathan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Christian');
-INSERT INTO HumanFirstNames(Name) VALUES ('Sydney');
-INSERT INTO HumanFirstNames(Name) VALUES ('Dylan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Morgan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jennifer');
-INSERT INTO HumanFirstNames(Name) VALUES ('Noah');
-INSERT INTO HumanFirstNames(Name) VALUES ('Samuel');
-INSERT INTO HumanFirstNames(Name) VALUES ('Julia');
-INSERT INTO HumanFirstNames(Name) VALUES ('Nathan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Nicole');
-INSERT INTO HumanFirstNames(Name) VALUES ('Amanda');
-INSERT INTO HumanFirstNames(Name) VALUES ('Katherine');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jose');
-INSERT INTO HumanFirstNames(Name) VALUES ('Hunter');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jordan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Savannah');
-INSERT INTO HumanFirstNames(Name) VALUES ('Caleb');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jason');
-INSERT INTO HumanFirstNames(Name) VALUES ('Logan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Maria');
-INSERT INTO HumanFirstNames(Name) VALUES ('Eric');
-INSERT INTO HumanFirstNames(Name) VALUES ('Mackenzie');
-INSERT INTO HumanFirstNames(Name) VALUES ('Gabriel');
-INSERT INTO HumanFirstNames(Name) VALUES ('Adam');
-INSERT INTO HumanFirstNames(Name) VALUES ('Mary');
-INSERT INTO HumanFirstNames(Name) VALUES ('Isaiah');
-INSERT INTO HumanFirstNames(Name) VALUES ('Juan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Luis');
-INSERT INTO HumanFirstNames(Name) VALUES ('Connor');
-INSERT INTO HumanFirstNames(Name) VALUES ('Brooke');
-INSERT INTO HumanFirstNames(Name) VALUES ('Elijah');
-INSERT INTO HumanFirstNames(Name) VALUES ('Isaac');
-INSERT INTO HumanFirstNames(Name) VALUES ('Steven');
-INSERT INTO HumanFirstNames(Name) VALUES ('Evan');
-INSERT INTO HumanFirstNames(Name) VALUES ('Madeline');
-INSERT INTO HumanFirstNames(Name) VALUES ('Sean');
-INSERT INTO HumanFirstNames(Name) VALUES ('Kimberly');
-INSERT INTO HumanFirstNames(Name) VALUES ('Courtney');
-INSERT INTO HumanFirstNames(Name) VALUES ('Cody');
-INSERT INTO HumanFirstNames(Name) VALUES ('Nathaniel');
-INSERT INTO HumanFirstNames(Name) VALUES ('Alex');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jenna');
-INSERT INTO HumanFirstNames(Name) VALUES ('Mason');
-INSERT INTO HumanFirstNames(Name) VALUES ('Caroline');
-INSERT INTO HumanFirstNames(Name) VALUES ('Carlos');
-INSERT INTO HumanFirstNames(Name) VALUES ('Angel');
-INSERT INTO HumanFirstNames(Name) VALUES ('Bailey');
-INSERT INTO HumanFirstNames(Name) VALUES ('Devin');
-INSERT INTO HumanFirstNames(Name) VALUES ('Shelby');
-INSERT INTO HumanFirstNames(Name) VALUES ('Cole');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jackson');
-INSERT INTO HumanFirstNames(Name) VALUES ('Christina');
-INSERT INTO HumanFirstNames(Name) VALUES ('Garrett');
-INSERT INTO HumanFirstNames(Name) VALUES ('Trevor');
-INSERT INTO HumanFirstNames(Name) VALUES ('Caitlin');
-INSERT INTO HumanFirstNames(Name) VALUES ('Chase');
-INSERT INTO HumanFirstNames(Name) VALUES ('Adrian');
-INSERT INTO HumanFirstNames(Name) VALUES ('Mark');
-INSERT INTO HumanFirstNames(Name) VALUES ('Blake');
-INSERT INTO HumanFirstNames(Name) VALUES ('Sebastian');
-INSERT INTO HumanFirstNames(Name) VALUES ('Antonio');
-INSERT INTO HumanFirstNames(Name) VALUES ('Lucas');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jeremy');
-INSERT INTO HumanFirstNames(Name) VALUES ('Gavin');
-INSERT INTO HumanFirstNames(Name) VALUES ('Claire');
-INSERT INTO HumanFirstNames(Name) VALUES ('Julian');
-INSERT INTO HumanFirstNames(Name) VALUES ('Dakota');
-INSERT INTO HumanFirstNames(Name) VALUES ('Kathryn');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jesse');
-INSERT INTO HumanFirstNames(Name) VALUES ('Dalton');
-INSERT INTO HumanFirstNames(Name) VALUES ('Bryce');
-INSERT INTO HumanFirstNames(Name) VALUES ('Mia');
-INSERT INTO HumanFirstNames(Name) VALUES ('Kenneth');
-INSERT INTO HumanFirstNames(Name) VALUES ('Stephen');
-INSERT INTO HumanFirstNames(Name) VALUES ('Jake');
-INSERT INTO HumanFirstNames(Name) VALUES ('Katie');
-INSERT INTO HumanFirstNames(Name) VALUES ('Spencer');
-INSERT INTO HumanFirstNames(Name) VALUES ('Cheyenne');
-INSERT INTO HumanFirstNames(Name) VALUES ('Paul');
+INSERT INTO pg_temp.HumanFirstNames(Name)
+VALUES
+   ('Jacob'),     ('Michael'),   ('Madison'),   ('Joshua'),    ('Sarah'),
+   ('Nicholas'),  ('Andrew'),    ('Joseph'),    ('Elizabeth'), ('Tyler'),
+   ('William'),   ('Alyssa'),    ('Kayla'),     ('John'),      ('Brianna'),
+   ('David'),     ('Emma'),      ('James'),     ('Justin'),    ('Alexander'),
+   ('Jonathan'),  ('Christian'), ('Sydney'),    ('Dylan'),     ('Morgan'),
+   ('Jennifer'),  ('Noah'),      ('Samuel'),    ('Julia'),     ('Nathan'),
+   ('Nicole'),    ('Amanda'),    ('Katherine'), ('Jose'),      ('Hunter'),
+   ('Jordan'),    ('Savannah'),  ('Caleb'),     ('Jason'),     ('Logan'),
+   ('Maria'),     ('Eric'),      ('Mackenzie'), ('Gabriel'),   ('Adam'),
+   ('Mary'),      ('Isaiah'),    ('Juan'),      ('Luis'),      ('Connor'),
+   ('Brooke'),    ('Elijah'),    ('Isaac'),     ('Steven'),    ('Evan'),
+   ('Madeline'),  ('Sean'),      ('Kimberly'),  ('Courtney'),  ('Cody'),
+   ('Nathaniel'), ('Alex'),      ('Jenna'),     ('Mason'),     ('Caroline'),
+   ('Carlos'),    ('Angel'),     ('Bailey'),    ('Devin'),     ('Shelby'),
+   ('Cole'),      ('Jackson'),   ('Christina'), ('Garrett'),   ('Trevor'),
+   ('Caitlin'),   ('Chase'),     ('Adrian'),    ('Mark'),      ('Blake'),
+   ('Sebastian'), ('Antonio'),   ('Lucas'),     ('Jeremy'),    ('Gavin'),
+   ('Claire'),    ('Julian'),    ('Dakota'),    ('Kathryn'),   ('Jesse'),
+   ('Dalton'),    ('Bryce'),     ('Mia'),       ('Kenneth'),   ('Stephen'),
+   ('Jake'),      ('Katie'),     ('Spencer'),   ('Cheyenne'),  ('Paul');
 
---Insert 41 random middle names into HumanMiddleNames. Values of '' are used to
+
+--Insert 42 random middle names into HumanMiddleNames. Values of '' are used to
 --represent no middle name. ~41% (17/41) of the entries are empty strings.
-INSERT INTO HumanMiddleNames(Name) VALUES ('James');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Jerry');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Mathew');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('G');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('O');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Vinny');
-INSERT INTO HumanMiddleNames(Name) VALUES ('V');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Jonathan');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Kevin');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('B');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Mark');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Amanda');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Luis');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('P');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Frank');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Rebecca');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('L');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Gary');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Mary');
-INSERT INTO HumanMiddleNames(Name) VALUES ('');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Donald');
-INSERT INTO HumanMiddleNames(Name) VALUES ('T');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Warren');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Pam');
-INSERT INTO HumanMiddleNames(Name) VALUES ('Eric');
-INSERT INTO HumanMiddleNames(Name) VALUES ('X');
+INSERT INTO pg_temp.HumanMiddleNames(Name)
+VALUES
+   ('James'),  (''),       ('Jerry'),  (''),       ('Mathew'), (''),
+   ('G'),      (''),       ('E'),      (''),       ('Vinny'),  ('V'),
+   (''),       ('B'),      ('Kevin'),  (''),       ('X'),      ('Jonathan'),
+   (''),       ('Mark'),   (''),       ('Amanda'), (''),       ('Luis'),
+   (''),       ('P'),      (''),       ('Frank'),  (''),       ('Rebecca'),
+   (''),       ('L'),      (''),       ('Gary'),   (''),       ('Mary'),
+   (''),       ('Donald'),('T'),       ('Warren'), ('Pam'),    ('Eric');
+
 
 --Insert 100 random last names into HumanLastNames
-INSERT INTO HumanLastNames(Name) VALUES ('Smith');
-INSERT INTO HumanLastNames(Name) VALUES ('Johnson');
-INSERT INTO HumanLastNames(Name) VALUES ('Williams');
-INSERT INTO HumanLastNames(Name) VALUES ('Brown');
-INSERT INTO HumanLastNames(Name) VALUES ('Jones');
-INSERT INTO HumanLastNames(Name) VALUES ('Garcia');
-INSERT INTO HumanLastNames(Name) VALUES ('Miller');
-INSERT INTO HumanLastNames(Name) VALUES ('Davis');
-INSERT INTO HumanLastNames(Name) VALUES ('Rodriguez');
-INSERT INTO HumanLastNames(Name) VALUES ('Martinez');
-INSERT INTO HumanLastNames(Name) VALUES ('Hernandez');
-INSERT INTO HumanLastNames(Name) VALUES ('Lopez');
-INSERT INTO HumanLastNames(Name) VALUES ('Gonzalez');
-INSERT INTO HumanLastNames(Name) VALUES ('Wilson');
-INSERT INTO HumanLastNames(Name) VALUES ('Anderson');
-INSERT INTO HumanLastNames(Name) VALUES ('Thomas');
-INSERT INTO HumanLastNames(Name) VALUES ('Taylor');
-INSERT INTO HumanLastNames(Name) VALUES ('Moore');
-INSERT INTO HumanLastNames(Name) VALUES ('Jackson');
-INSERT INTO HumanLastNames(Name) VALUES ('Martin');
-INSERT INTO HumanLastNames(Name) VALUES ('Lee');
-INSERT INTO HumanLastNames(Name) VALUES ('Perez');
-INSERT INTO HumanLastNames(Name) VALUES ('Thompson');
-INSERT INTO HumanLastNames(Name) VALUES ('White');
-INSERT INTO HumanLastNames(Name) VALUES ('Harris');
-INSERT INTO HumanLastNames(Name) VALUES ('Sanchez');
-INSERT INTO HumanLastNames(Name) VALUES ('Clark');
-INSERT INTO HumanLastNames(Name) VALUES ('Ramirez');
-INSERT INTO HumanLastNames(Name) VALUES ('Lewis');
-INSERT INTO HumanLastNames(Name) VALUES ('Robinson');
-INSERT INTO HumanLastNames(Name) VALUES ('Walker');
-INSERT INTO HumanLastNames(Name) VALUES ('Young');
-INSERT INTO HumanLastNames(Name) VALUES ('Allen');
-INSERT INTO HumanLastNames(Name) VALUES ('King');
-INSERT INTO HumanLastNames(Name) VALUES ('Wright');
-INSERT INTO HumanLastNames(Name) VALUES ('Scott');
-INSERT INTO HumanLastNames(Name) VALUES ('Torres');
-INSERT INTO HumanLastNames(Name) VALUES ('Nguyen');
-INSERT INTO HumanLastNames(Name) VALUES ('Hill');
-INSERT INTO HumanLastNames(Name) VALUES ('Flores');
-INSERT INTO HumanLastNames(Name) VALUES ('Green');
-INSERT INTO HumanLastNames(Name) VALUES ('Adams');
-INSERT INTO HumanLastNames(Name) VALUES ('Nelson');
-INSERT INTO HumanLastNames(Name) VALUES ('Baker');
-INSERT INTO HumanLastNames(Name) VALUES ('Hall');
-INSERT INTO HumanLastNames(Name) VALUES ('Rivera');
-INSERT INTO HumanLastNames(Name) VALUES ('Campbell');
-INSERT INTO HumanLastNames(Name) VALUES ('Mitchell');
-INSERT INTO HumanLastNames(Name) VALUES ('Carter');
-INSERT INTO HumanLastNames(Name) VALUES ('Roberts');
-INSERT INTO HumanLastNames(Name) VALUES ('Gomez');
-INSERT INTO HumanLastNames(Name) VALUES ('Phillips');
-INSERT INTO HumanLastNames(Name) VALUES ('Evans');
-INSERT INTO HumanLastNames(Name) VALUES ('Turner');
-INSERT INTO HumanLastNames(Name) VALUES ('Diaz');
-INSERT INTO HumanLastNames(Name) VALUES ('Parker');
-INSERT INTO HumanLastNames(Name) VALUES ('Cruz');
-INSERT INTO HumanLastNames(Name) VALUES ('Edwards');
-INSERT INTO HumanLastNames(Name) VALUES ('Collins');
-INSERT INTO HumanLastNames(Name) VALUES ('Reyes');
-INSERT INTO HumanLastNames(Name) VALUES ('Stewart');
-INSERT INTO HumanLastNames(Name) VALUES ('Morris');
-INSERT INTO HumanLastNames(Name) VALUES ('Morales');
-INSERT INTO HumanLastNames(Name) VALUES ('Murphy');
-INSERT INTO HumanLastNames(Name) VALUES ('Cook');
-INSERT INTO HumanLastNames(Name) VALUES ('Rogers');
-INSERT INTO HumanLastNames(Name) VALUES ('Gutierrez');
-INSERT INTO HumanLastNames(Name) VALUES ('Ortiz');
-INSERT INTO HumanLastNames(Name) VALUES ('Morgan');
-INSERT INTO HumanLastNames(Name) VALUES ('Cooper');
-INSERT INTO HumanLastNames(Name) VALUES ('Peterson');
-INSERT INTO HumanLastNames(Name) VALUES ('Bailey');
-INSERT INTO HumanLastNames(Name) VALUES ('Reed');
-INSERT INTO HumanLastNames(Name) VALUES ('Kelly');
-INSERT INTO HumanLastNames(Name) VALUES ('Howard');
-INSERT INTO HumanLastNames(Name) VALUES ('Ramos');
-INSERT INTO HumanLastNames(Name) VALUES ('Kim');
-INSERT INTO HumanLastNames(Name) VALUES ('Cox');
-INSERT INTO HumanLastNames(Name) VALUES ('Ward');
-INSERT INTO HumanLastNames(Name) VALUES ('Richardson');
-INSERT INTO HumanLastNames(Name) VALUES ('Watson');
-INSERT INTO HumanLastNames(Name) VALUES ('Brooks');
-INSERT INTO HumanLastNames(Name) VALUES ('Chavez');
-INSERT INTO HumanLastNames(Name) VALUES ('Wood');
-INSERT INTO HumanLastNames(Name) VALUES ('James');
-INSERT INTO HumanLastNames(Name) VALUES ('Bennett');
-INSERT INTO HumanLastNames(Name) VALUES ('Gray');
-INSERT INTO HumanLastNames(Name) VALUES ('Mendoza');
-INSERT INTO HumanLastNames(Name) VALUES ('Ruiz');
-INSERT INTO HumanLastNames(Name) VALUES ('Hughes');
-INSERT INTO HumanLastNames(Name) VALUES ('Price');
-INSERT INTO HumanLastNames(Name) VALUES ('Alvarez');
-INSERT INTO HumanLastNames(Name) VALUES ('Castillo');
-INSERT INTO HumanLastNames(Name) VALUES ('Sanders');
-INSERT INTO HumanLastNames(Name) VALUES ('Patel');
-INSERT INTO HumanLastNames(Name) VALUES ('Myers');
-INSERT INTO HumanLastNames(Name) VALUES ('Long');
-INSERT INTO HumanLastNames(Name) VALUES ('Ross');
-INSERT INTO HumanLastNames(Name) VALUES ('Foster');
-INSERT INTO HumanLastNames(Name) VALUES ('Jimenez');
+INSERT INTO pg_temp.HumanLastNames(Name)
+VALUES
+   ('Smith'),     ('Johnson'),   ('Williams'),  ('Brown'),     ('Jones'),
+   ('Garcia'),    ('Miller'),    ('Davis'),     ('Rodriguez'), ('Martinez'),
+   ('Hernandez'), ('Lopez'),     ('Gonzalez'),  ('Wilson'),    ('Anderson'),
+   ('Thomas'),    ('Taylor'),    ('Moore'),     ('Jackson'),   ('Martin'),
+   ('Lee'),       ('Perez'),     ('Thompson'),  ('White'),     ('Harris'),
+   ('Sanchez'),   ('Clark'),     ('Ramirez'),   ('Lewis'),     ('Robinson'),
+   ('Walker'),    ('Young'),     ('Allen'),     ('King'),      ('Wright'),
+   ('Scott'),     ('Torres'),    ('Nguyen'),    ('Hill'),      ('Flores'),
+   ('Green'),     ('Adams'),     ('Nelson'),    ('Baker'),     ('Hall'),
+   ('Rivera'),    ('Campbell'),  ('Mitchell'),  ('Carter'),    ('Roberts'),
+   ('Gomez'),     ('Phillips'),  ('Evans'),     ('Turner'),    ('Diaz'),
+   ('Parker'),    ('Cruz'),      ('Edwards'),   ('Collins'),   ('Reyes'),
+   ('Stewart'),   ('Morris'),    ('Morales'),   ('Murphy'),    ('Cook'),
+   ('Rogers'),    ('Gutierrez'), ('Ortiz'),     ('Morgan'),    ('Cooper'),
+   ('Peterson'),  ('Bailey'),    ('Reed'),      ('Kelly'),     ('Howard'),
+   ('Ramos'),     ('Kim'),       ('Cox'),       ('Ward'),      ('Richardson'),
+   ('Watson'),    ('Brooks'),    ('Chavez'),    ('Wood'),      ('James'),
+   ('Bennett'),   ('Gray'),      ('Mendoza'),   ('Ruiz'),      ('Hughes'),
+   ('Price'),     ('Alvarez'),   ('Castillo'),  ('Sanders'),   ('Patel'),
+   ('Myers'),     ('Long'),      ('Ross'),      ('Foster'),    ('Jimenez');
 
+
+--create a temporary function to return a random first name
+--parameter numFirstNames is expected to equal #rows in table HumanFirstNames
+CREATE OR REPLACE FUNCTION pg_temp.GetHumanFirstName(numFirstNames INTEGER)
+RETURNS VARCHAR(50)
+AS
+$$
+   SELECT H.Name
+   FROM pg_temp.HumanFirstNames H
+        JOIN (SELECT FLOOR(random() * $1) + 1 AS ID) R ON H.ID = R.ID
+   LIMIT 1;
+$$ LANGUAGE SQL;
+
+
+--create a temporary function to return a random middle name
+--parameter numMiddleNames is expected to equal #rows in table HumanMiddleNames
+CREATE OR REPLACE FUNCTION pg_temp.GetHumanMiddleName(numMiddleNames INTEGER)
+RETURNS VARCHAR(50)
+AS
+$$
+   SELECT H.Name
+   FROM pg_temp.HumanMiddleNames H
+        JOIN (SELECT FLOOR(random() * $1) + 1 AS ID) R ON H.ID = R.ID
+   LIMIT 1;
+$$ LANGUAGE SQL;
+
+--create a temporary function to return a random last name
+--parameter numLastNames is expected to equal #rows in table HumanLastNames
+CREATE OR REPLACE FUNCTION pg_temp.GetHumanLastName(numLastNames INTEGER)
+RETURNS VARCHAR(50)
+AS
+$$
+   SELECT H.Name
+   FROM pg_temp.HumanLastNames H
+        JOIN (SELECT FLOOR(random() * $1) + 1 AS ID) R ON H.ID = R.ID
+   LIMIT 1;
+$$ LANGUAGE SQL;
+
+--create a temporary function to return a random name part: first/middle/last
+--parameter currentName: value presently in Student table for the name part
+--parameter resultNameKind contains '0'/'1'/x to denote name part desired
+--  '0' returns first name; '1' returns middle name; others return last name
+--paramter humanTableRows: has #rows in the appropriate Human* table
+--Return value:
+-- same as currentName if that param is NULL or empty, else a randomly generated
+-- name for the kind of name requested
+--If a Get*Name function returns NULL (which happens ocassionally), that
+-- function is retried up to two more times; if all attempts to generate a name
+-- part return NULL, currentName is returned as value
+-- so far only one retry has been necesary to return a non-NULL name part
+CREATE OR REPLACE FUNCTION pg_temp.GetHumanNamePart(currentName VARCHAR(50),
+                                                    resultNameKind CHAR(1),
+                                                    humanTableRows INTEGER)
+RETURNS VARCHAR(50)
+AS
+$$
+DECLARE result VARCHAR(50);
+BEGIN
+   IF (currentName IS NULL OR TRIM(currentName) = '') THEN
+      RETURN currentName;
+   ELSE
+      --call appropriate name-part function: try upto three times to see if a
+      --non-NULL value can be generated
+      CASE
+         WHEN (resultNameKind = '0') THEN
+            result = COALESCE(pg_temp.GetHumanFirstName(humanTableRows),
+                              pg_temp.GetHumanFirstName(humanTableRows),
+                              pg_temp.GetHumanFirstName(humanTableRows)
+                             );
+         WHEN (resultNameKind = '1') THEN
+            result = COALESCE(pg_temp.GetHumanMiddleName(humanTableRows),
+                              pg_temp.GetHumanMiddleName(humanTableRows),
+                              pg_temp.GetHumanMiddleName(humanTableRows)
+                             );
+         ELSE
+            result = COALESCE(pg_temp.GetHumanLastName(humanTableRows),
+                              pg_temp.GetHumanLastName(humanTableRows),
+                              pg_temp.GetHumanLastName(humanTableRows)
+                             );
+      END CASE;
+
+      --return currentName if result is NULL after three tries
+      RETURN COALESCE(result, currentName);
+   END IF;
+END
+$$ LANGUAGE plpgsql;
+
+/*
+The following dynamic SQL can be used instead of using different function for
+each name part; yet name-part specific functions are used to aid maintenance
+-- humanTableName is a variable whose value depends on resultNameKind
+
+EXECUTE 'SELECT H.Name '
+        'FROM pg_temp.' || humanTableName || ' H '
+        'JOIN (SELECT FLOOR(random() * ' || humanTableRows || ') + 1 AS ID) R '
+        'ON H.ID = R.ID '
+        'LIMIT 1;'
+INTO result;
+*/
+
+
+--perform humanization
 DO $$
 DECLARE
-    --Declare integers that will be used for the upper bounds of the random
-    --generator
     numOfFirstNames INTEGER;
     numOfMiddleNames INTEGER;
     numOfLastNames INTEGER;
 BEGIN
-    SELECT COUNT(*)
-        INTO numOfFirstNames
-    FROM HumanFirstNames;
 
-    SELECT COUNT(*)
-        INTO numOfMiddleNames
-    FROM HumanMiddleNames;
+    --determine the number of names in each Human* table
+    -- the counts are used later to limit the range of random numbers generated
+    SELECT COUNT(*) INTO numOfFirstNames FROM HumanFirstNames;
+    SELECT COUNT(*) INTO numOfMiddleNames FROM HumanMiddleNames;
+    SELECT COUNT(*) INTO numOfLastNames FROM HumanLastNames;
 
-    SELECT COUNT(*)
-        INTO numOfLastNames
-    FROM HumanLastNames;
-
-    --Update Student.FName, Student.MName, and Student.LName field if the
-    --fields individually match the regular expression [0-9A-F]{32}
-    --(case insensitive) or if they are null.
-    --The WHERE clauses with `length(Name) * 0 + 1` is used to make the
-    --subqueries volatile by making a dependency on the outer query thus
-    --ensuring random() is called the appropriate amount of times.
-    --NOTE: The `WHERE` clause consists of an error where either multiple random
-    --IDs are chosen or none at all. Updated name fields may be `NULL` 
+    --Update the name columns in Student table in rows containing hash values
+    -- a name column contains hash value if it contains only hexadecimal digits;
+    -- test a concatenation of all name columns to prevent falsely identifying
+    -- a row as needing update: unlikely a real human name has all name parts
+    -- made of only hex digits. "Ada E Cadefa"? "Abe Bead"?
     UPDATE Gradebook.Student
-    SET FName = (SELECT Name
-            FROM HumanFirstNames
-            WHERE FName LIKE '%'
-            AND HumanFirstNames.ID = trunc(random() * numOfFirstNames  + 1)
-            LIMIT 1
-        ),
-        MName = (SELECT Name
-            FROM HumanMiddleNames
-            WHERE MName LIKE '%'
-            AND HumanMiddleNames.ID = trunc(random() * numOfMiddleNames  + 1)
-            LIMIT 1
-        ),
-        LName = (SELECT Name
-            FROM HumanLastNames
-            WHERE LName LIKE '%'
-            AND HumanLastNames.ID = trunc(random() * numOfLastNames  + 1)
-            LIMIT 1
-        )
-    WHERE (FName ~* '[0-9a-f]{32}')
-        OR (MName ~* '[0-9a-f]{32}')
-        OR (LName ~* '[0-9a-f]{32}');
+    SET FName = pg_temp.GetHumanNamePart(FName, '0', numOfFirstNames),
+        MName = pg_temp.GetHumanNamePart(MName, '1', numOfMiddleNames),
+        LName = pg_temp.GetHumanNamePart(LName, '2', numOfLastNames)
+    WHERE CONCAT(TRIM(FName), TRIM(MName), TRIM(LName)) ~* '^[0-9a-f]+$';
 
 END $$;
