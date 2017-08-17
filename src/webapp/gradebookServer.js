@@ -136,7 +136,7 @@ app.get('/login', function(request, response) {
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
       if(result.rows[0].id == null) { //Check if the returned row has a null instructor id
-         response.status(500).send('401 - Login failed - Instructor does not exist');
+         response.status(500).send('401 - Login failed');
       }
       else {
          var jsonReturn = {
