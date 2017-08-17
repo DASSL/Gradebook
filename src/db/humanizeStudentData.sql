@@ -1,4 +1,6 @@
 /*
+humanizeStudentData.sql - Gradebook
+
 Zaid Bhujwala, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
@@ -155,10 +157,10 @@ $$ LANGUAGE SQL;
 --Return value:
 -- same as currentName if that param is NULL or empty, else a randomly generated
 -- name for the kind of name requested
---If a Get*Name function returns NULL (which happens ocassionally), that
--- function is retried up to two more times; if all attempts to generate a name
--- part return NULL, currentName is returned as value
--- so far only one retry has been necesary to return a non-NULL name part
+--If a Get*Name function returns NULL (which happens occasionally), that
+-- function is retried up to two more times; if all 3 attempts to generate a
+-- name part return NULL, currentName is returned as the function's value
+-- so far at most one retry has been necesary to return a non-NULL name part
 CREATE OR REPLACE FUNCTION pg_temp.GetHumanNamePart(currentName VARCHAR(50),
                                                     resultNameKind CHAR(1),
                                                     humanTableRows INTEGER)
