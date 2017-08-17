@@ -51,11 +51,11 @@ supplied parameters.
 */
 function createConnectionParams(user, database, password, host, port) {
    var config = {
-      user: user,
-      database: database,
-      password: password,
-      host: host,
-      port: port
+      user: user.trim(),
+      database: database.trim(),
+      password: password.trim(),
+      host: host.trim(),
+      port: port.trim()
    };
    return config;
 }
@@ -127,7 +127,7 @@ app.get('/login', function(request, response) {
       passwordText, request.query.host, request.query.port);
 
    //Get the params from the url
-   var instructorEmail = request.query.instructoremail;
+   var instructorEmail = request.query.instructoremail.trim();
 
    //Set the query text
    var queryText = 'SELECT * FROM gradebook.getInstructor($1);';
