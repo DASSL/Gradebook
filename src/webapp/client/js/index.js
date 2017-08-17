@@ -41,8 +41,9 @@ $(document).ready(function() {
 	
 	
 	$('#btnLogin').click(function() {
-		var email = $.('#email').val();
-		serverLogin(email, function() {
+		dbInfo = getDBFields();
+		var email = $('#email').val();
+		serverLogin(dbInfo, email, function() {
 			popYears(dbInfo);
 		});
 	});
@@ -59,7 +60,6 @@ $(document).ready(function() {
 	});
 	
 	$('#courseSelect').change(function() {
-		var connInfo = getConnectionInfo();
 		var year = $('#yearSelect').val();
 		var season = $('#seasonSelect').val();
 		var course = $('#courseSelect').val();
@@ -67,7 +67,6 @@ $(document).ready(function() {
 	});
 	
 	$('#sectionSelect').change(function() {
-		var connInfo = getConnectionInfo();
 		var sectionID = $('#sectionSelect').val();
 		popAttendance(dbInfo, sectionID);
 	});
@@ -93,15 +92,17 @@ function getDBFields() {
 	return connInfo;
 };
 
-function serverLogin(email, callback) {
+function serverLogin(connInfo, email, callback) {
+	//"create a copy" of connInfo with instructoremail and set to urlParams
+	var urlParams = $.extend({}, connInfo, {instructoremail:email});
 	$.ajax('login', {
 		dataType: 'json',
-		data: {email: email} ,
+		data: urlParams ,
 		success: function(result) {
-			dbInfo = getDBFields();
-			dbInfo.instructorid = result.instructorid;
-			instInfo = { fname:result.fname, mname:result.mname, 
-			 lname:result.lname, dept:result.dept };
+			dbInfo.instructorid = result.instructor.id;
+			instInfo = { fname:result.instructor.fname, 
+			mname:result.instructor.mname, lname:result.instructor.lname,
+			dept:result.instructor.department };
 			callback();
 		},
 		error: function(result) {
@@ -112,33 +113,34 @@ function serverLogin(email, callback) {
 };
 
 function popYears(connInfo) {
-	$.ajax('year', {
+	$.ajax('years', {
 		dataType: 'json',
 		data: connInfo,
 		success: function(result) {
 			var years = '';
 			for (var i = 0; i < result.years.length; i++) {
-				years += '<option value="' + result.years[i] + '">' + result.years[i] + '</option>';
+				years += '<option value="' + result.years[i] + '">' +
+				 result.years[i] + '</option>';
 			}
 			setYears(years);
 		},
 		error: function(result) {
-			alert('Error while retrieving years - ensure connection information is correct');
+			alert('Error while retrieving years - ensure DB info is correct');
 			console.log(result);
 		}
 	});
 };
 
 function popSeasons(connInfo, year) {
-	var urlParams = connInfo;
-	urlParams.year = year;
-	$.ajax('season', {
+	var urlParams = $.extend({}, connInfo, {year:year});
+	$.ajax('seasons', {
 		dataType: 'json',
 		data: urlParams,
 		success: function(result) {
 			var seasons = '';
 			for (var i = 0; i < result.seasons.length; i++) {
-				seasons += '<option value="' + result.seasons[i].seasonorder + '">' + result.seasons[i].seasonname + '</option>';
+				seasons += '<option value="' + result.seasons[i].seasonorder +
+				 '">' + result.seasons[i].seasonname + '</option>';
 			}
 			setSeasons(seasons);
 		},
@@ -150,16 +152,15 @@ function popSeasons(connInfo, year) {
 };
 
 function popCourses(connInfo, year, seasonorder) {
-	var urlParams = connInfo;
-	urlParams.year = year;
-	urlParams.seasonorder = seasonorder;
-	$.ajax('course', {
+	var urlParams = $.extend({}, connInfo, {year:year, seasonorder:seasonorder});
+	$.ajax('courses', {
 		dataType: 'json',
 		data: urlParams,
 		success: function(result) {
 			var courses = '';
 			for (var i = 0; i < result.courses.length; i++) {
-				courses += '<option value="' + result.courses[i] + '">' + result.courses[i] + '</option>';
+				courses += '<option value="' + result.courses[i] + '">' + 
+				 result.courses[i] + '</option>';
 			}
 			setCourses(courses);
 		},
@@ -171,17 +172,16 @@ function popCourses(connInfo, year, seasonorder) {
 };
 
 function popSections(connInfo, year, seasonorder, coursenumber) {
-	var urlParams = connInfo;
-	urlParams.year = year;
-	urlParams.seasonorder = seasonorder;
-	urlParams.coursenumber = coursenumber;
-	$.ajax('section', {
+	var urlParams = $.extend({}, connInfo, {year:year, seasonorder:seasonorder,
+	 coursenumber:coursenumber});
+	$.ajax('sections', {
 		dataType: 'json',
 		data: urlParams,
 		success: function(result) {
 			var sections = '';
 			for (var i = 0; i < result.sections.length; i++) {
-				sections += '<option value="' + result.sections[i].sectionid + '">' + result.sections[i].sectionnumber + '</option>';
+				sections += '<option value="' + result.sections[i].sectionid +
+				 '">' + result.sections[i].sectionnumber + '</option>';
 			}
 			setSections(sections);
 		},
@@ -193,18 +193,19 @@ function popSections(connInfo, year, seasonorder, coursenumber) {
 };
 
 function popAttendance(connInfo, sectionid) {
-	var urlParams = connInfo;
-	urlParams.sectionid = sectionid;
+	var urlParams = $.extend({}, connInfo, {sectionid:sectionid});
 	$.ajax('attendance', {
 		dataType: 'html',
 		data: urlParams,
 		success: function(result) {
 			var attnTable = result;
 			if (attnTable.substring(0, 7) === '<table>') {
-				attnTable = '<table class="striped" style="display:block;margin:auto;overflow-x:auto">' + attnTable.substring(7);
+				attnTable = '<table class="striped" style="display:block;' +
+				 'margin:auto;overflow-x:auto">' + attnTable.substring(7);
 			}
 			else {
-				console.log('WARN: Unable to style attendance table; first 7 chars did not match "<table>"');
+				console.log('WARN: Unable to style attendance table;' +
+				 'first 7 chars did not match "<table>"');
 			}
 			$('#attendanceData').html(attnTable);
 		},
@@ -217,7 +218,8 @@ function popAttendance(connInfo, sectionid) {
 };
 
 function setYears(htmlText) {
-	var content = '<option value="" disabled="true" selected="true">Choose year</option>' + htmlText;
+	var content = '<option value="" disabled="true" selected="true">' +
+	 'Choose year</option>' + htmlText;
 	$('#yearSelect').html(content);
 	$('#yearSelect').prop('disabled', htmlText == null);
 	$('#yearSelect').material_select(); //reload dropdown
@@ -226,7 +228,8 @@ function setYears(htmlText) {
 };
 
 function setSeasons(htmlText) {
-	var content = '<option value="" disabled="true" selected="true">Choose season</option>' + htmlText;
+	var content = '<option value="" disabled="true" selected="true">' +
+	 'Choose season</option>' + htmlText;
 	$('#seasonSelect').html(content);
 	$('#seasonSelect').prop('disabled', htmlText == null);
 	$('#seasonSelect').material_select(); //reload dropdown
@@ -235,7 +238,8 @@ function setSeasons(htmlText) {
 };
 
 function setCourses(htmlText) {
-	var content = '<option value="" disabled="true" selected="true">Choose course</option>' + htmlText;
+	var content = '<option value="" disabled="true" selected="true">' +
+	 'Choose course</option>' + htmlText;
 	$('#courseSelect').html(content);
 	$('#courseSelect').prop('disabled', htmlText == null);
 	$('#courseSelect').material_select(); //reload dropdown
@@ -244,7 +248,8 @@ function setCourses(htmlText) {
 };
 
 function setSections(htmlText) {
-	var content = '<option value="" disabled="true" selected="true">Choose section</option>' + htmlText;
+	var content = '<option value="" disabled="true" selected="true">' +
+	 'Choose section</option>' + htmlText;
 	$('#sectionSelect').html(content);
 	$('#sectionSelect').prop('disabled', htmlText == null);
 	$('#sectionSelect').material_select(); //reload dropdown
