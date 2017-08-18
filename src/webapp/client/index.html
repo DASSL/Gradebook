@@ -28,16 +28,27 @@ Currently, only attendance information is served
 	<nav class="nav-extended">
 		<div class="nav-wrapper">
 			<a href="#" class="brand-logo left" style="margin-left: 1%">Gradebook</a>
+			<ul id="profile" class="right" style="display: none">
+				<li><i class="medium material-icons">portrait</i></li>
+				<li><span id="instName" style="margin-left: 10px">Placeholder Name</span></li>
+				<li>
+					<a id="profileArrow" class="dropdown-button" data-belowOrigin="true" data-activates="profileBox">
+						<i class="small material-icons">arrow_drop_down</i>
+					</a>
+					<ul id="profileBox" class="dropdown-content">
+						<li><a id="logout">Logout</a></li>
+					</ul>
+				</li>
+			</ul>
 		</div>
 		<div class="nav-content">
 			<ul class="tabs tabs-transparent">
-				<li class="tab"><a href="#roster">Roster</a></li>
-				<li class="tab"><a href="#attendance" class="active">Attendance</a></li>
-				<!--Attendance tab is marked active, as it's currently the only tab with content.
-				     Otherwise, the first tab would be automatically marked as active.-->
-				<li class="tab"><a href="#grades">Grades</a></li>
-				<li class="tab"><a href="#reports">Reports</a></li>
-				<li class="tab"><a href="#about">About</a></li>
+				<li id="loginTab" class="tab"><a href="#login">Login</a></li>
+				<li id="rosterTab" class="tab" style="display: none"><a href="#roster">Roster</a></li>
+				<li id="attnTab" class="tab" style="display: none"><a href="#attendance">Attendance</a></li>
+				<li id="gradesTab" class="tab" style="display: none"><a href="#grades">Grades</a></li>
+				<li id="reportsTab" class="tab" style="display: none"><a href="#reports">Reports</a></li>
+				<li id="aboutTab" class="tab"><a href="#about">About</a></li>
 				<!--See http://materializecss.com/navbar.html#navbar-tabs for examples on
 					 how to use tabs for navigation-->
 			</ul>
@@ -48,52 +59,51 @@ Currently, only attendance information is served
 	<div class="container"> <!--Adds left and right spacing for content-->
 	<div class="section"> <!--Adds spacing between navbar and content-->
 	
+	<div id="login">		
+		<div class="row">
+			<h5>Login</h5>
+		</div>
+		<div class="row">
+			<div class="input-field col s12 m6 l3">
+				<input id="email" type="email"/>
+				<label for="email">Email</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="passwordBox" type="password"/>
+				<label for="passwordBox">Password</label>
+			</div>
+			<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
+		</div>
+			
+		<div class="row">
+			<h5>DB Info</h5>
+		</div>
+		<div class="row">
+			<div class="input-field col s12 m6 l3">
+				<input id="host" type="text" value="localhost"/>
+				<label for="host">Host name</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="port" type="text" value="5432"/>
+				<label for="port">Port</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="database" type="text" value="Gradebook"/>
+				<label for="database">Database</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="user" type="text" value="GB_WebApp"/>
+				<label for="user">DB Username</label>
+			</div>
+
+		</div>
+	</div>
+	
 	<div id="roster">
 		<p class="center-align">The Roster page is not yet implemented</p>
 	</div>
 	
 	<div id="attendance">
-	
-	<div class="row">
-		<h5>DB Info</h5>
-	</div>
-	<div class="row">
-		<div class="input-field col s12 m6 l3">
-			<input id="host" type="text" value="localhost"/>
-			<label for="host">Host name</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="port" type="text" value="5432"/>
-			<label for="port">Port</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="database" type="text" value="Gradebook"/>
-			<label for="database">Database</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="user" type="text" value="GB_WebApp"/>
-			<label for="user">DB Username</label>
-		</div>
-	</div>
-	
-	<div class="row">
-		<h5>Login</h5>
-	</div>
-	<div class="row">
-		<div class="input-field col s12 m6 l3">
-			<input id="email" type="email"/>
-			<label for="email">Email</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="passwordBox" type="password"/></td>
-			<label for="passwordBox">Password</label>
-		</div>
-		
-		<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
-	</div>
-	
-	<div class="divider"></div>
-	
 	<div class="row section">
 		<div class="input-field col s12 m6 l3">
 			<select id="yearSelect" disabled="true">

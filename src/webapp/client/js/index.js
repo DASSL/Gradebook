@@ -43,9 +43,10 @@ $(document).ready(function() {
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
 		if (dbInfo != null) {
-			var email = $('#email').val();
+			var email = $('#email').val().trim();
 			if (email != '') {
 				serverLogin(dbInfo, email, function() {
+					$('#profile').css('display', 'inline');
 					popYears(dbInfo);
 				});
 			}
@@ -76,6 +77,16 @@ $(document).ready(function() {
 	$('#sectionSelect').change(function() {
 		var sectionID = $('#sectionSelect').val();
 		popAttendance(dbInfo, sectionID);
+	});
+	
+	$('#logout').click(function() {
+		dbInfo = null;
+		instInfo = null;
+		setYears(null);
+		$('#profile').css('display', 'none');
+		$('#loginTab').css('display', 'inline');
+		$('#rosterTab, #attnTab, #gradesTab, #reportsTab').css('display', 'none');
+		$('ul.tabs').tabs('select_tab', 'login');
 	});
 });
 
@@ -110,6 +121,15 @@ function serverLogin(connInfo, email, callback) {
 			instInfo = { fname:result.instructor.fname, 
 			mname:result.instructor.mname, lname:result.instructor.lname,
 			dept:result.instructor.department };
+			
+			$('#loginTab').css('display', 'none');
+			$('#rosterTab, #attnTab, #gradesTab, #reportsTab').css('display', 'inline');
+			$('ul.tabs').tabs('select_tab', 'attendance');
+			
+			//Array.prototype.join is used because in JS: '' + null = 'null'
+			var instName = [instInfo.fname, instInfo.mname, instInfo.lname].join(' ');
+			$('#instName').html(instName);
+			
 			callback();
 		},
 		error: function(result) {
