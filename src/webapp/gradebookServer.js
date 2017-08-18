@@ -51,11 +51,11 @@ supplied parameters.
 */
 function createConnectionParams(user, database, password, host, port) {
    var config = {
-      user: user,
-      database: database,
-      password: password,
-      host: host,
-      port: port
+      user: user.trim(),
+      database: database.trim(),
+      password: password.trim(),
+      host: host.trim(),
+      port: port.trim()
    };
    return config;
 }
@@ -70,13 +70,13 @@ function executeQuery(response, config, queryText, queryParams, queryCallback) {
    var client = new pg.Client(config); //Connect to pg instance
    client.connect(function(err) {
       if(err) { //If a connection error happens, 500
-         response.status(500).send('500 - Connection error');
+         response.status(500).send('500 - Database connection error');
          console.log(err);
       }
       else { //Try and execute the query
          client.query(queryText, queryParams, function (err, result) {
             if(err) { //If the query returns an error, 500
-               response.status(500).send('500 - Query error');
+               response.status(500).send('500 - Query execution error');
                console.log(err);
             }
             else { //Execute the query callback
@@ -116,8 +116,39 @@ app.get('/js/index.js', function(request, response) {
 	response.sendFile('client/js/index.js', {root: __dirname});
 });
 
+//Returns instructor id and name from a provided email.
+app.get('/login', function(request, response) {
+   //Decrypt the password recieved from the client.  This is a temporary development
+   //feature, since we don't have ssl set up yet
+   var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
+
+   //Connnection parameters for the Postgres client recieved in the request
+   var config = createConnectionParams(request.query.user, request.query.database,
+      passwordText, request.query.host, request.query.port);
+
+   //Get the params from the url
+   var instructorEmail = request.query.instructoremail.trim();
+
+   //Set the query text
+   var queryText = 'SELECT * FROM gradebook.getInstructor($1);';
+   var queryParams = [instructorEmail];
+
+   //Execute the query
+   executeQuery(response, config, queryText, queryParams, function(result) {
+      if(result.rows[0].id == null) { //Check if the returned row has a null instructor id
+         response.status(500).send('401 - Login failed');
+      }
+      else {
+         var jsonReturn = {
+            "instructor": result.rows[0] //getInstructors should return at most one row
+         };
+         response.send(JSON.stringify(jsonReturn));
+      }
+   });
+});
+
 //Return a list of years a certain instructor has taught sections
-app.get('/year', function(request, response) {
+app.get('/years', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -147,7 +178,7 @@ app.get('/year', function(request, response) {
 });
 
 //Return a list of seasons an instructor taught in during a certain year
-app.get('/season', function(request, response) {
+app.get('/seasons', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -183,7 +214,7 @@ app.get('/season', function(request, response) {
 });
 
 //Returns a list of courses an instructor has taugh in a certain year
-app.get('/course', function(request, response) {
+app.get('/courses', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
@@ -213,7 +244,7 @@ app.get('/course', function(request, response) {
 });
 
 //Returns a list of sesctions an instructor taught in a certain term
-app.get('/section', function(request, response) {
+app.get('/sections', function(request, response) {
    //Decrypt the password recieved from the client.  This is a temporary development
    //feature, since we don't have ssl set up yet
    var passwordText = sjcl.decrypt(superSecret, JSON.parse(request.query.password));
