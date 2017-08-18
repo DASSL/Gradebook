@@ -1,7 +1,7 @@
 /*
 index.js - Gradebook
 
-Andrew Figueroa, Sean Murthy
+Andrew Figueroa
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
@@ -42,10 +42,17 @@ $(document).ready(function() {
 	
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
-		var email = $('#email').val();
-		serverLogin(dbInfo, email, function() {
-			popYears(dbInfo);
-		});
+		if (dbInfo != null) {
+			var email = $('#email').val();
+			if (email != '') {
+				serverLogin(dbInfo, email, function() {
+					popYears(dbInfo);
+				});
+			}
+			else {
+				alert('One or more fields are empty');
+			}
+		}
 	});
 	
 	$('#yearSelect').change(function() {
@@ -106,7 +113,7 @@ function serverLogin(connInfo, email, callback) {
 			callback();
 		},
 		error: function(result) {
-			alert('Error while logging into server - ensure email is correct');
+			alert('Login failed - ensure all fields are correct');
 			console.log(result);
 		}
 	});
