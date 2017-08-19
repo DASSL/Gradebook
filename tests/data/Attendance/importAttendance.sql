@@ -1,22 +1,28 @@
--- importAttendance.sql
+--importAttendance.sql - Gradebook
 
--- Andrew Figueroa, Sean Murthy
+--Andrew Figueroa, Sean Murthy
+--Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
--- CC 4.0 BY-NC-SA
--- https://creativecommons.org/licenses/by-nc-sa/4.0/
+--(C) 2017- DASSL. ALL RIGHTS RESERVED.
+--Licensed to others under CC 4.0 BY-SA-NC
+--https://creativecommons.org/licenses/by-nc-sa/4.0/
 
--- Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
+--PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
--- ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
+--Due to the use of the /COPY command, this script needs to be run using the psql
+-- command line tool provided with most PostgreSQL installations.
+
+--This script should be run after importing the Roster test data, but before any
+-- humanization of student names occurs.
 
 --The following three files must be in the same directory as this script:
 -- 17S_CS110-05Attendance.csv
 -- 17S_CS110-72Attendance.csv
 -- 17S_CS110-74Attendance.csv
 
---The Enrollee table must be populated with the students from all three sections
 
+--Populate AttendanceStatus with necessary attendance codes
 INSERT INTO gradebook.attendanceStatus VALUES('P', 'Present')
 ON CONFLICT DO NOTHING;
 INSERT INTO gradebook.attendanceStatus VALUES('A', 'Absent')
@@ -33,6 +39,7 @@ INSERT INTO gradebook.attendanceStatus VALUES('C', 'Cancelled')
 ON CONFLICT DO NOTHING;
 
 
+--Create temporary staging table
 CREATE TABLE finalAttnStaging
 (
    lName VARCHAR(50),
@@ -43,6 +50,7 @@ CREATE TABLE finalAttnStaging
 );
 
 
+--Define a temporary function for moving data from staging table to AttendanceRecord
 CREATE OR REPLACE FUNCTION importToAttnStatus(
    Year NUMERIC(4,0), Season NUMERIC(1,0), Course VARCHAR(8), 
    SectionNumber VARCHAR(3)) 
@@ -61,7 +69,8 @@ $$
 	    (f.mName = stu.mName OR (f.mName IS NULL AND stu.mName IS NULL));
 $$ LANGUAGE SQL;
 
- 
+
+--Import data from files to staging table and call importFunction for each section
 \COPY finalAttnStaging FROM '17S_CS110-05Attendance.csv' WITH csv Header
 SELECT importToAttnStatus(2017, 0, 'CS110', '05');
 TRUNCATE finalAttnStaging;
@@ -72,5 +81,8 @@ TRUNCATE finalAttnStaging;
 
 \COPY finalAttnStaging FROM '17S_CS110-74Attendance.csv' WITH csv Header
 SELECT importToAttnStatus(2017, 0, 'CS110', '74');
+
+
+--Cleanup
 DROP TABLE finalAttnStaging;
 DROP FUNCTION importToAttnStatus(NUMERIC, NUMERIC, VARCHAR, VARCHAR);
