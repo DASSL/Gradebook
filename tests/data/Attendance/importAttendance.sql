@@ -23,30 +23,30 @@
 
 
 --Populate AttendanceStatus with necessary attendance codes
-INSERT INTO gradebook.attendanceStatus VALUES('P', 'Present')
+INSERT INTO Gradebook.AttendanceStatus VALUES('P', 'Present')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('A', 'Absent')
+INSERT INTO Gradebook.AttendanceStatus VALUES('A', 'Absent')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('E', 'Explained')
+INSERT INTO Gradebook.AttendanceStatus VALUES('E', 'Explained')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('S', 'Stopped Attending')
+INSERT INTO Gradebook.AttendanceStatus VALUES('S', 'Stopped Attending')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('X', 'Excused')
+INSERT INTO Gradebook.AttendanceStatus VALUES('X', 'Excused')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('N', 'Not Registered')
+INSERT INTO Gradebook.AttendanceStatus VALUES('N', 'Not Registered')
 ON CONFLICT DO NOTHING;
-INSERT INTO gradebook.attendanceStatus VALUES('C', 'Cancelled')
+INSERT INTO Gradebook.AttendanceStatus VALUES('C', 'Cancelled')
 ON CONFLICT DO NOTHING;
 
 
 --Create temporary staging table
-CREATE TABLE finalAttnStaging
+CREATE TABLE AttendanceStaging
 (
-   lName VARCHAR(50),
-   fName VARCHAR(50),
-   mName VARCHAR(50),
-   date DATE,
-   code CHAR(1)
+   LName VARCHAR(50),
+   FName VARCHAR(50),
+   MName VARCHAR(50),
+   Date DATE,
+   Code CHAR(1)
 );
 
 
@@ -56,33 +56,33 @@ CREATE OR REPLACE FUNCTION importToAttnStatus(
    SectionNumber VARCHAR(3)) 
    RETURNS VOID AS
 $$
-   INSERT INTO gradebook.attendanceRecord
-   WITH sectionID AS
+   INSERT INTO Gradebook.AttendanceRecord
+   WITH SectionID AS
    (
-      SELECT s.id
-      FROM gradebook.Section s JOIN gradebook.Term t ON s.term = t.id AND t.Year = $1 AND t.Season = $2
-       AND course = $3 AND sectionNumber = $4
+      SELECT s.ID
+      FROM Gradebook.Section s JOIN Gradebook.Term t ON s.Term = t.ID AND t.Year = $1 AND t.Season = $2
+       AND s.Course = $3 AND s.SectionNumber = $4
    )
-   SELECT stu.ID, sectionID.id, f.Date, COALESCE(code, 'P')
-   FROM SectionID, finalAttnStaging f JOIN gradebook.Student stu ON
-        f.fName = stu.fname AND f.lName = stu.lName AND
-	    (f.mName = stu.mName OR (f.mName IS NULL AND stu.mName IS NULL));
+   SELECT stu.ID, sectionID.ID, a.Date, COALESCE(Code, 'P')
+   FROM SectionID, AttendanceStaging a JOIN Gradebook.Student stu ON
+        a.FName = stu.FName AND a.LName = stu.LName AND
+	    (a.MName = stu.MName OR (a.MName IS NULL AND stu.MName IS NULL));
 $$ LANGUAGE SQL;
 
 
---Import data from files to staging table and call importFunction for each section
-\COPY finalAttnStaging FROM '17S_CS110-05Attendance.csv' WITH csv Header
+--Import data from files to staging table and call import function for each section
+\COPY FinalAttnStaging FROM '17S_CS110-05Attendance.csv' WITH csv HEADER
 SELECT importToAttnStatus(2017, 0, 'CS110', '05');
-TRUNCATE finalAttnStaging;
+TRUNCATE FinalAttnStaging;
 
-\COPY finalAttnStaging FROM '17S_CS110-72Attendance.csv' WITH csv Header
+\COPY FinalAttnStaging FROM '17S_CS110-72Attendance.csv' WITH csv HEADER
 SELECT importToAttnStatus(2017, 0, 'CS110', '72');
-TRUNCATE finalAttnStaging;
+TRUNCATE FinalAttnStaging;
 
-\COPY finalAttnStaging FROM '17S_CS110-74Attendance.csv' WITH csv Header
+\COPY FinalAttnStaging FROM '17S_CS110-74Attendance.csv' WITH csv HEADER
 SELECT importToAttnStatus(2017, 0, 'CS110', '74');
 
 
 --Cleanup
-DROP TABLE finalAttnStaging;
+DROP TABLE FinalAttnStaging;
 DROP FUNCTION importToAttnStatus(NUMERIC, NUMERIC, VARCHAR, VARCHAR);
