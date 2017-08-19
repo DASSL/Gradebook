@@ -46,7 +46,10 @@ $(document).ready(function() {
 			var email = $('#email').val().trim();
 			if (email != '') {
 				serverLogin(dbInfo, email, function() {
-					$('#profile').css('display', 'inline');
+					//clear login fields
+					$('#email').val('');
+					$('#passwordBox').val('');
+					
 					popYears(dbInfo);
 				});
 			}
@@ -82,8 +85,13 @@ $(document).ready(function() {
 	$('#logout').click(function() {
 		dbInfo = null;
 		instInfo = null;
-		setYears(null);
+		setYears(null); //reset Attendance dropdowns
+		
+		//hide and reset profile
 		$('#profile').css('display', 'none');
+		$('#instName').html('');
+		
+		//show Login tab, hide Roster, Attendance, Grades, and Reports tabs
 		$('#loginTab').css('display', 'inline');
 		$('#rosterTab, #attnTab, #gradesTab, #reportsTab').css('display', 'none');
 		$('ul.tabs').tabs('select_tab', 'login');
@@ -117,18 +125,22 @@ function serverLogin(connInfo, email, callback) {
 		dataType: 'json',
 		data: urlParams ,
 		success: function(result) {
+			//populate dbInfo and instInfo with info from response
 			dbInfo.instructorid = result.instructor.id;
 			instInfo = { fname:result.instructor.fname, 
 			mname:result.instructor.mname, lname:result.instructor.lname,
 			dept:result.instructor.department };
 			
+			//hide Login tab, show Roster, Attendance, Grades, and Reports tabs
 			$('#loginTab').css('display', 'none');
 			$('#rosterTab, #attnTab, #gradesTab, #reportsTab').css('display', 'inline');
 			$('ul.tabs').tabs('select_tab', 'attendance');
 			
+			//populate instructor name and display profile (including logout menu)
 			//Array.prototype.join is used because in JS: '' + null = 'null'
 			var instName = [instInfo.fname, instInfo.mname, instInfo.lname].join(' ');
 			$('#instName').html(instName);
+			$('#profile').css('display', 'inline');
 			
 			callback();
 		},
@@ -281,7 +293,7 @@ function setSections(htmlText) {
 	$('#sectionSelect').prop('disabled', htmlText == null);
 	$('#sectionSelect').material_select(); //reload dropdown
 	
-	resetAttendance(); //reset dependent fields
+	resetAttendance();
 };
 
 function resetAttendance() {

@@ -15,6 +15,7 @@ ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OW
 This HTML page serves as the main access point for an instructor's use of Gradebook.
 Currently, only attendance information is served
 -->
+
 <html>
 	<head>
 	<title>Gradebook</title>
@@ -25,6 +26,7 @@ Currently, only attendance information is served
 	</head>
 	<body>
 	
+	<!--Top of screen banner (navbar) - Includes logo, profile, and tabs-->
 	<nav class="nav-extended">
 		<div class="nav-wrapper">
 			<a href="#" class="brand-logo left" style="margin-left: 1%">Gradebook</a>
@@ -132,7 +134,8 @@ Currently, only attendance information is served
 	</div>
 	
 	<div class="divider"></div>
-	<div id="attendanceData" class="section"></div>
+	<div id="attendanceData" class="section"></div> <!--Populated dynamically-->
+	
 	</div>
 	
 	<div id="grades">
@@ -154,7 +157,8 @@ Currently, only attendance information is served
 	
 	</div>
 	</div>
-  </body>
+	
+	</body>
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" src="js/materialize.min.js"></script>
