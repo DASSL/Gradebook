@@ -79,7 +79,7 @@ BEGIN
    WHERE Email = 'f2.l2@example.com'
    INTO instructor2;
 
-   --add three sections
+   --add three sections: no insert conflict possible because instructors are new
    --instructor1 and instructor2 co-teach a section
    --i1 and i2 each teach their own section as well
    --i1 teaches two sections in just one term: 2017 Spring
@@ -90,8 +90,7 @@ BEGIN
    VALUES
       (term2017Spring, 'AB101', '01', 'CRN01', instructor1, instructor2),
       (term2017Spring, 'CD201', '05', 'CRN02', instructor1, NULL),
-      (term2017Summer, 'AB101', '02', 'CRN03', instructor2, NULL)
-   ON CONFLICT DO NOTHING;
+      (term2017Summer, 'AB101', '02', 'CRN03', instructor2, NULL);
 
    ---------------------------------------------------------------------------
 

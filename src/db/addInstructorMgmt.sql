@@ -37,7 +37,7 @@ $$
    FROM Gradebook.Instructor;
 
 $$ LANGUAGE sql
-   STABLE;
+   STABLE; --no need for RETURN NULL ON... because the function takes no input
 
 
 --Function to get details of the instructor with the given e-mail address
