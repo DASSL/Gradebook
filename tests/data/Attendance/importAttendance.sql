@@ -11,7 +11,8 @@
 
 
 --Due to the use of the /COPY command, this script needs to be run using the psql
--- command line tool provided with most PostgreSQL installations.
+-- command line tool provided with most PostgreSQL installations. The current 
+-- working directory needs be the same as this script's location.
 
 --This script should be run after importing the Roster test data, but before any
 -- humanization of student names occurs.
@@ -40,7 +41,7 @@ ON CONFLICT DO NOTHING;
 
 
 --Create temporary staging table
-CREATE TABLE AttendanceStaging
+CREATE TABLE pg_temp.AttendanceStaging
 (
    LName VARCHAR(50),
    FName VARCHAR(50),
@@ -51,7 +52,7 @@ CREATE TABLE AttendanceStaging
 
 
 --Define a temporary function for moving data from staging table to AttendanceRecord
-CREATE OR REPLACE FUNCTION importToAttnStatus(
+CREATE OR REPLACE FUNCTION pg_temp.importToAttnRec(
    Year NUMERIC(4,0), Season NUMERIC(1,0), Course VARCHAR(8), 
    SectionNumber VARCHAR(3)) 
    RETURNS VOID AS
@@ -60,29 +61,24 @@ $$
    WITH SectionID AS
    (
       SELECT s.ID
-      FROM Gradebook.Section s JOIN Gradebook.Term t ON s.Term = t.ID AND t.Year = $1 AND t.Season = $2
-       AND s.Course = $3 AND s.SectionNumber = $4
+      FROM Gradebook.Section s JOIN Gradebook.Term t ON s.Term = t.ID AND t.Year = $1
+	   AND t.Season = $2 AND s.Course = $3 AND s.SectionNumber = $4
    )
    SELECT stu.ID, sectionID.ID, a.Date, COALESCE(Code, 'P')
-   FROM SectionID, AttendanceStaging a JOIN Gradebook.Student stu ON
+   FROM SectionID, pg_temp.AttendanceStaging a JOIN Gradebook.Student stu ON
         a.FName = stu.FName AND a.LName = stu.LName AND
 	    (a.MName = stu.MName OR (a.MName IS NULL AND stu.MName IS NULL));
 $$ LANGUAGE SQL;
 
 
 --Import data from files to staging table and call import function for each section
-\COPY FinalAttnStaging FROM '17S_CS110-05Attendance.csv' WITH csv HEADER
-SELECT importToAttnStatus(2017, 0, 'CS110', '05');
-TRUNCATE FinalAttnStaging;
+\COPY pg_temp.AttendanceStaging FROM '17S_CS110-05Attendance.csv' WITH csv HEADER
+SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '05');
+TRUNCATE pg_temp.AttendanceStaging;
 
-\COPY FinalAttnStaging FROM '17S_CS110-72Attendance.csv' WITH csv HEADER
-SELECT importToAttnStatus(2017, 0, 'CS110', '72');
-TRUNCATE FinalAttnStaging;
+\COPY pg_temp.AttendanceStaging FROM '17S_CS110-72Attendance.csv' WITH csv HEADER
+SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '72');
+TRUNCATE pg_temp.AttendanceStaging;
 
-\COPY FinalAttnStaging FROM '17S_CS110-74Attendance.csv' WITH csv HEADER
-SELECT importToAttnStatus(2017, 0, 'CS110', '74');
-
-
---Cleanup
-DROP TABLE FinalAttnStaging;
-DROP FUNCTION importToAttnStatus(NUMERIC, NUMERIC, VARCHAR, VARCHAR);
+\COPY pg_temp.AttendanceStaging FROM '17S_CS110-74Attendance.csv' WITH csv HEADER
+SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '74');
