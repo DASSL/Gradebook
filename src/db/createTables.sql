@@ -28,10 +28,23 @@ CREATE TABLE Gradebook.Course
 
 CREATE TABLE Gradebook.Season
 (
-   "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0), --sequence of seasons within a year
-   Name VARCHAR(20) NOT NULL UNIQUE,
-   Code CHAR(1) NOT NULL UNIQUE --reference for the season: 'S', 'M', 'F', 'I', etc.
+   --Order denotes the sequence of seasons within a year: 0, 1,...9
+   "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0),
+
+   --Name is a descriptiion such as Spring and Summer: must be 2 or more chars
+   -- uniqueness is enforced using a case-insensitive index
+   Name VARCHAR(20) NOT NULL UNIQUE CHECK(LENGTH(TRIM(Name)) > 1),
+
+   --Code is 'S', 'M', etc.: makes it easier for user to specify a season
+   -- permit only a-z or A-Z
+   -- uniqueness is enforced using a case-insensitive index
+   Code CHAR(1) NOT NULL UNIQUE CHECK(Code ~* '[A-Z]')
 );
+
+--enforce case-insensitive uniqueness of season name and order
+CREATE UNIQUE INDEX idx_Unique_SeasonName ON Gradebook.Season(LOWER(TRIM(Name)));
+CREATE UNIQUE INDEX idx_Unique_SeasonCode ON Gradebook.Season(LOWER(TRIM(Code)));
+
 
 --populate the Season table with values found in the OpenClose system at WCSU
 -- move out of this script later
@@ -85,11 +98,13 @@ CREATE TABLE Gradebook.Section
    Instructor2 INTEGER REFERENCES Gradebook.Instructor, --optional 2nd instructor
    Instructor3 INTEGER REFERENCES Gradebook.Instructor, --optional 3rd instructor
    UNIQUE(Term, Course, SectionNumber),
-   CONSTRAINT DistinctSectionInstructors --make sure instructors are distinct
+
+   --make sure instructors are distinct
+   CONSTRAINT DistinctSectionInstructors
         CHECK (Instructor1 <> Instructor2
-            AND Instructor1 <> Instructor3
-            AND Instructor2 <> Instructor3
-        )
+               AND Instructor1 <> Instructor3
+               AND Instructor2 <> Instructor3
+              )
 );
 
 
