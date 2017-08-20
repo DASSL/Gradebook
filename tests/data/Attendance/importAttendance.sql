@@ -41,6 +41,7 @@ ON CONFLICT DO NOTHING;
 
 
 --Create temporary staging table
+DROP TABLE IF EXISTS pg_temp.AttendanceStaging;
 CREATE TABLE pg_temp.AttendanceStaging
 (
    LName VARCHAR(50),
@@ -82,3 +83,4 @@ TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '17S_CS110-74Attendance.csv' WITH csv HEADER
 SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '74');
+TRUNCATE pg_temp.AttendanceStaging;
