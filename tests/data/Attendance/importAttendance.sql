@@ -63,12 +63,13 @@ $$
    (
       SELECT s.ID
       FROM Gradebook.Section s JOIN Gradebook.Term t ON s.Term = t.ID AND t.Year = $1
-	   AND t.Season = $2 AND s.Course = $3 AND s.SectionNumber = $4
+       AND t.Season = $2 AND s.Course = $3 AND s.SectionNumber = $4
    )
-   SELECT stu.ID, sectionID.ID, a.Date, COALESCE(Code, 'P')
+   SELECT stu.ID, sectionID.ID, a.Date, a.Code
    FROM SectionID, pg_temp.AttendanceStaging a JOIN Gradebook.Student stu ON
-        a.FName = stu.FName AND a.LName = stu.LName AND
-	    (a.MName = stu.MName OR (a.MName IS NULL AND stu.MName IS NULL));
+        a.Code IS NOT NULL AND a.FName = stu.FName AND a.LName = stu.LName AND
+        (a.MName = stu.MName OR (a.MName IS NULL AND stu.MName IS NULL))
+   ON CONFLICT DO NOTHING;
 $$ LANGUAGE SQL;
 
 
