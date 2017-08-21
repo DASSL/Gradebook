@@ -42,8 +42,10 @@ CREATE TABLE Gradebook.Season
 );
 
 --enforce case-insensitive uniqueness of season name and order
+-- the index expression for season code does not trim spaces because spaces are
+-- not allowed in season codes
 CREATE UNIQUE INDEX idx_Unique_SeasonName ON Gradebook.Season(LOWER(TRIM(Name)));
-CREATE UNIQUE INDEX idx_Unique_SeasonCode ON Gradebook.Season(LOWER(TRIM(Code)));
+CREATE UNIQUE INDEX idx_Unique_SeasonCode ON Gradebook.Season(LOWER(Code));
 
 
 --populate the Season table with values found in the OpenClose system at WCSU

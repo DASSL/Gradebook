@@ -13,8 +13,8 @@ PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 ## Overview
 
 The procedure to import a roster is designed to copy enrollment information
-maintained in external systems to Gradebook. The procedure is designed to
-provide the following features:
+maintained in external systems to Gradebook. It is designed to provide the
+following features:
 - Add students automatically to the database, avoiding users from having to do
 so explicitly.
 - Not require a central administrator to import rosters. Instead, instructors
@@ -53,7 +53,7 @@ __Step 2__: The `COPY` meta-command in [`psql`](https://www.postgresql.org/docs/
 is used to copy the contents of a CSV roster file to the staging table.
 
 __Step 3__: The function `importRoster` is invoked to read the data in the
-staging table, apply any necessary transformation, and adds to or updates the
+staging table, apply any necessary transformation, and add to or update the
 tables `Gradebook.Student` and `Gradebook.Enrollee`.
 
 ## Running the import procedure
