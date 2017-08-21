@@ -53,7 +53,7 @@ AS $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION getAttendance(sectionID INTEGER)
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(sectionID INTEGER)
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     -- Will give the start and end dates and the ID of the term
@@ -68,7 +68,7 @@ $$
         -- this cross join will return the same amount of rows as the table that datesFromSchedule() outputs
         -- since curSec will have at most 1 row
         SELECT d.MeetingDate
-        FROM curSec cs, datesFromSchedule(cs.sd, cs.ed, cs.s) d
+        FROM curSec cs, Gradebook.datesFromSchedule(cs.sd, cs.ed, cs.s) d
     -- Needed to "create" a dates table
     ), dates AS
     (
@@ -94,7 +94,7 @@ $$
 
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     WITH curTerm AS
@@ -103,7 +103,7 @@ $$
       FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order"=T.Season
       WHERE T.Year = $1 AND (S.Name = $2 OR S.Code = $2)
     )
-    SELECT getAttendance(N.ID)
+    SELECT Gradebook.getAttendance(N.ID)
     FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
     WHERE N.Course = $3 AND N.SectionNumber = $4;
 $$ LANGUAGE sql;
