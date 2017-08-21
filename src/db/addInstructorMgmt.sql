@@ -23,7 +23,7 @@ DROP FUNCTION IF EXISTS Gradebook.getInstructors();
 CREATE FUNCTION Gradebook.getInstructors()
 RETURNS TABLE
 (
-   ID INTEGER,
+   ID INT,
    FName VARCHAR(50),
    MName VARCHAR(50),
    LName VARCHAR(50),
@@ -40,17 +40,15 @@ $$ LANGUAGE sql
    STABLE; --no need for RETURN NULL ON... because the function takes no input
 
 
---Function to get details of the instructor with the given e-mail address
--- performs a case-insensitive match of email address
--- returns 0 or 1 row: Instructor.Email is unique
--- cannot mark the return type as RECORD because that always returns one row
--- DROP FUNCTION does not care about OUT arguments: so OK to omit them
+--function to get details of the instructor with the given e-mail address
+-- performs a case-insensitive match of email address;
+-- returns 0 or 1 row: Instructor.Email is unique;
 DROP FUNCTION IF EXISTS Gradebook.getInstructor(Gradebook.Instructor.Email%TYPE);
 
 CREATE FUNCTION Gradebook.getInstructor(Email Gradebook.Instructor.Email%TYPE)
 RETURNS TABLE
 (
-   ID INTEGER,
+   ID INT,
    FName VARCHAR(50),
    MName VARCHAR(50),
    LName VARCHAR(50),
@@ -69,7 +67,32 @@ $$ LANGUAGE sql
    ROWS 1; --returns at most one row
 
 
---Drop functions with older names due to names being revised
+--function to get details of the instructor with the given ID
+DROP FUNCTION IF EXISTS Gradebook.getInstructor(INT);
+
+CREATE FUNCTION Gradebook.getInstructor(instructorID INT)
+RETURNS TABLE
+(
+   FName VARCHAR(50),
+   MName VARCHAR(50),
+   LName VARCHAR(50),
+   Department VARCHAR(30),
+   Email VARCHAR(319)
+)
+AS
+$$
+
+   SELECT FName, MName, LName, Department, Email
+   FROM Gradebook.Instructor
+   WHERE ID = $1;
+
+$$ LANGUAGE sql
+   STABLE
+   RETURNS NULL ON NULL INPUT
+   ROWS 1;
+
+
+--drop functions with older names due to names being revised
 -- remove this block of code after milestone M1
 DROP FUNCTION IF EXISTS Gradebook.getYears(INT);
 DROP FUNCTION IF EXISTS Gradebook.getSeasons(INT, NUMERIC(4,0));
@@ -79,7 +102,7 @@ DROP FUNCTION IF EXISTS Gradebook.getSections(INT, NUMERIC(4,0),
                                              );
 
 
---Function to get the years in which an instructor has taught
+--function to get the years in which an instructor has taught
 DROP FUNCTION IF EXISTS Gradebook.getInstructorYears(INT);
 
 CREATE FUNCTION Gradebook.getInstructorYears(instructorID INT)
@@ -96,7 +119,7 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT;
 
 
---Function to get all seasons an instructor has taught in a specfied year
+--function to get all seasons an instructor has taught in a specfied year
 DROP FUNCTION IF EXISTS Gradebook.getInstructorSeasons(INT, NUMERIC(4,0));
 
 CREATE FUNCTION Gradebook.getInstructorSeasons(instructorID INT,
@@ -118,7 +141,7 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT;
 
 
---Function to get all courses an instructor has taught in a year-season combo
+--function to get all courses an instructor has taught in a year-season combo
 DROP FUNCTION IF EXISTS Gradebook.getInstructorCourses(INT, NUMERIC(4,0),
                                                        NUMERIC(1,0)
                                                       );
@@ -143,12 +166,12 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT;
 
 
---Function to get the course-section combos an instructor has taught in a
+--function to get the course-section combos an instructor has taught in a
 --year-season combo
---For each matching section, the function returns course name and section number
---as well as a string of the form "course-sectionNumber"
---This function is useful in showing Course-Section combinations directly
---without having to first explicitly choosing a course to get sections
+-- for each matching section, returns course name and section number as well as
+-- a string of the form "course-sectionNumber";
+--this function is useful in showing Course-Section combinations directly
+--without having to first explicitly choose a course to get sections
 DROP FUNCTION IF EXISTS Gradebook.getInstructorSections(INT, NUMERIC(4,0),
                                                         NUMERIC(1,0)
                                                        );
@@ -157,7 +180,7 @@ CREATE FUNCTION Gradebook.getInstructorSections(instructorID INT,
                                                 year NUMERIC(4,0),
                                                 seasonOrder NUMERIC(1,0)
                                                )
-RETURNS TABLE(SectionID INTEGER,
+RETURNS TABLE(SectionID INT,
               Course VARCHAR(8),
               SectionNumber VARCHAR(3),
               CourseSection VARCHAR(12)
@@ -177,7 +200,7 @@ $$ LANGUAGE sql
    STABLE
    RETURNS NULL ON NULL INPUT;
 
---Function to get the section number(s) of a course an instructor has taught
+--function to get the section number(s) of a course an instructor has taught
 -- performs case-insensitive match for course
 DROP FUNCTION IF EXISTS Gradebook.getInstructorSections(INT, NUMERIC(4,0),
                                                         NUMERIC(1,0), VARCHAR(8)
@@ -188,7 +211,7 @@ CREATE FUNCTION Gradebook.getInstructorSections(instructorID INT,
                                                 seasonOrder NUMERIC(1,0),
                                                 courseNumber VARCHAR(8)
                                                )
-RETURNS TABLE(SectionID INTEGER, SectionNumber VARCHAR(3))
+RETURNS TABLE(SectionID INT, SectionNumber VARCHAR(3))
 AS
 $$
 

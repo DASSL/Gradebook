@@ -11,7 +11,7 @@
 
 
 --This script tests the functions in the script addInstructorMgmt.sql
--- proceeds in two steps: adds some test data; run some tests
+-- proceeds in two steps: add test data; run tests
 -- abandons all test data added by explicitly rolling back the transaction
 
 
@@ -28,7 +28,7 @@ DECLARE instructor2 INTEGER;
 
 BEGIN
 
---add test data
+   --add test data
 
    --add two courses
    INSERT INTO Gradebook.Course
@@ -68,7 +68,7 @@ BEGIN
    INSERT INTO Gradebook.Instructor(FName, LName, Email)
    VALUES
       ('F1', 'L1', 'f1.l1@example.com'),
-      ('F2', 'L1', 'f2.l2@example.com');
+      ('F2', 'L2', 'f2.l2@example.com');
 
    --extract IDs of the two instructors
    SELECT ID FROM Gradebook.Instructor
@@ -110,7 +110,7 @@ BEGIN
 
 
    --test if getInstructor finds instructor1 by e-mail address
-   RAISE INFO '%   getInstructor Count',
+   RAISE INFO '%   getInstructor(email) Count',
    (SELECT
       CASE (SELECT COUNT(*) FROM Gradebook.getInstructor('f1.l1@example.com'))
          WHEN 1 THEN 'PASS'
@@ -121,11 +121,21 @@ BEGIN
 
    --test if getInstructor does not return rows for an invalid e-mail address
    --an invalid email address is used to simulate look-up falure
-   RAISE INFO '%   getInstructor Count Negative',
+   RAISE INFO '%   getInstructor(emai) Count Negative',
    (SELECT
       CASE (SELECT COUNT(*) FROM Gradebook.getInstructor('not_a_mail_address'))
          WHEN 0 THEN 'PASS'
          ELSE 'FAIL: Code 3'
+      END
+   );
+
+
+   --test if getInstructor returns F1 as first name of instructor1
+   RAISE INFO '%   getInstructor(instructorID) Value',
+   (SELECT
+      CASE (SELECT FName FROM Gradebook.getInstructor(instructor1) LIMIT 1)
+         WHEN 'F1' THEN 'PASS'
+         ELSE 'FAIL: Code 4'
       END
    );
 
@@ -135,7 +145,7 @@ BEGIN
    (SELECT
       CASE (SELECT COUNT(*) FROM Gradebook.getInstructorYears(instructor1))
          WHEN 1 THEN 'PASS'
-         ELSE 'FAIL: Code 4'
+         ELSE 'FAIL: Code 5'
       END
    );
 
@@ -145,7 +155,7 @@ BEGIN
    (SELECT
       CASE (SELECT Year FROM Gradebook.getInstructorYears(instructor1) LIMIT 1)
          WHEN 2017 THEN 'PASS'
-         ELSE 'FAIL: Code 5'
+         ELSE 'FAIL: Code 6'
       END
    );
 
@@ -157,7 +167,7 @@ BEGIN
             FROM Gradebook.getInstructorSeasons(instructor1, 2017)
            )
          WHEN 1 THEN 'PASS'
-         ELSE 'FAIL: Code 6'
+         ELSE 'FAIL: Code 7'
       END
    );
 
@@ -170,7 +180,7 @@ BEGIN
             LIMIT 1
            )
          WHEN 'Spring' THEN 'PASS'
-         ELSE 'FAIL: Code 7'
+         ELSE 'FAIL: Code 8'
       END
    );
 
@@ -182,7 +192,7 @@ BEGIN
             FROM Gradebook.getInstructorSeasons(instructor2, 2017)
            )
          WHEN 2 THEN 'PASS'
-         ELSE 'FAIL: Code 8'
+         ELSE 'FAIL: Code 9'
       END
    );
 
@@ -194,7 +204,7 @@ BEGIN
             FROM Gradebook.getInstructorCourses(instructor1, 2017, 0)
            )
          WHEN 2 THEN 'PASS'
-         ELSE 'FAIL: Code 9'
+         ELSE 'FAIL: Code 10'
       END
    );
 
@@ -206,7 +216,7 @@ BEGIN
             FROM Gradebook.getInstructorCourses(instructor2, 2017, 1)
            )
          WHEN 1 THEN 'PASS'
-         ELSE 'FAIL: Code 10'
+         ELSE 'FAIL: Code 11'
       END
    );
 
@@ -219,7 +229,7 @@ BEGIN
             LIMIT 1
            )
          WHEN 'AB101' THEN 'PASS'
-         ELSE 'FAIL: Code 11'
+         ELSE 'FAIL: Code 12'
       END
    );
 
@@ -231,7 +241,7 @@ BEGIN
             FROM Gradebook.getInstructorCourses(instructor1, 2017, 1)
            )
          WHEN 0 THEN 'PASS'
-         ELSE 'FAIL: Code 12'
+         ELSE 'FAIL: Code 13'
       END
    );
 
@@ -243,7 +253,7 @@ BEGIN
             FROM Gradebook.getInstructorSections(instructor1, 2017, 0)
            )
          WHEN 2 THEN 'PASS'
-         ELSE 'FAIL: Code 13'
+         ELSE 'FAIL: Code 14'
       END
    );
 
@@ -256,7 +266,7 @@ BEGIN
             LIMIT 1
            )
          WHEN '02' THEN 'PASS'
-         ELSE 'FAIL: Code 14'
+         ELSE 'FAIL: Code 15'
       END
    );
 
