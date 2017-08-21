@@ -20,13 +20,13 @@ Steps to test humanizeStudentData.sql:
 3. Run testResults.sql: tests result of each row and then deletes test rows
 
 This script adds eight Student rows:
-- the md5 expressions mimic data that anonymization adds to the table
-- uses e-mail addresses of the form 'n@example.com' where 'n' is a digit
-- assumes the e-mail addresses used are not already in the table
-- comment before each inserted row describes the test case the row represents
+- the md5 expressions mimic data that anonymization adds to the table;
+- uses e-mail addresses of the form 'n@example.com' where 'n' is a digit;
+- assumes the e-mail addresses added are not already in the table;
+- comments before each inserted row describe the test case the row represents
 
 The domain 'example.com' is intended by W3C for testing purposes: that domain
-cannot actually be registered and therefore is guaranteed not to appear in any
+cannot actually be registered and is therefore guaranteed not to appear in any
 actual email address
 
 */
@@ -44,7 +44,7 @@ VALUES
     '1@example.com'
    ),
 
-   --anon FName and MName; NULL LName; LName should remain NULL
+   --anonymized FName and MName; NULL LName; LName should remain NULL
    (md5(random()::text || clock_timestamp()::text),
     md5(random()::text || clock_timestamp()::text),
     NULL,

@@ -19,7 +19,7 @@ Steps to test humanizeStudentData.sql:
 3. Run this script: tests result of each row and then deletes test rows
 
 This script tests if humanization has impacted each test row as expected:
-- comment before each test describes the test case
+- comments before each test describe the test case;
 - uses the Email column to locate specific test rows
 
 */

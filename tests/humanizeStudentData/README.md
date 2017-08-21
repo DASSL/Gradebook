@@ -23,4 +23,4 @@ The scripts `addTestData.sql` and `testResults.sql` are present in the same
 directory as this README file. The script `humanizeStudentData.sql` is present
 in the directory `/src/db/`.
 
-The scripts may be run using a PostgreSQL client such as `psql` and `pgadmin`.
+The scripts may be run using a PostgreSQL client such as `psql` and `pgAdmin`.

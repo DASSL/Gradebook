@@ -24,10 +24,10 @@ List of human names obtained from:
  https://www.ssa.gov/oact/babynames/
 */
 
---Create temporary tables for actual human names
+--create temporary tables for actual human names
 -- these tables will be automatically dropped after the session ends;
 -- no constraints are placed on the Name column in these tables for reasons of
--- performance: the table is created, populated, and dropped here in this script
+-- performance: the tables are created, populated, and dropped in this script
 
 --drop tables if they exist: they shouldn't exist, but belt and suspenders
 DROP TABLE IF EXISTS
@@ -38,18 +38,18 @@ CREATE TEMPORARY TABLE HumanFirstNames(
     Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
 
-CREATE TEMPORARY TABLE IF NOT EXISTS HumanMiddleNames(
+CREATE TEMPORARY TABLE HumanMiddleNames(
     ID SERIAL PRIMARY KEY,
     Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
 
-CREATE TEMPORARY TABLE IF NOT EXISTS HumanLastNames(
+CREATE TEMPORARY TABLE HumanLastNames(
     ID SERIAL PRIMARY KEY,
     Name VARCHAR(50) --NOT NULL UNIQUE is the expectation for this column
 );
 
 
---Insert 100 random first names into HumanFirstNames
+--insert 100 random first names into HumanFirstNames
 INSERT INTO pg_temp.HumanFirstNames(Name)
 VALUES
    ('Jacob'),     ('Michael'),   ('Madison'),   ('Joshua'),    ('Sarah'),
@@ -74,8 +74,8 @@ VALUES
    ('Jake'),      ('Katie'),     ('Spencer'),   ('Cheyenne'),  ('Paul');
 
 
---Insert 42 random middle names into HumanMiddleNames. Values of '' are used to
---represent no middle name. ~41% (17/41) of the entries are empty strings.
+--insert 42 random middle names into HumanMiddleNames. Values of '' are used to
+--represent no middle name; ~40% (17/42) of the entries are empty strings.
 INSERT INTO pg_temp.HumanMiddleNames(Name)
 VALUES
    ('James'),  (''),       ('Jerry'),  (''),       ('Mathew'), (''),
@@ -84,10 +84,10 @@ VALUES
    (''),       ('Mark'),   (''),       ('Amanda'), (''),       ('Luis'),
    (''),       ('P'),      (''),       ('Frank'),  (''),       ('Rebecca'),
    (''),       ('L'),      (''),       ('Gary'),   (''),       ('Mary'),
-   (''),       ('Donald'),('T'),       ('Warren'), ('Pam'),    ('Eric');
+   (''),       ('Donald'), ('T'),       ('Warren'), ('Pam'),    ('Eric');
 
 
---Insert 100 random last names into HumanLastNames
+--insert 100 random last names into HumanLastNames
 INSERT INTO pg_temp.HumanLastNames(Name)
 VALUES
    ('Smith'),     ('Johnson'),   ('Williams'),  ('Brown'),     ('Jones'),
@@ -150,17 +150,18 @@ $$
 $$ LANGUAGE SQL;
 
 --create a temporary function to return a random name part: first/middle/last
---parameter currentName: value presently in Student table for the name part
---parameter resultNameKind contains '0'/'1'/x to denote name part desired
+--parameters:
+-- currentName: value presently in Student table for the name part
+-- resultNameKind: '0'/'1'/x to denote name part desired
 --  '0' returns first name; '1' returns middle name; others return last name
---paramter humanTableRows: has #rows in the appropriate Human* table
---Return value:
+-- humanTableRows: #rows in the appropriate Human* table
+--return value:
 -- same as currentName if that param is NULL or empty, else a randomly generated
 -- name for the kind of name requested
---If a Get*Name function returns NULL (which happens occasionally), that
+--if a Get*Name function returns NULL (which happens occasionally), that
 -- function is retried up to two more times; if all 3 attempts to generate a
--- name part return NULL, currentName is returned as the function's value
--- so far at most one retry has been necesary to return a non-NULL name part
+-- name part return NULL, currentName is returned as the function's value;
+-- so far at most one retry has been necessary to return a non-NULL name part
 CREATE OR REPLACE FUNCTION pg_temp.GetHumanNamePart(currentName VARCHAR(50),
                                                     resultNameKind CHAR(1),
                                                     humanTableRows INTEGER)
@@ -199,9 +200,11 @@ END
 $$ LANGUAGE plpgsql;
 
 /*
-The following dynamic SQL can be used instead of using different function for
-each name part; yet name-part specific functions are used to aid maintenance
--- humanTableName is a variable whose value depends on resultNameKind
+the following dynamic SQL can be used instead of using a different function for
+each name part; yet name-part specific functions are intentionally used to
+improve maintainability;
+in the code below, humanTableName is a variable whose value depends on parameter
+resultNameKind
 
 EXECUTE 'SELECT H.Name '
         'FROM pg_temp.' || humanTableName || ' H '
@@ -213,7 +216,8 @@ INTO result;
 
 
 --perform humanization
-DO $$
+DO
+$$
 DECLARE
     numOfFirstNames INTEGER;
     numOfMiddleNames INTEGER;
@@ -221,12 +225,12 @@ DECLARE
 BEGIN
 
     --determine the number of names in each Human* table
-    -- the counts are used later to limit the range of random numbers generated
+    -- the counts are used to limit the range of random numbers generated
     SELECT COUNT(*) INTO numOfFirstNames FROM HumanFirstNames;
     SELECT COUNT(*) INTO numOfMiddleNames FROM HumanMiddleNames;
     SELECT COUNT(*) INTO numOfLastNames FROM HumanLastNames;
 
-    --Update the name columns in Student table in rows containing hash values
+    --update the name columns in Student table in rows containing hash values
     -- a name column contains hash value if it contains only hexadecimal digits;
     -- test a concatenation of all name columns to prevent falsely identifying
     -- a row as needing update: unlikely a real human name has all name parts
@@ -237,4 +241,5 @@ BEGIN
         LName = pg_temp.GetHumanNamePart(LName, '2', numOfLastNames)
     WHERE CONCAT(TRIM(FName), TRIM(MName), TRIM(LName)) ~* '^[0-9a-f]+$';
 
-END $$;
+END
+$$;
