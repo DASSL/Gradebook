@@ -59,7 +59,7 @@ AS $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION getAttendance(sectionID INTEGER)
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(sectionID INTEGER)
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     -- Will give the start and end dates and the ID of the term
@@ -109,10 +109,11 @@ $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION getAttendance(year NUMERIC(4,0), season VARCHAR(20),
-                                         course VARCHAR(8),
-                                         sectionNumber VARCHAR(3)
-                                        )
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(year NUMERIC(4,0),
+                                                   season VARCHAR(20),
+                                                   course VARCHAR(8),
+                                                   sectionNumber VARCHAR(3)
+                                                  )
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
    -- after milestone M1, replace the CTE curTerm with call to getSeasonOrder
@@ -122,7 +123,7 @@ $$
       FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order"=T.Season
       WHERE T.Year = $1 AND (S.Name = $2 OR S.Code = $2)
    )
-   SELECT getAttendance(N.ID)
+   SELECT Gradebook.getAttendance(N.ID)
    FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
    WHERE N.Course = $3 AND N.SectionNumber = $4;
 
