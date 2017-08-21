@@ -91,19 +91,19 @@ BEGIN
 
    WITH termDates AS
          ( --make a list of the start and end dates for each class
-            SELECT substring("Date" FROM '*-') sDate,
-                   substring("Date" FROM '-*') eDate
+            SELECT substring(date FROM 1 FOR 5) sDate,
+                   substring(date FROM 6 FOR 5) eDate
             FROM pg_temp.openCloseStaging
          )
          --Select from the Table TermDates the most extreme start and
          --end date
-         INSERT INTO Term("Year", Season, StartDate, EndDate)
+         INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
          SELECT $1,
          (SELECT "Order" FROM Gradebook.Season s
          WHERE s.Name = $2 OR s.Code = $2
          ),
-         $1 || MIN(to_date(sDate)),
-         $1 || MAX(to_date(eDate))
+         $1 + MIN(to_date(sDate, 'MM-DD')),
+         $1 + MAX(to_date(eDate, 'MM-DD'))
          FROM termDates
    ON CONFLICT DO NOTHING;
 
