@@ -1,5 +1,5 @@
 @ECHO OFF
-REM importRosterCSV.bat - Gradebook
+REM importOpenCloseCSV.bat - Gradebook
 
 REM Steven Rollo, Zaid Bhujwala, Sean Murthy
 
