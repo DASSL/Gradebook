@@ -298,7 +298,7 @@ app.get('/attendance', function(request, response) {
    var queryParams = [sectionID];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
-      //Check if any attendance data was retreived.  One header row is
+      //Check if any attendance data was returned from the DB.  One header row is
       //always returned, so if the result contains only one row, then
       //no attendance data was returned
       if(result.rows.length == 1) {
