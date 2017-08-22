@@ -1,4 +1,4 @@
---getInstructorInfo.sql - Gradebook
+--addInstructorMgmt.sql - Gradebook
 
 --Zaid Bhujwala, Elly Griffin, Steven Rollo, Andrew Figueroa, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)

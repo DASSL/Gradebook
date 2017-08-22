@@ -1,4 +1,4 @@
---testAddInstructorMgmt.sql - Gradebook
+--testInstructorMgmt.sql - Gradebook
 
 --Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -28,7 +28,7 @@ DECLARE instructor2 INTEGER;
 
 BEGIN
 
-   --add test data
+   --Step 1: add test data
 
    --add two courses
    INSERT INTO Gradebook.Course
@@ -94,7 +94,7 @@ BEGIN
 
    ---------------------------------------------------------------------------
 
-   --run tests
+   --Step 2: run tests
 
    --test if getInstructors returns same #rows as directly obtained from table
    RAISE INFO '%   getInstructors Count',
