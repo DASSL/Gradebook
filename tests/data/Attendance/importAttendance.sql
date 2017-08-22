@@ -65,7 +65,6 @@ $$
    FROM SectionID, pg_temp.AttendanceStaging a JOIN Gradebook.Student stu ON
         a.FName = stu.FName AND a.LName = stu.LName AND
         COALESCE(a.MName, '') = COALESCE(stu.MName, '')
-   WHERE a.Code IS NOT NULL
    ON CONFLICT DO NOTHING;
 $$ LANGUAGE SQL;
 
