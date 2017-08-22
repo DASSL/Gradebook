@@ -135,8 +135,9 @@ app.get('/login', function(request, response) {
 
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
-      //Check if the returned row contains a null instructor id
-      if(result.rows[0].id == null) {
+      //Check if any rows are returned.  No rows implies that the provided
+      //email does not match an existing instructor
+      if(result.rows.length == 0) {
          response.status(401).send('401 - Login failed');
       }
       else {
@@ -297,8 +298,10 @@ app.get('/attendance', function(request, response) {
    var queryParams = [sectionID];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
-      //Check if any attendance data was retreived
-      if(result.rows[0].attendancecsvwithheader == null) {
+      //Check if any attendance data was retreived.  One header row is
+      //always returned, so if the result contains only one row, then
+      //no attendance data was returned
+      if(result.rows.length == 1) {
          response.status(500).send('500 - No Attenance Records');
          return;
       }
