@@ -31,7 +31,7 @@ CREATE TABLE Gradebook.Season
    --Order denotes the sequence of seasons within a year: 0, 1,...9
    "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0),
 
-   --Name is a descriptiion such as Spring and Summer: must be 2 or more chars
+   --Name is a description such as Spring and Summer: must be 2 or more chars
    -- uniqueness is enforced using a case-insensitive index
    Name VARCHAR(20) NOT NULL UNIQUE CHECK(LENGTH(TRIM(Name)) > 1),
 
@@ -87,7 +87,7 @@ ON Gradebook.Instructor(LOWER(TRIM(Email)));
 CREATE TABLE Gradebook.Section
 (
    ID SERIAL PRIMARY KEY,
-   Term INTEGER NOT NULL REFERENCES Gradebook.Term,
+   Term INT NOT NULL REFERENCES Gradebook.Term,
    Course VARCHAR(8) NOT NULL REFERENCES Gradebook.Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
@@ -96,9 +96,9 @@ CREATE TABLE Gradebook.Section
    StartDate DATE, --first date the section meets
    EndDate DATE, --last date the section meets
    MidtermDate DATE, --date of the "middle" of term: used to compute mid-term grade
-   Instructor1 INTEGER NOT NULL REFERENCES Gradebook.Instructor, --primary instructor
-   Instructor2 INTEGER REFERENCES Gradebook.Instructor, --optional 2nd instructor
-   Instructor3 INTEGER REFERENCES Gradebook.Instructor, --optional 3rd instructor
+   Instructor1 INT NOT NULL REFERENCES Gradebook.Instructor, --primary instructor
+   Instructor2 INT REFERENCES Gradebook.Instructor, --optional 2nd instructor
+   Instructor3 INT REFERENCES Gradebook.Instructor, --optional 3rd instructor
    UNIQUE(Term, Course, SectionNumber),
 
    --make sure instructors are distinct
@@ -147,7 +147,7 @@ INSERT INTO Gradebook.Grade VALUES('SA', 0);
 --Table to store mapping of percentage score to a letter grade: varies by section
 CREATE TABLE Gradebook.Section_GradeTier
 (
-   Section INTEGER REFERENCES Gradebook.Section,
+   Section INT REFERENCES Gradebook.Section,
    LetterGrade VARCHAR(2) NOT NULL REFERENCES Gradebook.Grade,
    LowPercentage NUMERIC(4,2) NOT NULL CHECK (LowPercentage > 0),
    HighPercentage NUMERIC(5,2) NOT NULL CHECK (HighPercentage > 0),
@@ -177,8 +177,8 @@ ON Gradebook.Student(LOWER(TRIM(Email)));
 
 CREATE TABLE Gradebook.Enrollee
 (
-   Student INTEGER NOT NULL REFERENCES Gradebook.Student,
-   Section INTEGER REFERENCES Gradebook.Section,
+   Student INT NOT NULL REFERENCES Gradebook.Student,
+   Section INT REFERENCES Gradebook.Section,
    DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
    YearEnrolled VARCHAR(30) NOT NULL,
    MajorEnrolled VARCHAR(50) NOT NULL,
@@ -204,8 +204,8 @@ CREATE TABLE Gradebook.AttendanceStatus
 
 CREATE TABLE Gradebook.AttendanceRecord
 (
-   Student INTEGER NOT NULL,
-   Section INTEGER NOT NULL,
+   Student INT NOT NULL,
+   Section INT NOT NULL,
    Date DATE NOT NULL,
    Status CHAR(1) NOT NULL REFERENCES Gradebook.AttendanceStatus,
    PRIMARY KEY (Student, Section, Date),
@@ -215,19 +215,19 @@ CREATE TABLE Gradebook.AttendanceRecord
 
 CREATE TABLE Gradebook.Section_AssessmentComponent
 (
-   Section INTEGER NOT NULL REFERENCES Gradebook.Section,
+   Section INT NOT NULL REFERENCES Gradebook.Section,
    Type VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
    Weight NUMERIC(3,2) NOT NULL CHECK (Weight >= 0), --a percentage value: 0.25, 0.5,...
-   NumItems INTEGER NOT NULL DEFAULT 1,
+   NumItems INT NOT NULL DEFAULT 1,
    PRIMARY KEY (Section, Type)
 );
 
 
 CREATE TABLE Gradebook.Section_AssessmentItem
 (
-   Section INTEGER NOT NULL,
+   Section INT NOT NULL,
    Component VARCHAR(20) NOT NULL,
-   SequenceInComponent INTEGER NOT NULL  NOT NULL CHECK (SequenceInComponent > 0),
+   SequenceInComponent INT NOT NULL  NOT NULL CHECK (SequenceInComponent > 0),
    BasePoints NUMERIC(5,2) NOT NULL CHECK (BasePoints >= 0),
    ExtraCreditPoints NUMERIC(5,2) NOT NULL DEFAULT 0 CHECK (ExtraCreditPoints >= 0),
    AssignedDate Date,
@@ -239,10 +239,10 @@ CREATE TABLE Gradebook.Section_AssessmentItem
 
 CREATE TABLE Gradebook.Enrollee_AssessmentItem
 (
-   Student INTEGER NOT NULL,
-   Section INTEGER NOT NULL,
+   Student INT NOT NULL,
+   Section INT NOT NULL,
    Component VARCHAR(20) NOT NULL,
-   SequenceInComponent INTEGER NOT NULL,
+   SequenceInComponent INT NOT NULL,
    BasePointsEarned NUMERIC(5,2) CHECK (BasePointsEarned >= 0),
    ExtraCreditPointsEarned NUMERIC(5,2) CHECK (ExtraCreditPointsEarned >= 0),
    SubmissionDate DATE,
