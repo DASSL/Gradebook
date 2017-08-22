@@ -135,8 +135,10 @@ app.get('/login', function(request, response) {
 
    //Execute the query
    executeQuery(response, config, queryText, queryParams, function(result) {
-      if(result.rows[0].id == null) { //Check if the returned row has a null instructor id
-         response.status(500).send('401 - Login failed');
+      //Check if any rows are returned.  No rows implies that the provided
+      //email does not match an existing instructor
+      if(result.rows.length == 0) {
+         response.status(401).send('401 - Login failed');
       }
       else {
          var jsonReturn = {
@@ -161,7 +163,7 @@ app.get('/years', function(request, response) {
    var instructorID = request.query.instructorid;
 
    //Set the query text
-   var queryText = 'SELECT * FROM gradebook.getYears($1);';
+   var queryText = 'SELECT * FROM gradebook.getInstructorYears($1);';
    var queryParams = [instructorID];
 
    //Execute the query
@@ -192,7 +194,7 @@ app.get('/seasons', function(request, response) {
    var year = request.query.year;
 
    //Set the query text
-   var queryText = 'SELECT * FROM gradebook.getSeasons($1, $2);';
+   var queryText = 'SELECT * FROM gradebook.getInstructorSeasons($1, $2);';
    var queryParams = [instructorID, year];
 
    //Execute the query
@@ -227,7 +229,7 @@ app.get('/courses', function(request, response) {
    var year = request.query.year;
    var seasonOrder = request.query.seasonorder;
 
-   var queryText = 'SELECT * FROM gradebook.getCourses($1, $2, $3);';
+   var queryText = 'SELECT * FROM gradebook.getInstructorCourses($1, $2, $3);';
    var queryParams = [instructorID, year, seasonOrder];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
@@ -258,7 +260,7 @@ app.get('/sections', function(request, response) {
    var seasonOrder = request.query.seasonorder;
    var courseNumber = request.query.coursenumber;
 
-   var queryText = 'SELECT * FROM gradebook.getSections($1, $2, $3, $4);';
+   var queryText = 'SELECT * FROM gradebook.getInstructorSections($1, $2, $3, $4);';
    var queryParams = [instructorID, year, seasonOrder, courseNumber];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
@@ -296,11 +298,17 @@ app.get('/attendance', function(request, response) {
    var queryParams = [sectionID];
 
    executeQuery(response, config, queryText, queryParams, function(result) {
+      //Check if any attendance data was returned from the DB.  One header row is
+      //always returned, so if the result contains only one row, then
+      //no attendance data was returned
+      if(result.rows.length == 1) {
+         response.status(500).send('500 - No Attenance Records');
+         return;
+      }
       var table = '<table>';
-
       //Extract months from the top row of dates
       //First, split csv of dates
-      var dateRow = result.rows[0].csvwheadattnrec.split(',');
+      var dateRow = result.rows[0].attendancecsvwithheader.split(',');
       var rowLen = dateRow.length;
 
       var maxMonth = 0; //Stores the lastest month found
@@ -330,14 +338,14 @@ app.get('/attendance', function(request, response) {
       }
       //Add the month and day rows to the csv rows
       var resultSplitDates = result.rows.slice(1);
-      resultSplitDates.unshift({csvwheadattnrec: days});
-      resultSplitDates.unshift({csvwheadattnrec: months});
+      resultSplitDates.unshift({attendancecsvwithheader: days});
+      resultSplitDates.unshift({attendancecsvwithheader: months});
 
       //Execute for each row in the result
       resultSplitDates.forEach(function(row) {
          //Add table row for each result row
          table += '<tr>';
-         var splitRow = row.csvwheadattnrec.split(','); //Split the csv field
+         var splitRow = row.attendancecsvwithheader.split(','); //Split the csv field
          var rowLen = splitRow.length;
          var spanIndex = 0;
          for(cell = 0; cell < rowLen; cell++) { //For each cell in the current row

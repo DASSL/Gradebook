@@ -33,19 +33,15 @@ CREATE TABLE Gradebook.Season
 
    --Name is a description such as Spring and Summer: must be 2 or more chars
    -- uniqueness is enforced using a case-insensitive index
-   Name VARCHAR(20) NOT NULL UNIQUE CHECK(LENGTH(TRIM(Name)) > 1),
+   Name VARCHAR(20) NOT NULL CHECK(LENGTH(TRIM(Name)) > 1),
 
    --Code is 'S', 'M', etc.: makes it easier for user to specify a season
-   -- permit only a-z or A-Z
-   -- uniqueness is enforced using a case-insensitive index
-   Code CHAR(1) NOT NULL UNIQUE CHECK(Code ~* '[A-Z]')
+   -- permit only A-Z (upper case)
+   Code CHAR(1) NOT NULL UNIQUE CHECK(Code ~ '[A-Z]')
 );
 
---enforce case-insensitive uniqueness of season name and order
--- the index expression for season code does not trim spaces because spaces are
--- not allowed in season codes
+--enforce case-insensitive uniqueness of season name
 CREATE UNIQUE INDEX idx_Unique_SeasonName ON Gradebook.Season(LOWER(TRIM(Name)));
-CREATE UNIQUE INDEX idx_Unique_SeasonCode ON Gradebook.Season(LOWER(Code));
 
 
 --populate the Season table with values found in the OpenClose system at WCSU
