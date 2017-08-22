@@ -76,6 +76,7 @@ CREATE TABLE Gradebook.Instructor
    LName VARCHAR(50) NOT NULL,
    Department VARCHAR(30),
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
+   UNIQUE(FName, LName),
    UNIQUE(FName, MName, LName)
 );
 
