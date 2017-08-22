@@ -12,9 +12,9 @@ REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOU
 
 
 REM Batch file to importFromRoster data
-REM USAGE: importRosterCSV.bat "filename" year season 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
+REM USAGE: importRosterCSV.bat "filename" year 'season' 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
 REM year like 2017
-REM season is the "order" attribute of the Season table
+REM season is the order, name, or code of a season as used in the Season table
 REM courseNumber like 'CS110'
 REM sectionNumber like '01'
 REM Up to 9 additional args can be provided following the required ones
@@ -51,7 +51,7 @@ IF "%8"=="" (
 IF "%port%"=="" SET port=5432
 
 
-REM SHIFT /1 moves parameters down by 1, making %1 out of scope, and allowing a new paramater to be referenced
+REM SHIFT /1 moves parameters down by 1, making %1 out of scope, and allowing a new parameter to be referenced
 SHIFT /1
 SHIFT /1
 SHIFT /1
@@ -70,9 +70,9 @@ REM This allows the use of a temporary table without it being automatically drop
 REM  due to the session being closed between statements
 
 psql %1 %2 %3 %4 %5 %6 %7 %8 %9 -h %hostname% -p %port% -d %database% -U %username%^
- --single-transaction -f "rosterImport.sql"^
+ --single-transaction -f "prepareRosterImport.sql"^
  -c "\COPY rosterStaging FROM %filename% WITH csv HEADER"^
- -c "SELECT importFromRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
+ -c "SELECT pg_temp.importRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
 goto end
 
 
@@ -83,7 +83,7 @@ ECHO You must supply at least five arguments (filename year season courseNumber 
 ECHO importRosterCSV.bat: Imports a CSV from a student roster into the Gradebook schema
 ECHO Takes 5+ space separated arguments
 ECHO Usage:
-ECHO importRosterCSV.bat "filename" year season 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
+ECHO importRosterCSV.bat "filename" year 'season' 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
 
 :end
 pause
