@@ -7,14 +7,15 @@ Elly Griffin, Andrew Figueroa, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
-Licenced to others under CC 4.0 BY-NC-SA
+Licensed to others under CC 4.0 BY-NC-SA
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 This HTML page serves as the main access point for an instructor's use of Gradebook.
-Currently, only attendance information will be served
+Currently, only attendance information is served
 -->
+
 <html>
 	<head>
 	<title>Gradebook</title>
@@ -25,17 +26,33 @@ Currently, only attendance information will be served
 	</head>
 	<body>
 	
+	<!--Top of screen banner (navbar) - Includes logo, profile, and tabs-->
 	<nav class="nav-extended">
 		<div class="nav-wrapper">
-			<a href="#" class="brand-logo">Gradebook</a>
+			<a href="#" class="brand-logo left" style="margin-left: 1%">Gradebook</a>
+			<ul id="profile" class="right" style="display: none">
+				<li><i class="medium material-icons">portrait</i></li>
+				<li><span id="instName" style="margin-left: 10px">Placeholder Name</span></li>
+				<li>
+					<a id="profileArrow" class="dropdown-button" data-belowOrigin="true" data-activates="profileBox">
+						<i class="small material-icons">arrow_drop_down</i>
+					</a>
+					<ul id="profileBox" class="dropdown-content">
+						<li><a id="logout">Logout</a></li>
+					</ul>
+				</li>
+			</ul>
 		</div>
 		<div class="nav-content">
 			<ul class="tabs tabs-transparent">
-				<li class="tab"><a href="#">Attendance</a></li>
-				<li class="tab disabled"><a href="#">Grades</a></li>
-				<li class="tab disabled"><a href="#">Reports</a></li>
+				<li id="loginTab" class="tab"><a href="#login">Login</a></li>
+				<li id="rosterTab" class="tab" style="display: none"><a href="#roster">Roster</a></li>
+				<li id="attnTab" class="tab" style="display: none"><a href="#attendance">Attendance</a></li>
+				<li id="gradesTab" class="tab" style="display: none"><a href="#grades">Grades</a></li>
+				<li id="reportsTab" class="tab" style="display: none"><a href="#reports">Reports</a></li>
+				<li id="aboutTab" class="tab"><a href="#about">About</a></li>
 				<!--See http://materializecss.com/navbar.html#navbar-tabs for examples on
-					 how to (later) use tabs for navigation-->
+					 how to use tabs for navigation-->
 			</ul>
 		</div>
 	</nav>
@@ -44,39 +61,51 @@ Currently, only attendance information will be served
 	<div class="container"> <!--Adds left and right spacing for content-->
 	<div class="section"> <!--Adds spacing between navbar and content-->
 	
-	<div class="row">
-		<div class="input-field col s12 m6 l3">
-			<input id="host" type="text" value="localhost"/>
-			<label for="host">Host name</label>
+	<div id="login">		
+		<div class="row">
+			<h5>Login</h5>
 		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="port" type="text" value="5432"/>
-			<label for="port">Port</label>
+		<div class="row">
+			<div class="input-field col s12 m6 l3">
+				<input id="email" type="email"/>
+				<label for="email">Email</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="passwordBox" type="password"/>
+				<label for="passwordBox">Password</label>
+			</div>
+			<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
 		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="database" type="text"/>
-			<label for="database">Database</label>
+			
+		<div class="row">
+			<h5>DB Info</h5>
+		</div>
+		<div class="row">
+			<div class="input-field col s12 m6 l3">
+				<input id="host" type="text" value="localhost"/>
+				<label for="host">Host name</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="port" type="text" value="5432"/>
+				<label for="port">Port</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="database" type="text" value="Gradebook"/>
+				<label for="database">Database</label>
+			</div>
+			<div class="input-field col s12 m6 l3">
+				<input id="user" type="text" value="GB_WebApp"/>
+				<label for="user">DB Username</label>
+			</div>
+
 		</div>
 	</div>
 	
-	<div class="row">
-		<div class="input-field col s12 m6 l3">
-			<input id="user" type="text"/>
-			<label for="user">Username</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="passwordBox" type="password"/></td>
-			<label for="passwordBox">Password</label>
-		</div>
-		<div class="input-field col s12 m6 l3">
-			<input id="instructorId" type="text"/>
-			<label for="instructorId">Instructor ID</label> 
-		</div>
-		<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
+	<div id="roster">
+		<p class="center-align">The Roster page is not yet implemented</p>
 	</div>
 	
-	<div class="divider"></div>
-	
+	<div id="attendance">
 	<div class="row section">
 		<div class="input-field col s12 m6 l3">
 			<select id="yearSelect" disabled="true">
@@ -105,11 +134,31 @@ Currently, only attendance information will be served
 	</div>
 	
 	<div class="divider"></div>
-	<div id="attendanceData" class="section"></div>
-
+	<div id="attendanceData" class="section"></div> <!--Populated dynamically-->
+	
+	</div>
+	
+	<div id="grades">
+		<p class="center-align">The Grades page is not yet implemented</p>
+	</div>
+	
+	<div id="reports">
+		<p class="center-align">The Reports page is not yet implemented</p>
+	</div>
+	
+	<div id="about">
+		<p class="center-align">The About page is not yet complete</p>
+		<br/>
+		<h3>Gradebook</h3>
+		<p>Gradebook is an open-source product to provide a simple means for 
+			instructors to record student assessment and attendance.</p>
+		<a href="https://github.com/DASSL/Gradebook">View Gradebook on GitHub.com</a>
+	</div>
+	
 	</div>
 	</div>
-  </body>
+	
+	</body>
 
 	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" src="js/materialize.min.js"></script>
