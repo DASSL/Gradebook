@@ -1,4 +1,4 @@
-CC 4.0 BY-NC-SA
+CC 4.0 BY-NC-SA   
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
