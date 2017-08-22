@@ -26,19 +26,11 @@
 
 
 --Populate AttendanceStatus with necessary attendance codes
-INSERT INTO Gradebook.AttendanceStatus VALUES('P', 'Present')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('A', 'Absent')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('E', 'Explained')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('S', 'Stopped Attending')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('X', 'Excused')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('N', 'Not Registered')
-ON CONFLICT DO NOTHING;
-INSERT INTO Gradebook.AttendanceStatus VALUES('C', 'Cancelled')
+INSERT INTO Gradebook.AttendanceStatus 
+VALUES
+   ('P', 'Present'),           ('A', 'Absent'),   ('E', 'Explained'),
+   ('S', 'Stopped Attending'), ('X', 'Excused'),  ('N', 'Not Registered'),
+   ('C', 'Cancelled'),         ('W', 'Withdrawn')
 ON CONFLICT DO NOTHING;
 
 
@@ -55,11 +47,13 @@ CREATE TABLE pg_temp.AttendanceStaging
 
 
 --Define a temporary function for moving data from staging table to AttendanceRecord
-CREATE OR REPLACE FUNCTION pg_temp.importToAttnRec(
+CREATE OR REPLACE FUNCTION pg_temp.importAttendance(
    Year NUMERIC(4,0), Season NUMERIC(1,0), Course VARCHAR(8), 
    SectionNumber VARCHAR(3)) 
    RETURNS VOID AS
 $$
+   --Match student from each entry in sample data with their corresponsing entry in 
+   -- Student table by joining on a match of the 3 name parts. MName can be NULL.
    INSERT INTO Gradebook.AttendanceRecord
    WITH SectionID AS
    (
@@ -69,21 +63,22 @@ $$
    )
    SELECT stu.ID, sectionID.ID, a.Date, a.Code
    FROM SectionID, pg_temp.AttendanceStaging a JOIN Gradebook.Student stu ON
-        a.Code IS NOT NULL AND a.FName = stu.FName AND a.LName = stu.LName AND
-        (a.MName = stu.MName OR (a.MName IS NULL AND stu.MName IS NULL))
+        a.FName = stu.FName AND a.LName = stu.LName AND
+        COALESCE(a.MName, '') = COALESCE(stu.MName, '')
+   WHERE a.Code IS NOT NULL
    ON CONFLICT DO NOTHING;
 $$ LANGUAGE SQL;
 
 
 --Import data from files to staging table and call import function for each section
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-05Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '05');
+SELECT pg_temp.importAttendance(2017, 0, 'CS110', '05');
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-72Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '72');
+SELECT pg_temp.importAttendance(2017, 0, 'CS110', '72');
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-74Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importToAttnRec(2017, 0, 'CS110', '74');
+SELECT pg_temp.importAttendance(2017, 0, 'CS110', '74');
 TRUNCATE pg_temp.AttendanceStaging;
