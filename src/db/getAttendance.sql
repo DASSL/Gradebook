@@ -1,17 +1,23 @@
--- getAttendance.sql - Gradebook
+/*
+getAttendance.sql - Gradebook
 
--- Kyle Bella, Steven Rollo, Zaid Bhujwala, Andrew Figueroa, Elly Griffin, Sean Murthy
+Kyle Bella, Steven Rollo, Zaid Bhujwala, Andrew Figueroa, Elly Griffin, Sean Murthy
+Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
--- CC 4.0 BY-NC-SA
--- https://creativecommons.org/licenses/by-nc-sa/4.0/
+(C) 2017- DASSL. ALL RIGHTS RESERVED.
+Licensed to others under CC 4.0 BY-SA-NC:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
 
--- Copyright (c) 2017- DASSL. ALL RIGHTS RESERVED.
+PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
--- ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+*/
 
--- Adaptation of the Summer DASSL 2017 csvPivotExample.sql to the Gradebook schema
+--This file has some issues related to formatting, clarity, and efficiency
+-- fix after milestone M1: delete this comment block after fixing the issues
 
---Function to generate a list of meeting dates from a class schedule (ex. 'MWF' - meaning it meets Mondays, Wednesdays and Fridays)
+
+--Function to generate a list of meeting dates from a class schedule
+--(e.g., 'MWF' - meaning it meets Mondays, Wednesdays and Fridays)
 --as well as a start date and end date to bound the dates.
 --The following day codes are recognized:
 --M = Monday
@@ -53,7 +59,7 @@ AS $$
 $$ LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION getAttendance(sectionID INTEGER)
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(sectionID INTEGER)
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
     -- Will give the start and end dates and the ID of the term
@@ -68,7 +74,7 @@ $$
         -- this cross join will return the same amount of rows as the table that datesFromSchedule() outputs
         -- since curSec will have at most 1 row
         SELECT d.MeetingDate
-        FROM curSec cs, datesFromSchedule(cs.sd, cs.ed, cs.s) d
+        FROM curSec cs, Gradebook.datesFromSchedule(cs.sd, cs.ed, cs.s) d
     -- Needed to "create" a dates table
     ), dates AS
     (
@@ -84,26 +90,41 @@ $$
         LEFT OUTER JOIN Gradebook.attendanceRecord ar ON ar.student=e.student AND ar.Date=da.md
         WHERE e.section = $1
     )
-    -- This will format the final table to a user-friendly format
-    SELECT 'Last' || ',' || 'First' || ',' || 'Middle' || ',' || string_agg(to_char(d, 'MM-DD-YYYY'), ',' ORDER BY d) csv_header
+    --format the final table to a user-friendly CSV format with headers
+    -- the data portion of the result is ordered by student name
+    -- function concat_ws is used to generate CSV strings
+    SELECT concat_ws(',', 'Last', 'First', 'Middle',
+                     string_agg(to_char(d, 'MM-DD-YYYY'), ',' ORDER BY d)
+                    ) csv_header
     FROM (SELECT DISTINCT d FROM sdar) dd
     UNION ALL
-    SELECT st.LName || ',' || st.FName || ',' || COALESCE(st.MName, '') || ',' || string_agg(c, ',' ORDER BY d)
-    FROM sdar JOIN Gradebook.Student st ON sdar.i=st.id
-    GROUP BY st.id;
+    (SELECT concat_ws(',', st.LName, st.FName, COALESCE(st.MName, ''),
+                      string_agg(c, ',' ORDER BY d)
+                     )
+     FROM sdar JOIN Gradebook.Student st ON sdar.i=st.id
+     GROUP BY st.id
+     ORDER BY st.LName, st.FName, COALESCE(st.MName, '')
+    );
 
 $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION getAttendance(Year NUMERIC(4,0), Season VARCHAR(20), Course VARCHAR(8), SectionNumber VARCHAR(3))
+
+CREATE OR REPLACE FUNCTION Gradebook.getAttendance(year NUMERIC(4,0),
+                                                   season VARCHAR(20),
+                                                   course VARCHAR(8),
+                                                   sectionNumber VARCHAR(3)
+                                                  )
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
-    WITH curTerm AS
-    (
+   -- after milestone M1, replace the CTE curTerm with call to getSeasonOrder
+   WITH curTerm AS
+   (
       SELECT T.ID
       FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order"=T.Season
       WHERE T.Year = $1 AND (S.Name = $2 OR S.Code = $2)
-    )
-    SELECT getAttendance(N.ID)
-    FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
-    WHERE N.Course = $3 AND N.SectionNumber = $4;
+   )
+   SELECT Gradebook.getAttendance(N.ID)
+   FROM Gradebook.Section N JOIN curTerm C ON N.Term=C.ID
+   WHERE N.Course = $3 AND N.SectionNumber = $4;
+
 $$ LANGUAGE sql;
