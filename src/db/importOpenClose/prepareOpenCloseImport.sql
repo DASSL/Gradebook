@@ -1,4 +1,4 @@
---importOpenClose.sql - Gradebook
+--prepareOpenCloseImport.sql - Gradebook
 
 --Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Hunter Schloss, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -12,6 +12,8 @@
 --This script is part of the procedure to import OpenClose data from a csv file
 -- it creates some temporary objects needed for import
 -- it should be run before copying csv data to the staging table
+
+--The script addSectionMgmt.sql should have been run before running this script
 
 --This table is used to stage data from CSV file as part of the import process
 CREATE TEMPORARY TABLE openCloseStaging
