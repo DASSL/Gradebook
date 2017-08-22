@@ -1,0 +1,35 @@
+--prepareDB.psql - Gradebook
+
+--Steven Rollo, Sean Murthy
+--Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
+
+--(C) 2017- DASSL. ALL RIGHTS RESERVED.
+--Licensed to others under CC 4.0 BY-SA-NC
+--https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+--PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+--This script creates functions and other database objects used in the Gradebook
+-- application
+
+--This script should be run in the context of the database expected to hold
+--Gradebook data
+-- the database must already exist and be empty
+-- the executing user should be a superuser (or otherwise have sufficient rights
+-- to create schema, tables, indexes, functions, and other objects)
+
+--This script must be executed using the psql Postgres client because it uses
+--psql meta-commands; use one of the following methods to run this script:
+-- 1. Start psql with its usual parameters along with the -f command line switch
+--    and the path to this script file
+-- 2. Start psql with its usual parameters and once inside the interactive shell,
+--    use the \i command to execute this script
+
+
+\set ON_ERROR_STOP on
+\i createTables.sql
+\i addReferenceData.sql
+\i addSeasonMgmt.sql
+\i addSectionMgmt.sql
+\i addAttendanceMgmt.sql
+\i addInstructorMgmt.sql

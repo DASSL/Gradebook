@@ -1,5 +1,5 @@
 /*
-getAttendance.sql - Gradebook
+addAttendanceMgmt.sql - Gradebook
 
 Kyle Bella, Steven Rollo, Zaid Bhujwala, Andrew Figueroa, Elly Griffin, Sean Murthy
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
