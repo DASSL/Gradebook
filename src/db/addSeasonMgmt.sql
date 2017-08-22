@@ -56,7 +56,7 @@ $$
    FROM Gradebook.Season
    WHERE CASE
             WHEN $1 ~ '^[0-9]$' THEN "Order" = to_number($1,'9')
-            WHEN LENGTH($1) = 1 THEN LOWER(Code) = LOWER($1)
+            WHEN LENGTH($1) = 1 THEN Code = UPPER($1)
             ELSE LOWER(TRIM(Name)) = LOWER(TRIM($1))
          END;
 
