@@ -72,7 +72,6 @@ CREATE TABLE Gradebook.Instructor
    LName VARCHAR(50) NOT NULL,
    Department VARCHAR(30),
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
-   UNIQUE(FName, LName),
    UNIQUE(FName, MName, LName)
 );
 
@@ -80,6 +79,11 @@ CREATE TABLE Gradebook.Instructor
 CREATE UNIQUE INDEX idx_Unique_InstructorEmail
 ON Gradebook.Instructor(LOWER(TRIM(Email)));
 
+--Create a partial index on the instructor names.  This enforces the CONSTRAINT
+-- that only one of any (FName, NULL, LName) is unique
+CREATE UNIQUE INDEX idx_Unique_Names_NULL
+ON Gradebook.Instructor(FName, LName)
+WHERE MName IS NULL;
 
 CREATE TABLE Gradebook.Section
 (
