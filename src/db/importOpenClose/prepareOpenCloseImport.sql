@@ -14,7 +14,7 @@
 -- it should be run before copying csv data to the staging table
 
 --This table is used to stage data from CSV file as part of the import process
-CREATE TEMPORARY TABLE openCloseStaging
+CREATE TEMPORARY TABLE OpenCloseStaging
 (
    Status VARCHAR(6),
    Level VARCHAR(2),
@@ -45,11 +45,11 @@ CREATE TEMPORARY TABLE openCloseStaging
 -- Essentially, each year is mapped to a scale counting for the number of
 -- seasons that are in Gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
-CREATE FUNCTION pg_temp.checkTermSequence(Year INT, Season VARCHAR(10))
+CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMBER(1,0))
 RETURNS BOOLEAN AS
 $$
    --Get each term from the latest year
-   WITH latestYear AS
+   WITH LatestYear AS
    (
       SELECT Year, Season
       FROM Gradebook.Term
@@ -63,28 +63,37 @@ $$
             MAX(LY.Season) + 1
          ) =
          (
-            $1 * (SELECT COUNT(*) FROM Gradebook.Season) +
-            (SELECT "Order" FROM Gradebook.Season WHERE name = $2 OR code = $2)
+            $1 * (SELECT COUNT(*) FROM Gradebook.Season) + $2
          )
       ELSE
          TRUE
       END
-   FROM latestYear LY
+   FROM LatestYear LY;
 $$ LANGUAGE sql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 --the openCloseStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from openCloseStaging
-CREATE FUNCTION pg_temp.importOpenClose(Year INT, Season VARCHAR(10),
+CREATE FUNCTION pg_temp.importOpenClose(year INT, seasonIdentification VARCHAR(10),
                                         useSequence BOOLEAN DEFAULT TRUE
                                        )
 RETURNS VOID AS
 $$
 DECLARE
-   termInSequence BOOLEAN;
+   termInSequence BOOLEAN,
+   seasonOrder NUMERIC(1,0);
 BEGIN
-   SELECT pg_temp.checkTermSequence($1, $2) INTO termInSequence;
+   --Get the season order from the provided 'season identification'
+   --This can be either a code, order, or name
+   SELECT "Order"
+   FROM Gradebook.getSeason($2)
+   INTO seasonOrder;
+
+   --Check if the provided term is the next term chronologicaly after the last imported
+   SELECT pg_temp.checkTermSequence($1, seasonOrder) INTO termInSequence;
+
+   --If the season is out of order and we are forcing in-order import, throw an error
    IF NOT termInSequence AND useSequence THEN
       RAISE EXCEPTION 'Error - Supplied term is out of sequence';
    ELSIF NOT (termInSequence OR useSequence) THEN
@@ -92,22 +101,22 @@ BEGIN
    END IF;
 
    WITH termDates AS
-         ( --make a list of the start and end dates for each class
-            SELECT substring(date FROM 1 FOR 5) sDate,
-                   substring(date FROM 6 FOR 5) eDate
-            FROM pg_temp.openCloseStaging
-         )
-         --Select from the Table TermDates the most extreme start and
-         --end date
-         INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
-         SELECT $1,
-         (
-            SELECT "Order" FROM Gradebook.Season s
-            WHERE s.Name = $2 OR s.Code = $2
-         ),
-         $1 + MIN(to_date(sDate, 'MM-DD')),
-         $1 + MAX(to_date(eDate, 'MM-DD'))
-         FROM termDates
+   ( --make a list of the start and end dates for each class
+      SELECT substring(date FROM 1 FOR 5) sDate,
+             substring(date FROM 6 FOR 5) eDate
+      FROM pg_temp.openCloseStaging
+   )
+   --Select from the Table TermDates the most extreme start and
+   --end date
+   INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
+   SELECT $1,
+   (
+      SELECT "Order" FROM Gradebook.Season s
+      WHERE s.Name = $2 OR s.Code = $2
+   ),
+   $1 + MIN(to_date(sDate, 'MM-DD')),
+   $1 + MAX(to_date(eDate, 'MM-DD'))
+   FROM termDates
    ON CONFLICT DO NOTHING;
 
    --Insert course into Course, concat subject || course to make 'Number'
