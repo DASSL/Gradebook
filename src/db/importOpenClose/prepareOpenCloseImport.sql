@@ -13,6 +13,8 @@
 -- it creates some temporary objects needed for import
 -- it should be run before copying csv data to the staging table
 
+--The script addSeasonMgmt.sql should have been run before running this script
+
 --This table is used to stage data from CSV file as part of the import process
 CREATE TEMPORARY TABLE OpenCloseStaging
 (
@@ -45,7 +47,7 @@ CREATE TEMPORARY TABLE OpenCloseStaging
 -- Essentially, each year is mapped to a scale counting for the number of
 -- seasons that are in Gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
-CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMBER(1,0))
+CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMERIC(1,0))
 RETURNS BOOLEAN AS
 $$
    --Get each term from the latest year
@@ -81,7 +83,7 @@ CREATE FUNCTION pg_temp.importOpenClose(year INT, seasonIdentification VARCHAR(1
 RETURNS VOID AS
 $$
 DECLARE
-   termInSequence BOOLEAN,
+   termInSequence BOOLEAN;
    seasonOrder NUMERIC(1,0);
 BEGIN
    --Get the season order from the provided 'season identification'
@@ -125,8 +127,10 @@ BEGIN
    FROM pg_temp.openCloseStaging
    WHERE NOT subject IS NULL
    AND NOT course IS NULL
-   ON CONFLICT DO NOTHING;
-
+   ON CONFLICT(Number)
+      DO UPDATE
+         SET Title = EXCLUDED.Title;
+         
    --The first CTE inserts new instructors into Gradebook.Instructor, and RETURNS
    -- their full names for insertion into  Gradebook.Section table
    WITH insertedFullNames AS
@@ -169,8 +173,8 @@ BEGIN
    ),
    --This second CTE UNIONS any existing instructors that were not inserted into
    -- Gradebook.Instructor so they can be used for insertion into Gradebook.Section
-   instructorFullNames AS
-   (
+   --instructorFullNames AS
+   instructorFullNames AS (
       SELECT id, FullName
       FROM insertedFullNames
       UNION
