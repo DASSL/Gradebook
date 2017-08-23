@@ -1,4 +1,4 @@
---prepareOpenCloseImport.sql - Gradebook
+--prepareCourseScheduleImport.sql - Gradebook
 
 --Kyle Bella, Zach Boylan, Zaid Bhujwala, Steven Rollo, Hunter Schloss, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -9,14 +9,15 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script is part of the procedure to import OpenClose data from a csv file
+--This script is part of the procedure to import Course Schedule data from a csv file
+-- It is currently designed to work with data from the OpenClose system
 -- it creates some temporary objects needed for import
 -- it should be run before copying csv data to the staging table
 
 --The script addSeasonMgmt.sql should have been run before running this script
 
 --This table is used to stage data from CSV file as part of the import process
-CREATE TEMPORARY TABLE OpenCloseStaging
+CREATE TEMPORARY TABLE CourseScheduleStaging
 (
    Status VARCHAR(6),
    Level VARCHAR(2),
@@ -74,10 +75,10 @@ $$
 $$ LANGUAGE sql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
---the openCloseStaging table - expects there to be one semster of data in the table,
+--the CourseScheduleStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
---for the term only, each course gets its dates from openCloseStaging
-CREATE FUNCTION pg_temp.importOpenClose(year INT, seasonIdentification VARCHAR(10),
+--for the term only, each course gets its dates from CourseScheduleStaging
+CREATE FUNCTION pg_temp.importCourseSchedule(year INT, seasonIdentification VARCHAR(10),
                                         useSequence BOOLEAN DEFAULT TRUE
                                        )
 RETURNS VOID AS
@@ -106,7 +107,7 @@ BEGIN
    ( --make a list of the start and end dates for each class
       SELECT substring(date FROM 1 FOR 5) sDate,
              substring(date FROM 6 FOR 5) eDate
-      FROM pg_temp.openCloseStaging
+      FROM pg_temp.CourseScheduleStaging
    )
    --Select from the Table TermDates the most extreme start and
    --end date
@@ -124,19 +125,19 @@ BEGIN
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Gradebook.Course(Number, Title)
    SELECT DISTINCT ON (n) (subject || course) n, title
-   FROM pg_temp.openCloseStaging
+   FROM pg_temp.CourseScheduleStaging
    WHERE NOT subject IS NULL
    AND NOT course IS NULL
    ON CONFLICT(Number)
       DO UPDATE
          SET Title = EXCLUDED.Title;
-         
+
    --The first CTE inserts new instructors into Gradebook.Instructor, and RETURNS
    -- their full names for insertion into  Gradebook.Section table
    WITH insertedFullNames AS
    (
       --This CTE creates a table of individual instructor names from single section,
-      -- created from the multi-name csv list provided in the openclose csv files
+      -- created from the multi-name csv list provided in the CourseSchedule csv files
       -- The names are then split into arrays using spaces as a delimiter, creating a
       -- table of instructor name arrays
       WITH instructorSplitNames AS
@@ -149,7 +150,7 @@ BEGIN
                   )
                ), ' '
             ) "name"
-         FROM pg_temp.openCloseStaging
+         FROM pg_temp.CourseScheduleStaging
          WHERE instructor LIKE '% %' --Right now we can't handle names that clearly
                                      --are missing a first or last name
                                      --also ignores "names" like 'TBA'
@@ -189,7 +190,7 @@ BEGIN
           to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
           to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
           oc.location, i1.id, i2.id, i3.id
-   FROM pg_temp.openCloseStaging oc
+   FROM pg_temp.CourseScheduleStaging oc
    JOIN Gradebook.Term t ON t.Year = $1
         AND t.Season = (SELECT "Order" FROM Gradebook.Season
                         WHERE Season.Name = $2 OR Season.Code = $2
