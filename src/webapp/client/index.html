@@ -76,11 +76,15 @@ Currently, only attendance information is served
 			</div>
 			<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
 		</div>
-			
-		<div class="row">
-			<h5>DB Info</h5>
+		
+		<div class="divider"></div><br/>
+		
+		<ul id="dbInfoBox" class="collapsible" data-collapsible="expandable"><li>
+		<div class="collapsible-header">
+			<i id="dbInfoArrow" class="material-icons">keyboard_arrow_down</i>DB Info
 		</div>
-		<div class="row">
+		<div class="collapsible-body">
+			<div class="row">
 			<div class="input-field col s12 m6 l3">
 				<input id="host" type="text" value="localhost"/>
 				<label for="host">Host name</label>
@@ -97,8 +101,9 @@ Currently, only attendance information is served
 				<input id="user" type="text" value="GB_WebApp"/>
 				<label for="user">DB Username</label>
 			</div>
-
+			</div>
 		</div>
+		</li></ul>
 	</div>
 	
 	<div id="roster">

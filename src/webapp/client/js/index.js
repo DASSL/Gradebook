@@ -39,6 +39,15 @@ Each instance of connInfo as a parameter in a function definition refers to an
 $(document).ready(function() {
 	$('select').material_select(); //load dropdown boxes
 	
+	$('#dbInfoBox').collapsible({
+		onOpen: function() {
+			$('#dbInfoArrow').html('keyboard_arrow_up');
+		},
+		onClose: function() {
+			$('#dbInfoArrow').html('keyboard_arrow_down');
+		}
+	});
+	
 	
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
