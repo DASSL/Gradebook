@@ -48,6 +48,14 @@ $(document).ready(function() {
 		}
 	});
 	
+	$('#attnOptionsBox').collapsible({
+		onOpen: function() {
+			$('#optionsArrow').html('keyboard_arrow_up');
+		},
+		onClose: function() {
+			$('#optionsArrow').html('keyboard_arrow_down');
+		}
+	});
 	
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
@@ -55,9 +63,11 @@ $(document).ready(function() {
 			var email = $('#email').val().trim();
 			if (email != '') {
 				serverLogin(dbInfo, email, function() {
-					//clear login fields
+					//clear login fields and close DB Info box
 					$('#email').val('');
 					$('#passwordBox').val('');
+					$('#dbInfoBox').collapsible('close', 0);
+					$('#dbInfoArrow').html('keyboard_arrow_down');
 					
 					popYears(dbInfo);
 				});
@@ -91,6 +101,12 @@ $(document).ready(function() {
 		popAttendance(dbInfo, sectionID);
 	});
 	
+	$('#opt-showPresent, #opt-compactTab').change(function() {
+		//reload attendance table since options were modified
+		var sectionID = $('#sectionSelect').val();
+		popAttendance(dbInfo, sectionID);
+	});
+	
 	$('#logout').click(function() {
 		dbInfo = null;
 		instInfo = null;
@@ -114,8 +130,7 @@ function getDBFields() {
 	var uname = $('#user').val().trim();
 	var pw =  $('#passwordBox').val().trim();
 	
-	if (host === "" || port === "" || db === "" || uname === "" || pw === "")
-	{
+	if (host === "" || port === "" || db === "" || uname === "" || pw === "") {
 		alert('One or more fields are empty');
 		return null;
 	}
@@ -246,20 +261,11 @@ function popAttendance(connInfo, sectionid) {
 		dataType: 'html',
 		data: urlParams,
 		success: function(result) {
-			var attnTable = result;
-			if (attnTable.substring(0, 7) === '<table>') {
-				attnTable = '<table class="striped" style="display:block;' +
-				 'margin:auto;overflow-x:auto">' + attnTable.substring(7);
-			}
-			else {
-				console.log('WARN: Unable to style attendance table;' +
-				 'first 7 chars did not match "<table>"');
-			}
-			$('#attendanceData').html(attnTable);
+			setAttendance(result);
 		},
 		error: function(result) {
 			alert('Error while retrieving attendance data');
-			resetAttendance();
+			setAttendance(null);
 			console.log(result);
 		}
 	});
@@ -302,9 +308,43 @@ function setSections(htmlText) {
 	$('#sectionSelect').prop('disabled', htmlText == null);
 	$('#sectionSelect').material_select(); //reload dropdown
 	
-	resetAttendance();
+	setAttendance(null);
 };
 
-function resetAttendance() {
-	$('#attendanceData').html('');
+function setAttendance(htmlText) {
+	var showPs = $('#opt-showPresent').is(':checked');
+	var isCompact = $('#opt-compactTab').is(':checked');
+	
+	if (htmlText == null) {
+		$('#attendanceData').html('');
+		$('#attnOptionsBox').css('display', 'none');
+	}
+	else {
+		if (htmlText.substring(0, 7) !== '<table>') {
+			console.log('WARN: setAttendance(): Unable to style attendance table;' +
+			 ' first 7 chars did not match "<table>"');
+		}
+		else {
+			if (!showPs) {
+				//replace all 'P' fields with a space, add "Present" tooltip
+				htmlText = htmlText.replace(/<td  colspan=1>P<\/td>/g, '<td ' +
+				 'title="Present" colspan=1> </td>');
+			}
+			if (isCompact) {
+				//add attibutes to <table> tag to use compact framework styling
+				htmlText = '<table class="striped" style="display:block;' +
+				 'margin:auto;overflow-x:auto;line-height:1.1;">' + htmlText.substring(7);
+				 
+				//change default padding values for each table cell
+				htmlText = htmlText.replace(/<td /g, '<td style="padding:6px 4px"');
+			}
+			else {
+				//add attibutes to <table> tag to use non-compact framework styling
+				htmlText = '<table class="striped" style="display:block;' +
+				 'margin:auto;overflow-x:auto">' + htmlText.substring(7);
+			}
+		}
+		$('#attnOptionsBox').css('display', 'block');
+		$('#attendanceData').html(htmlText);
+	}
 };

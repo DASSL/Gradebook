@@ -111,7 +111,7 @@ Currently, only attendance information is served
 	</div>
 	
 	<div id="attendance">
-	<div class="row section">
+	<div class="row">
 		<div class="input-field col s12 m6 l3">
 			<select id="yearSelect" disabled="true">
 				<option value="" disabled="true" selected="true">Choose year</option>
@@ -139,6 +139,32 @@ Currently, only attendance information is served
 	</div>
 	
 	<div class="divider"></div>
+	
+	<ul id="attnOptionsBox" class="collapsible" style="display: none" data-collapsible="expandable">
+	<li>
+		<div class="collapsible-header">
+			<i id="optionsArrow" class="material-icons">keyboard_arrow_down</i>Options
+		</div>
+		<div class="collapsible-body">
+			<div class="switch">
+			Display 'P' attendance code
+			<label>
+				<input id="opt-showPresent" type="checkbox">
+				<span class="lever"></span>
+			</label>
+			</div>
+			<br/>
+			<div class="switch">
+			Display compact table
+			<label>
+				<input id="opt-compactTab" type="checkbox">
+				<span class="lever"></span>
+			</label>
+			</div>
+		</div>
+	</li>
+	</ul>
+	
 	<div id="attendanceData" class="section"></div> <!--Populated dynamically-->
 	
 	</div>
