@@ -27,15 +27,6 @@
 --  2017SpringCS110-74Attendance.csv
 
 
---Populate AttendanceStatus with necessary attendance codes
-INSERT INTO Gradebook.AttendanceStatus 
-VALUES
-   ('P', 'Present'),           ('A', 'Absent'),   ('E', 'Explained'),
-   ('S', 'Stopped Attending'), ('X', 'Excused'),  ('N', 'Not Registered'),
-   ('C', 'Cancelled'),         ('W', 'Withdrawn')
-ON CONFLICT DO NOTHING;
-
-
 --Create temporary staging table
 DROP TABLE IF EXISTS pg_temp.AttendanceStaging;
 CREATE TABLE pg_temp.AttendanceStaging
