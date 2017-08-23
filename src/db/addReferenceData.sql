@@ -1,4 +1,4 @@
---addReferenceData.sql - GradeBook
+--addReferenceData.sql - Gradebook
 
 --Zaid Bhujwala, Zach Boylan, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -14,14 +14,16 @@
 
 --This script should be run after the script createTables.sql is run
 -- the script should be run before adding rows into any other tables because
--- the added here either directly or indirectly influences all other data
+-- the rows added here influence all other data, either directly or indirectly 
 
 
 --populate the Season table with values found in the OpenClose system at WCSU
 -- the value of the "Order" column should start with zero and be incremented by
 -- 1 with each season;
 -- the order of values in the "Order" column must follow the order of seasons
--- in the calendar year; not in the school's academic year
+-- in the calendar year; not in the school's academic year. For example, the
+-- rows inserted here say that Spring is the first season classes are held in a
+-- calendar year, followed by "Spring_Break" and so on
 INSERT INTO Gradebook.Season("Order", Name, Code)
 VALUES
    ('0','Spring','S'),  ('1','Spring_Break','B'),  ('2','Summer','M'),

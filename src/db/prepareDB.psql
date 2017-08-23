@@ -9,21 +9,19 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script creates functions and other database objects used in the Gradebook
--- application
+--This script invokes other scripts which create schema, table, function, and
+--other kinds of database objects used in the Gradebook application
 
 --This script should be run in the context of the database expected to hold
 --Gradebook data
--- the database must already exist and be empty
+-- the database must already exist and be empty;
 -- the executing user should be a superuser (or otherwise have sufficient rights
--- to create schema, tables, indexes, functions, and other objects)
+-- to create schema, tables, indexes, functions, and other objects);
+-- this script and the invoked scripts should all be in the same directory
 
 --This script must be executed using the psql Postgres client because it uses
---psql meta-commands; use one of the following methods to run this script:
--- 1. Start psql with its usual parameters along with the -f command line switch
---    and the path to this script file
--- 2. Start psql with its usual parameters and once inside the interactive shell,
---    use the \i command to execute this script
+--psql meta-commands: the README file found in the same directory as this
+--script provides details
 
 
 \set ON_ERROR_STOP on
