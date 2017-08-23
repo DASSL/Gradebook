@@ -9,10 +9,10 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script is part of the procedure to import Course Schedule data from a csv file
--- It is currently designed to work with data from the OpenClose system
--- it creates some temporary objects needed for import
--- it should be run before copying csv data to the staging table
+--This script is part of the procedure to import course schedules from a csv file.
+-- This script is currently designed to work with data from the OpenClose system.
+-- To accomplish this, this script creates some temporary objects needed for import.
+-- It should be run before copying csv data to the staging table.
 
 --The script addSeasonMgmt.sql should have been run before running this script
 
@@ -42,9 +42,8 @@ CREATE TEMPORARY TABLE CourseScheduleStaging
 
 --Checks if the supplied year and season belong to the next term in sequence.
 -- Returns true if the supplied term is the next term, otherwise false.
--- This is accomplished using the expression:
--- currentYear * COUNT(Seasons) + Season + 1 =
--- newYear * COUNT(Seasons) + Season
+-- This is accomplished by testing if [currentYear * COUNT(Seasons) + Season + 1]
+-- is equal to [newYear * COUNT(Seasons) + Season]
 -- Essentially, each year is mapped to a scale counting for the number of
 -- seasons that are in Gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
@@ -78,7 +77,7 @@ $$ LANGUAGE sql;
 --the CourseScheduleStaging table - expects there to be one semster of data in the table,
 --and that semester is specified by the input parameters startDate and endDate are
 --for the term only, each course gets its dates from CourseScheduleStaging
-CREATE FUNCTION pg_temp.importCourseSchedule(year INT, seasonIdentification VARCHAR(10),
+CREATE FUNCTION pg_temp.importCourseSchedule(year INT, seasonIdentification VARCHAR(20),
                                         useSequence BOOLEAN DEFAULT TRUE
                                        )
 RETURNS VOID AS
@@ -89,8 +88,7 @@ DECLARE
 BEGIN
    --Get the season order from the provided 'season identification'
    --This can be either a code, order, or name
-   SELECT "Order"
-   FROM Gradebook.getSeason($2)
+   SELECT Gradebook.getSeasonOrder($2)
    INTO seasonOrder;
 
    --Check if the provided term is the next term chronologicaly after the last imported
