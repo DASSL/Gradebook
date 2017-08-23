@@ -184,14 +184,6 @@ CREATE TABLE Gradebook.AttendanceStatus
    Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', 'Explained', ...
 );
 
---populate AttendanceStatus with common attendance statuses
--- move out of this script later
-INSERT INTO Gradebook.AttendanceStatus 
-VALUES
-   ('P', 'Present'),           ('A', 'Absent'),   ('E', 'Explained'),
-   ('S', 'Stopped Attending'), ('X', 'Excused'),  ('N', 'Not Registered'),
-   ('C', 'Cancelled'),         ('W', 'Withdrawn');
-
 
 CREATE TABLE Gradebook.AttendanceRecord
 (

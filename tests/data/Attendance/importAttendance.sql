@@ -57,7 +57,7 @@ $$
    -- and rows with NULL as the attendance code are interpreted as Present and not
    -- imported. (See behavior of Gradebook.getAttendance() in src/db/getAttendance.sql)
    INSERT INTO Gradebook.AttendanceRecord
-   SELECT s.ID, $1, a.Date, a.Code
+   SELECT s.ID, $1, a.Date, UPPER(a.Code)
    FROM pg_temp.AttendanceStaging a JOIN Gradebook.Student s ON
         a.FName = s.FName AND a.LName = s.LName AND
         COALESCE(a.MName, '') = COALESCE(s.MName, '')
