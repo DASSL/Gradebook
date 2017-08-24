@@ -332,6 +332,7 @@ app.get('/attendance', function(request, response) {
                maxMonth = splitDate[0];
                months += ',' + monthNames[splitDate[0] - 1]; //Add it to the csv
                if(currentSpanWidth > 0) { //Set the span width of the current month cell
+                  //Also include the col. number with the span width
                   monthSpanWidths.push({'col': i, 'width': currentSpanWidth});
                   currentSpanWidth = 1;
                }
@@ -388,8 +389,15 @@ app.get('/attendance', function(request, response) {
                      }
                   });
                }
-               table += '<td' + ' colspan=' + spanWidth + ' title="' + title +
-                  '" style="' + style + '">' + cellContents + '</td>';
+               //Generate table row based on non-empty properties
+               table += '<td' + ' colspan=' + spanWidth;
+               if(title != '') {
+                  table += ' title="' + title + '"';
+               }
+               if(style != '') {
+                  table += ' style="' + style + '"';
+               }
+               table +=  ' >' + cellContents + '</td>';
             }
             table += '</tr>';
             /*if(splitRow[0] == 'Student') {
