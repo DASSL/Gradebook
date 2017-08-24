@@ -391,6 +391,7 @@ app.get('/attendance', function(request, response) {
                }
                //Generate table row based on non-empty properties
                table += '<td' + ' colspan=' + spanWidth;
+               //Only add title/style properties if they are not empty
                if(title != '') {
                   table += ' title="' + title + '"';
                }
@@ -400,9 +401,6 @@ app.get('/attendance', function(request, response) {
                table +=  ' >' + cellContents + '</td>';
             }
             table += '</tr>';
-            /*if(splitRow[0] == 'Student') {
-               table += '<tr><td colspan=' + splitRow.length + '><hr/></td></tr>';
-            }*/
          });
          table += '</table>'
          //Set the response type to html since we are sending the striaght html taable
