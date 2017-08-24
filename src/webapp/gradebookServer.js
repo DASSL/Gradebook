@@ -297,81 +297,102 @@ app.get('/attendance', function(request, response) {
    var queryText = 'SELECT * FROM gradebook.getAttendance($1);';
    var queryParams = [sectionID];
 
-   executeQuery(response, config, queryText, queryParams, function(result) {
-      //Check if any attendance data was returned from the DB.  One header row is
-      //always returned, so if the result contains only one row, then
-      //no attendance data was returned
-      if(result.rows.length == 1) {
-         response.status(500).send('500 - No Attenance Records');
-         return;
-      }
-      var table = '<table>';
-      //Extract months from the top row of dates
-      //First, split csv of dates
-      var dateRow = result.rows[0].attendancecsvwithheader.split(',');
-      var rowLen = dateRow.length;
+   //Setup the second query, to get the attendance code description table
+   var queryTextAttnDesc = 'SELECT * FROM gradebook.AttendanceStatus';
 
-      var maxMonth = 0; //Stores the lastest month found
-      var months = ''; //Stores a csv of months
-      var days = [dateRow[0], dateRow[1], dateRow[2]]; //Stores a csv of days
+   //Execute the attendance description query first
+   //attnStatusRes will hold the table containg the code descriptions
+   executeQuery(response, config, queryTextAttnDesc, null, function(attnStatusRes) {
+      //Then execute the query to get attendance data
+      executeQuery(response, config, queryText, queryParams, function(result) {
+         //Check if any attendance data was returned from the DB.  One header row is
+         //always returned, so if the result contains only one row, then
+         //no attendance data was returned
+         if(result.rows.length == 1) {
+            response.status(500).send('500 - No Attenance Records');
+            return;
+         }
 
-      var monthSpanWidths =[]; //Stores the span associated with each month
-      var currentSpanWidth = 1; //Width of the current span
+         var table = '<table>';
+         //Extract months from the top row of dates
+         //First, split csv of dates
+         var dateRow = result.rows[0].attendancecsvwithheader.split(',');
+         var rowLen = dateRow.length;
 
-      for(i = 3; i < rowLen; i++) { //For each date in the date row
-         splitDate = dateRow[i].split('-');
-         if(splitDate[0] > maxMonth) { //If the month part is a new month
-            maxMonth = splitDate[0];
-            months += ',' + monthNames[splitDate[0] - 1]; //Add it to the csv
-            if(currentSpanWidth > 0) { //Set the span width of the current month cell
-               monthSpanWidths.push(currentSpanWidth);
-               currentSpanWidth = 1;
+         var maxMonth = 0; //Stores the lastest month found
+         var months = ''; //Stores a csv of months
+         var days = [dateRow[0], dateRow[1], dateRow[2]]; //Stores a csv of days
+
+         var monthSpanWidths =[]; //Stores the span associated with each month
+         var currentSpanWidth = 1; //Width of the current span
+
+         for(i = 3; i < rowLen; i++) { //For each date in the date row
+            splitDate = dateRow[i].split('-');
+            if(splitDate[0] > maxMonth) { //If the month part is a new month
+               maxMonth = splitDate[0];
+               months += ',' + monthNames[splitDate[0] - 1]; //Add it to the csv
+               if(currentSpanWidth > 0) { //Set the span width of the current month cell
+                  monthSpanWidths.push(currentSpanWidth);
+                  currentSpanWidth = 1;
+               }
             }
+            else { //If it's not a new month
+               currentSpanWidth++;
+            }
+            days += ',' + splitDate[1]; //Add day to the day row
          }
-         else { //If it's not a new month
-            currentSpanWidth++;
+         if(currentSpanWidth > 0) { //Add the last month span
+            monthSpanWidths.push(currentSpanWidth);
          }
-         days += ',' + splitDate[1]; //Add day to the day row
-      }
-      if(currentSpanWidth > 0) { //Add the last month span
-         monthSpanWidths.push(currentSpanWidth);
-      }
-      //Add the month and day rows to the csv rows
-      var resultSplitDates = result.rows.slice(1);
-      resultSplitDates.unshift({attendancecsvwithheader: days});
-      resultSplitDates.unshift({attendancecsvwithheader: months});
+         //Add the month and day rows to the csv rows
+         var resultSplitDates = result.rows.slice(1);
+         resultSplitDates.unshift({attendancecsvwithheader: days});
+         resultSplitDates.unshift({attendancecsvwithheader: months});
 
-      //Execute for each row in the result
-      resultSplitDates.forEach(function(row) {
-         //Add table row for each result row
-         table += '<tr>';
-         var splitRow = row.attendancecsvwithheader.split(','); //Split the csv field
-         var rowLen = splitRow.length;
-         var spanIndex = 0;
-         for(cell = 0; cell < rowLen; cell++) { //For each cell in the current row
-            var spanWidth = 1;
-            //Correctly format student names (lname, fnmame mname)
-            var cellContents = splitRow[cell];
-            if(splitRow[0] != '' && cell == 0) {
-               cellContents = splitRow[cell] + ', ' + splitRow[cell + 1] + ' ' + splitRow[cell + 2];
-               cell += 2;
+         //Execute for each row in the result
+         resultSplitDates.forEach(function(row) {
+            //Add table row for each result row
+            table += '<tr>';
+            var splitRow = row.attendancecsvwithheader.split(','); //Split the csv field
+            var rowLen = splitRow.length;
+            var spanIndex = 0;
+
+            for(cell = 0; cell < rowLen; cell++) { //For each cell in the current row
+               var title = '';
+               var spanWidth = 1;
+               //Correctly format student names (lname, fnmame mname)
+               var cellContents = splitRow[cell];
+               if(splitRow[0] == '') {
+                  spanWidth = monthSpanWidths[spanIndex];
+                  spanIndex++;
+               }
+               if(splitRow[0] != '' && cell == 0) {
+                  cellContents = splitRow[cell] + ', ' + splitRow[cell + 1] + ' ' + splitRow[cell + 2];
+                  cell += 2;
+               }
+               if(cell > 2) {
+                  //Find the matching code description
+                  //the some() method allows break-like behavior using return true
+                  attnStatusRes.rows.some(function(row) {
+                     if(row.status == cellContents) {
+                        title = row.description;
+                        return true;
+                     }
+                  });
+               }
+               table += '<td' + ' colspan=' + spanWidth + ' title="' + title +
+                  '">' + cellContents + '</td>';
             }
-            if(splitRow[0] == '') {
-               spanWidth = monthSpanWidths[spanIndex];
-               spanIndex++;
-            }
-            table += '<td ' + ' colspan=' + spanWidth + '>' + cellContents + '</td>';
-         }
-         table += '</tr>';
-         if(splitRow[0] == 'Student') {
-            table += '<tr><td colspan=' + splitRow.length + '><hr/></td></tr>';
-         }
+            table += '</tr>';
+            /*if(splitRow[0] == 'Student') {
+               table += '<tr><td colspan=' + splitRow.length + '><hr/></td></tr>';
+            }*/
+         });
+         table += '</table>'
+         //Set the response type to html since we are sending the striaght html taable
+         response.header("Content-Type", "text/html");
+         response.send(table);
       });
-      table += '</table>'
-
-      //Set the response type to html since we are sending the striaght html taable
-      response.header("Content-Type", "text/html");
-      response.send(table);
    });
 });
 
