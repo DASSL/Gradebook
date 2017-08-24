@@ -173,6 +173,7 @@ function serverLogin(connInfo, email, callback) {
 			callback();
 		},
 		error: function(result) {
+			//currently does not distinguish between credential and connection errors
 			showAlert('<h5>Could not login</h5><p>Login failed - ensure ' +
 			 'all fields are correct</p>');
 			console.log(result);
@@ -269,7 +270,12 @@ function popAttendance(connInfo, sectionid) {
 			setAttendance(result);
 		},
 		error: function(result) {
-			showAlert('<p>Error while retrieving attendance data</p>');
+			if (result.responseText == '500 - No Attenance Records') {
+				showAlert('<p>No attendance records exist for this section</p>');
+			}
+			else {
+				showAlert('<p>Error while retrieving attendance data</p>');
+			}
 			setAttendance(null);
 			console.log(result);
 		}
@@ -331,18 +337,16 @@ function setAttendance(htmlText) {
 		}
 		else {
 			if (!showPs) {
-				//replace all 'P' fields with a space, add "Present" tooltip
-				htmlText = htmlText.replace(/<td  colspan=1>P<\/td>/g, '<td ' +
-				 'title="Present" colspan=1> </td>');
+				//replace all 'P' fields with a space
+				htmlText = htmlText.replace(/>P<\/td>/g, '> </td>');
 			}
 			if (isCompact) {
 				//add attibutes to <table> tag to use compact framework styling
 				htmlText = '<table class="striped" style="display:block;' +
 				 'margin:auto;overflow-x:auto;line-height:1.1;">' + htmlText.substring(7);
 				 
-				//change default padding values and font size for each table cell
-				htmlText = htmlText.replace(/<td /g, '<td style="padding:6px 4px;' + 
-				 'font-size:13px"');
+				//give all td tags the "compact" class
+				htmlText = htmlText.replace(/<td /g, '<td class="compact" ');
 			}
 			else {
 				//add attibutes to <table> tag to use non-compact framework styling
