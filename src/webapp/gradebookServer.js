@@ -332,7 +332,7 @@ app.get('/attendance', function(request, response) {
                maxMonth = splitDate[0];
                months += ',' + monthNames[splitDate[0] - 1]; //Add it to the csv
                if(currentSpanWidth > 0) { //Set the span width of the current month cell
-                  monthSpanWidths.push(currentSpanWidth);
+                  monthSpanWidths.push({'col': i, 'width': currentSpanWidth});
                   currentSpanWidth = 1;
                }
             }
@@ -342,7 +342,7 @@ app.get('/attendance', function(request, response) {
             days += ',' + splitDate[1]; //Add day to the day row
          }
          if(currentSpanWidth > 0) { //Add the last month span
-            monthSpanWidths.push(currentSpanWidth);
+            monthSpanWidths.push({'col': i, 'width': currentSpanWidth});
          }
          //Add the month and day rows to the csv rows
          var resultSplitDates = result.rows.slice(1);
@@ -359,18 +359,19 @@ app.get('/attendance', function(request, response) {
 
             for(cell = 0; cell < rowLen; cell++) { //For each cell in the current row
                var title = '';
+               var style = '';
                var spanWidth = 1;
                //Correctly format student names (lname, fnmame mname)
                var cellContents = splitRow[cell];
                if(splitRow[0] == '') {
-                  spanWidth = monthSpanWidths[spanIndex];
+                  spanWidth = monthSpanWidths[spanIndex].width;
                   spanIndex++;
                }
                if(splitRow[0] != '' && cell == 0) {
                   cellContents = splitRow[cell] + ', ' + splitRow[cell + 1] + ' ' + splitRow[cell + 2];
                   cell += 2;
                }
-               if(cell > 2) {
+               if(splitRow[0] != '' && cell > 2) {
                   //Find the matching code description
                   //the some() method allows break-like behavior using return true
                   attnStatusRes.rows.some(function(row) {
@@ -379,9 +380,16 @@ app.get('/attendance', function(request, response) {
                         return true;
                      }
                   });
+                  //Check if this column is the first in the month, and add a left border
+                  monthSpanWidths.some(function(row) {
+                     if(row.col == cell) {
+                        style = 'border-left: thin solid;';
+                        return true;
+                     }
+                  });
                }
                table += '<td' + ' colspan=' + spanWidth + ' title="' + title +
-                  '">' + cellContents + '</td>';
+                  '" style="' + style + '">' + cellContents + '</td>';
             }
             table += '</tr>';
             /*if(splitRow[0] == 'Student') {
