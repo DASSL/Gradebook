@@ -44,15 +44,6 @@ CREATE TABLE Gradebook.Season
 CREATE UNIQUE INDEX idx_Unique_SeasonName ON Gradebook.Season(LOWER(TRIM(Name)));
 
 
---populate the Season table with values found in the OpenClose system at WCSU
--- move out of this script later
-INSERT INTO Gradebook.Season VALUES('0','Spring','S');
-INSERT INTO Gradebook.Season VALUES('1','Spring_Break','B');
-INSERT INTO Gradebook.Season VALUES('2','Summer','M');
-INSERT INTO Gradebook.Season VALUES('3','Fall','F');
-INSERT INTO Gradebook.Season VALUES('4','Intersession','I');
-
-
 CREATE TABLE Gradebook.Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
@@ -121,25 +112,6 @@ CREATE TABLE Gradebook.Grade
 );
 
 
---populate the Grade table with values used at most US universities
--- move out of this script later
-INSERT INTO Gradebook.Grade VALUES('A+', 4.333);
-INSERT INTO Gradebook.Grade VALUES('A', 4);
-INSERT INTO Gradebook.Grade VALUES('A-', 3.667);
-INSERT INTO Gradebook.Grade VALUES('B+', 3.333);
-INSERT INTO Gradebook.Grade VALUES('B', 3);
-INSERT INTO Gradebook.Grade VALUES('B-', 2.667);
-INSERT INTO Gradebook.Grade VALUES('C+', 2.333);
-INSERT INTO Gradebook.Grade VALUES('C', 2);
-INSERT INTO Gradebook.Grade VALUES('C-', 1.667);
-INSERT INTO Gradebook.Grade VALUES('D+', 1.333);
-INSERT INTO Gradebook.Grade VALUES('D', 1);
-INSERT INTO Gradebook.Grade VALUES('D-', 0.667);
-INSERT INTO Gradebook.Grade VALUES('F', 0);
-INSERT INTO Gradebook.Grade VALUES('W', 0);
-INSERT INTO Gradebook.Grade VALUES('SA', 0);
-
-
 --Table to store mapping of percentage score to a letter grade: varies by section
 CREATE TABLE Gradebook.Section_GradeTier
 (
@@ -190,11 +162,10 @@ CREATE TABLE Gradebook.Enrollee
 );
 
 
---Table to store all possible attendance statuses
 CREATE TABLE Gradebook.AttendanceStatus
 (
-   Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', E', ...
-   Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', 'Explained', ...
+   Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', ...
+   Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', ...
 );
 
 
