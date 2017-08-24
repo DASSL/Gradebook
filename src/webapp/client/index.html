@@ -29,7 +29,7 @@ Currently, only attendance information is served
 			font-family: sans-serif;
 			font-size: 16px;
 		}
-		/* Default styling is dependent on a specific font */
+		/* Default styling for strong tag is dependent on a specific font */
 		strong {
 			font-weight: bold;
 		}
@@ -78,10 +78,12 @@ Currently, only attendance information is served
 		</div>
 		<div class="row">
 			<div class="input-field col s12 m6 l3">
+				<i class="material-icons prefix">mail</i>
 				<input id="email" type="email"/>
 				<label for="email">Email</label>
 			</div>
 			<div class="input-field col s12 m6 l3">
+				<i class="material-icons prefix">lock</i>
 				<input id="passwordBox" type="password"/>
 				<label for="passwordBox">Password</label>
 			</div>
@@ -243,6 +245,14 @@ Currently, only attendance information is served
 			  Commons License BY-NC-SA 4.0</a>.</p>
 			<p>PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN
 			 RISK.</p>
+	</div>
+	
+	<!--Generic alert used by showAlert() in index.js-->
+	<div id="msg-genericAlert" class="modal">
+		<div id="genericAlertBody" class="modal-content"></div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-action modal-close waves-effect waves-gray btn-flat">OK</a>
+		</div>
 	</div>
 	
 	</div>

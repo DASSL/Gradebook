@@ -59,22 +59,22 @@ $(document).ready(function() {
 	
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
-		if (dbInfo != null) {
-			var email = $('#email').val().trim();
-			if (email != '') {
-				serverLogin(dbInfo, email, function() {
-					//clear login fields and close DB Info box
-					$('#email').val('');
-					$('#passwordBox').val('');
-					$('#dbInfoBox').collapsible('close', 0);
-					$('#dbInfoArrow').html('keyboard_arrow_down');
-					
-					popYears(dbInfo);
-				});
-			}
-			else {
-				alert('One or more fields are empty');
-			}
+		var email = $('#email').val().trim();
+		if (dbInfo != null && email != '') {
+			serverLogin(dbInfo, email, function() {
+				//clear login fields and close DB Info box
+				$('#email').val('');
+				$('#passwordBox').val('');
+				$('#dbInfoBox').collapsible('close', 0);
+				$('#dbInfoArrow').html('keyboard_arrow_down');
+				
+				popYears(dbInfo);
+			});
+		}
+		else {
+			showAlert('<h5>Missing field(s)</h5><p>One or more fields are ' +
+			 'not filled in.</p><p>All fields are required, including those in ' +
+			 'DB Info.</p>');
 		}
 	});
 	
@@ -123,6 +123,11 @@ $(document).ready(function() {
 	});
 });
 
+function showAlert(htmlContent) {
+	$('#genericAlertBody').html(htmlContent);
+	$('#msg-genericAlert').modal('open');
+};
+
 function getDBFields() {
 	var host = $('#host').val().trim();
 	var port = $('#port').val().trim();
@@ -131,7 +136,6 @@ function getDBFields() {
 	var pw =  $('#passwordBox').val().trim();
 	
 	if (host === "" || port === "" || db === "" || uname === "" || pw === "") {
-		alert('One or more fields are empty');
 		return null;
 	}
 	
@@ -169,7 +173,8 @@ function serverLogin(connInfo, email, callback) {
 			callback();
 		},
 		error: function(result) {
-			alert('Login failed - ensure all fields are correct');
+			showAlert('<h5>Could not login</h5><p>Login failed - ensure ' +
+			 'all fields are correct</p>');
 			console.log(result);
 		}
 	});
@@ -188,7 +193,7 @@ function popYears(connInfo) {
 			setYears(years);
 		},
 		error: function(result) {
-			alert('Error while retrieving years - ensure DB info is correct');
+			showAlert('<p>Error while retrieving years</p>');
 			console.log(result);
 		}
 	});
@@ -208,7 +213,7 @@ function popSeasons(connInfo, year) {
 			setSeasons(seasons);
 		},
 		error: function(result) {
-			alert('Error while retrieving seasons');
+			showAlert('<p>Error while retrieving seasons</p>');
 			console.log(result);
 		}
 	});
@@ -228,7 +233,7 @@ function popCourses(connInfo, year, seasonorder) {
 			setCourses(courses);
 		},
 		error: function(result) {
-			alert('Error while retrieving courses');
+			showAlert('<p>Error while retrieving courses</p>');
 			console.log(result);
 		}
 	});
@@ -249,7 +254,7 @@ function popSections(connInfo, year, seasonorder, coursenumber) {
 			setSections(sections);
 		},
 		error: function(result) {
-			alert('Error while retrieving sections');
+			showAlert('<p>Error while retrieving sections</p>');
 			console.log(result);
 		}
 	});
@@ -264,7 +269,7 @@ function popAttendance(connInfo, sectionid) {
 			setAttendance(result);
 		},
 		error: function(result) {
-			alert('Error while retrieving attendance data');
+			showAlert('<p>Error while retrieving attendance data</p>');
 			setAttendance(null);
 			console.log(result);
 		}
@@ -335,8 +340,9 @@ function setAttendance(htmlText) {
 				htmlText = '<table class="striped" style="display:block;' +
 				 'margin:auto;overflow-x:auto;line-height:1.1;">' + htmlText.substring(7);
 				 
-				//change default padding values for each table cell
-				htmlText = htmlText.replace(/<td /g, '<td style="padding:6px 4px"');
+				//change default padding values and font size for each table cell
+				htmlText = htmlText.replace(/<td /g, '<td style="padding:6px 4px;' + 
+				 'font-size:13px"');
 			}
 			else {
 				//add attibutes to <table> tag to use non-compact framework styling
