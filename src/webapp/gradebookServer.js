@@ -410,4 +410,9 @@ app.get('/attendance', function(request, response) {
    });
 });
 
+app.use(function(err, req, res, next){
+  console.error(err);
+  res.status(500).send('Internal Server Error');
+});
+
 server = app.listen(80);
