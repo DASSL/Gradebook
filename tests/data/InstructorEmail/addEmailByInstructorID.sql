@@ -17,7 +17,7 @@
 -- does not guarantee all instructors get an e-mail address, but guarantees
 -- that any assigned address is unique
 
---The e-mail addresses assigned are syntactically valid, but are real not
+--The e-mail addresses assigned are syntactically valid, but are not real
 -- addresses because the domain 'example.edu' cannot actually be registered: W3C
 -- designates this domain for use only in examples
 
