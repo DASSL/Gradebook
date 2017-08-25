@@ -1,0 +1,35 @@
+{
+  "name": "gradebook-web-sever",
+  "version": "0.1.0",
+  "description": "Web server for the Gradebook application",
+  "scripts": {
+    "start": "node gradebookServer.js"
+  },
+  "dependencies": {
+    "pg": ">=6.4.1",
+    "sjcl": ">=1.0.7",
+    "express": ">=4.15.3"
+  },
+  "engines": {
+    "node": ">=6.11.2"
+  },
+  "files": [
+   "README.md",
+   "package.json",
+   "gradebookServer.js",
+   "client"
+ ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:DASSL/Gradebook.git"
+  },
+  "author": "Data Science & Systems Lab (DASSL), Western Connecticut State University",
+  "contributors": [
+    "Zach Boylan",
+    "Zaid Bhujwala",
+    "Andrew Figueroa",
+    "Steven Rollo",
+    "Sean Muthy"
+  ],
+  "license": "CC-BY-NC-SA-4.0"
+}
