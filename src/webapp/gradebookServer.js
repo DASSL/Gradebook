@@ -384,7 +384,7 @@ app.get('/attendance', function(request, response) {
                   //Check if this column is the first in the month, and add a left border
                   monthSpanWidths.some(function(row) {
                      if(row.col == cell) {
-                        style = 'border-left: thin solid #e0e0e0;';
+                        style = 'border-left: 2px solid #e0e0e0;';
                         return true;
                      }
                   });
