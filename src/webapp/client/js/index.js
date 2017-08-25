@@ -342,16 +342,15 @@ function setAttendance(htmlText) {
 			}
 			if (isCompact) {
 				//add attibutes to <table> tag to use compact framework styling
-				htmlText = '<table class="striped" style="display:block;' +
-				 'margin:auto;overflow-x:auto;line-height:1.1;">' + htmlText.substring(7);
+				htmlText = '<table class="striped" style="line-height:1.1;">' +
+				 htmlText.substring(7);
 				 
 				//give all td tags the "compact" class
 				htmlText = htmlText.replace(/<td /g, '<td class="compact" ');
 			}
 			else {
 				//add attibutes to <table> tag to use non-compact framework styling
-				htmlText = '<table class="striped" style="display:block;' +
-				 'margin:auto;overflow-x:auto">' + htmlText.substring(7);
+				htmlText = '<table class="striped">' + htmlText.substring(7);
 			}
 		}
 		$('#attnOptionsBox').css('display', 'block');
