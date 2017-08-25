@@ -1,5 +1,5 @@
 {
-  "name": "gradebook-web-sever",
+  "name": "gradebook-webapp",
   "version": "0.1.0",
   "description": "Web server for the Gradebook application",
   "scripts": {
