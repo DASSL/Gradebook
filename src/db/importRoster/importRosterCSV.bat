@@ -20,11 +20,11 @@ REM sectionNumber like '01'
 REM Up to 9 additional args can be provided following the required ones
 
 
-IF "%1"=="" GOTO usage
+IF "%~1"=="" GOTO usage
 
 IF "%5"=="" GOTO argError
 
-SET filename=%1
+SET filename=%~1
 SET year=%2
 SET season=%3
 SET courseNumber=%4
@@ -71,9 +71,9 @@ REM  due to the session being closed between statements
 
 psql %1 %2 %3 %4 %5 %6 %7 %8 %9 -h %hostname% -p %port% -d %database% -U %username%^
  --single-transaction -f "prepareRosterImport.sql"^
- -c "\COPY rosterStaging FROM %filename% WITH csv HEADER"^
+ -c "\COPY rosterStaging FROM '%filename%' WITH csv HEADER"^
  -c "SELECT pg_temp.importRoster(%year%, '%season%', '%courseNumber%', '%sectionNumber%');"
-goto end
+GOTO end
 
 
 :argError
@@ -86,4 +86,4 @@ ECHO Usage:
 ECHO importRosterCSV.bat "filename" year 'season' 'courseNumber' 'sectionNumber' username database server:port optional-psql-commands
 
 :end
-pause
+PAUSE
