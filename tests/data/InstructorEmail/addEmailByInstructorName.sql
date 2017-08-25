@@ -11,7 +11,7 @@
 
 
 --This script adds e-mail address to instructors who don't already have one
--- constructs unique addresses using instructor's least last name and first
+-- constructs unique addresses using instructor's last name and first
 -- initial, and if necessary adds middle initial or ID;
 -- assigns e-mail addresses of the form 'x@example.edu', where 'x' is a string
 -- composed as outlined in the previous lines
@@ -23,7 +23,7 @@
 -- designates this domain for use only in examples
 
 --Run the script addEmailByInstructorID.sql to add e-mail addresses based on
--- instructor IDs instead of names
+--instructor IDs instead of names
 
 
 --suppress NOTICE and other lower messages from being displayed
