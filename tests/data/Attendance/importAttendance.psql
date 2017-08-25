@@ -68,7 +68,7 @@ $$ LANGUAGE sql;
 
 --Import data from files to staging table and call import function for each section
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-05Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '05'));
+SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '5'));
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-72Attendance.csv' WITH csv HEADER
