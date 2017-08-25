@@ -110,11 +110,7 @@ BEGIN
    --Select from the Table TermDates the most extreme start and
    --end date
    INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
-   SELECT $1,
-   (
-      SELECT "Order" FROM Gradebook.Season s
-      WHERE s.Name = $2 OR s.Code = $2
-   ),
+   SELECT $1, seasonOrder,
    $1 + MIN(to_date(sDate, 'MM-DD')),
    $1 + MAX(to_date(eDate, 'MM-DD'))
    FROM termDates
@@ -190,9 +186,7 @@ BEGIN
           oc.location, i1.id, i2.id, i3.id
    FROM pg_temp.CourseScheduleStaging oc
    JOIN Gradebook.Term t ON t.Year = $1
-        AND t.Season = (SELECT "Order" FROM Gradebook.Season
-                        WHERE Season.Name = $2 OR Season.Code = $2
-                       )
+        AND t.Season = seasonOrder
    --Get one instructor record
    --matching is position in
    --the instructor field csv
