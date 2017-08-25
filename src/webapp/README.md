@@ -34,7 +34,7 @@ packages do not install it by default.
 
 ## Running the server
 To run the server, simply open a command prompt or terminal and navigate to the
-`Gradebook/src/webapp` folder, and execute the command `npm start`.This will
-start the Gradebook server.Note that this command may need to be executed with
+`Gradebook/src/webapp` folder, and execute the command `npm start`. This will
+start the Gradebook server. Note that this command may need to be executed with
 elevated privileges, since the server listens on port 80 by default. Navigating to 127.0.0.1
 should display the Gradebook login page.
