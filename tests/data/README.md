@@ -25,6 +25,20 @@ in that file correspond to.
 
 The sample files were created by Kyle Bella and Zach Boylan.
 
+### Directory `InstructorEmail`
+
+This directory contains scripts to add sample e-mail address to instructors who
+don't already have one:
+
+- The script `addEmailByInstructorID.sql` assigns e-mail addresses of the form
+`n@example.edu`, where `n` is an instructor ID
+- The script `addEmailByInstructorName.sql` assigns e-mail addresses of the
+form `x@example.edu`, where `x` is a string composed of last name and first
+initial, followed by middle initial or ID if necessary
+
+Neither script guarantees all instructors get an e-mail address, but both
+scripts guarantee that any assigned address is unique.
+
 ### Directory `Roster`
 
 This directory contains sample CSV-formatted rosters ("test files") the way the [Elucian Banner](http://www.ellucian.com/student-information-system/) system generates at WCSU.
