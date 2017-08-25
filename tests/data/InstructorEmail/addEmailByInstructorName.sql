@@ -22,33 +22,37 @@
 -- importing the 2017 Spring schedule updates the e-mail address of every
 -- instructor identified in this script
 
+--The e-mail addresses assigned are syntactically valid, but they are guaranteed
+-- to not be real addresses because the domain 'example.edu' cannot actually be
+-- registered: W3C designates this domain for use only in examples
+
 -- Run the script addEmailByInstructorID.sql to add e-mail addresses based on
 -- instructor IDs instead of names
 
 
 WITH SpecificInstructor(FName, LName, Email) AS
 (
-   SELECT 'Patrice', 'Boily', 'BoilyP@wcsu.edu'
+   SELECT 'Patrice', 'Boily', 'BoilyP@example.edu'
    UNION ALL
-   SELECT 'Russell', 'Selzer', 'selzerr@wcsu.edu'
+   SELECT 'Russell', 'Selzer', 'selzerr@example.edu'
    UNION ALL
-   SELECT 'Stavros', 'Christofi', 'christofis@wcsu.edu'
+   SELECT 'Stavros', 'Christofi', 'christofis@example.edu'
    UNION ALL
-   SELECT 'Dennis', 'Dawson', 'dawsond@wcsu.edu'
+   SELECT 'Dennis', 'Dawson', 'dawsond@example.edu'
    UNION ALL
-   SELECT 'Zuohong', 'Pan', 'PanZ@wcsu.edu'
+   SELECT 'Zuohong', 'Pan', 'PanZ@example.edu'
    UNION ALL
-   SELECT 'Gancho', 'Ganchev', 'ganchevg@wcsu.edu'
+   SELECT 'Gancho', 'Ganchev', 'ganchevg@example.edu'
    UNION ALL
-   SELECT 'Todor', 'Ivanov', 'IvanovT@wcsu.edu'
+   SELECT 'Todor', 'Ivanov', 'IvanovT@example.edu'
    UNION ALL
-   SELECT 'William', 'Joel', 'joelw@wcsu.edu'
+   SELECT 'William', 'Joel', 'joelw@example.edu'
    UNION ALL
-   SELECT 'Daniel', 'Coffman', 'coffmand@wcsu.edu'
+   SELECT 'Daniel', 'Coffman', 'coffmand@example.edu'
    UNION ALL
-   SELECT 'Rona', 'Gurkewitz', 'GurkewitzR@wcsu.edu'
+   SELECT 'Rona', 'Gurkewitz', 'GurkewitzR@example.edu'
    UNION ALL
-   SELECT 'Sean', 'Murthy', 'murthys@wcsu.edu'
+   SELECT 'Sean', 'Murthy', 'murthys@example.edu'
 )
 UPDATE Gradebook.Instructor I
 SET Email = SI.Email
