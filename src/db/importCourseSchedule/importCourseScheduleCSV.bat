@@ -40,7 +40,7 @@ IF "%port%"=="" SET port=5432
 psql -h %hostname% -p %port% -d %database% -U %username% --single-transaction^
  -f "prepareCourseScheduleImport.sql" -c "\COPY CourseScheduleStaging FROM %1 WITH csv HEADER"^
  -c "SELECT pg_temp.importCourseSchedule(%2, '%3', false);"
-goto end
+GOTO end
 
 :argError
 ECHO You must supply at least three arguments (filename year season)
@@ -52,4 +52,4 @@ ECHO Usage:
 ECHO importCourseScheduleCSV.bat "filename" year season username database server:port
 
 :end
-pause
+PAUSE
