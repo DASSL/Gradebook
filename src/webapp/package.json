@@ -6,7 +6,7 @@
     "start": "node gradebookServer.js"
   },
   "dependencies": {
-    "pg": ">=6.4.1",
+    "pg": ">=7.2.0",
     "sjcl": ">=1.0.7",
     "express": ">=4.15.3"
   },
@@ -29,7 +29,7 @@
     "Zaid Bhujwala",
     "Andrew Figueroa",
     "Steven Rollo",
-    "Sean Muthy"
+    "Sean Murthy"
   ],
   "license": "CC-BY-NC-SA-4.0"
 }
