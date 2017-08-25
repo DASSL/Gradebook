@@ -57,7 +57,7 @@ WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
 
---try assignung last name, first initial, ID
+--try assigning last name, first initial, ID
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), ID, '@example.edu')
 FROM Gradebook.Instructor
