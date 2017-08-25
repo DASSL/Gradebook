@@ -25,6 +25,19 @@ in that file correspond to.
 
 The sample files were created by Kyle Bella and Zach Boylan.
 
+### Directory `InstructorEmail`
+
+This directory contains scripts to add sample e-mail addresses. Both scripts add
+e-mail address only if matching instructor rows do not already have e-mail
+address, and both scripts add e-mail addresses from the domain `example.edu`.
+
+The script `addEmailByInstructorID.sql` adds e-mail address to instructors with
+ID 1 through 11.
+
+The script `addEmailByInstructorID.sql` adds e-mail address to instructors with
+specific names. This script is designed for use with the sample course schedules
+in the directory `/tests/data/OpenClose`.
+
 ### Directory `Roster`
 
 This directory contains sample CSV-formatted rosters ("test files") the way the [Elucian Banner](http://www.ellucian.com/student-information-system/) system generates at WCSU.
