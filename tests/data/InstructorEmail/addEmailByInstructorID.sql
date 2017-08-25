@@ -10,50 +10,46 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 
---This script adds e-mail address to instructors with specific IDs
--- the script adds e-mail address by updating Instructor.Email column in
--- each matching instructor row, provided the current value in that column is
--- not NULL
+--This script adds e-mail address to instructors who don't already have one
+-- constructs unique addresses using instructor ID;
+-- assigns e-mail addresses of the form 'n@example.edu', where 'n' is an
+-- instructor ID;
+-- does not guarantee all instructors get an e-mail address, but guarantees
+-- that any assigned address is unique
 
---This script is independent of the sample course schedules present in
--- the directory /tests/data/OpenClose
-
---The script adds e-mail addresses of the form `n@example.edu` where n is a
---number (which also happens to be an instructor ID)
-
---The e-mail addresses assigned are syntactically valid, but they are guaranteed
--- to not be real addresses because the domain 'example.edu' cannot actually be
--- registered: W3C designates this domain for use only in examples
+--The e-mail addresses assigned are syntactically valid, but are real addresses
+-- because the domain 'example.edu' cannot actually be registered: W3C
+-- designates this domain for use only in examples
 
 --Run the script addEmailByInstructorName.sql to add e-mail addresses based on
 --instructor names instead of IDs
 
 
-WITH SomeInstructor(ID, Email) AS
+--suppress NOTICE and other lower messages from being displayed
+SET client_min_messages TO WARNING;
+
+--use a temporary table with an index to construct unique e-mail addresses
+DROP TABLE IF EXISTS pg_temp.Instructor;
+CREATE TEMPORARY TABLE Instructor
 (
-   SELECT 1, '1@example.edu'
-   UNION ALL
-   SELECT 2, '2@example.edu'
-   UNION ALL
-   SELECT 3, '3@example.edu'
-   UNION ALL
-   SELECT 4, '4@example.edu'
-   UNION ALL
-   SELECT 5, '5@example.edu'
-   UNION ALL
-   SELECT 6, '6@example.edu'
-   UNION ALL
-   SELECT 7, '7@example.edu'
-   UNION ALL
-   SELECT 8, '8@example.edu'
-   UNION ALL
-   SELECT 9, '9@example.edu'
-   UNION ALL
-   SELECT 10, '10@example.edu'
-   UNION ALL
-   SELECT 11, '11@example.edu'
-)
-UPDATE Gradebook.Instructor I
-SET Email = SI.Email
-FROM SomeInstructor SI
-WHERE I.ID = SI.ID AND I.Email IS NULL;
+   ID INTEGER,
+   Email VARCHAR(319)
+);
+
+CREATE UNIQUE INDEX idx_Unique_Temp_Instructor
+ON pg_temp.Instructor(LOWER(TRIM(Email)));
+
+
+--try assigning ID
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(ID, '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL
+ON CONFLICT DO NOTHING;
+
+
+--transfer e-mail addresses from the temporary table to Gradebook
+UPDATE Gradebook.Instructor I1
+SET Email = I2.Email
+FROM pg_temp.Instructor I2
+WHERE I1.Email IS NULL AND I1.ID = I2.ID;

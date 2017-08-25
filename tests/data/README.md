@@ -27,16 +27,17 @@ The sample files were created by Kyle Bella and Zach Boylan.
 
 ### Directory `InstructorEmail`
 
-This directory contains scripts to add sample e-mail addresses. Both scripts add
-e-mail address only if matching instructor rows do not already have e-mail
-address, and both scripts add e-mail addresses from the domain `example.edu`.
+This directory contains scripts to add sample e-mail address to instructors who
+don't already have one:
 
-The script `addEmailByInstructorID.sql` adds e-mail address to instructors with
-ID 1 through 11.
+- The script `addEmailByInstructorID.sql` assigns e-mail addresses of the form
+`n@example.edu`, where `n` is an instructor ID
+- The script `addEmailByInstructorName.sql` assigns e-mail addresses of the
+form `x@example.edu`, where `x` is a string composed of last name and first
+initial, followed by middle initial or ID if necessary
 
-The script `addEmailByInstructorID.sql` adds e-mail address to instructors with
-specific names. This script is designed for use with the sample course schedules
-in the directory `/tests/data/OpenClose`.
+Neither script guarantees all instructors get an e-mail address, but both
+scripts guarantee that any assigned address is unique.
 
 ### Directory `Roster`
 

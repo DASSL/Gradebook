@@ -10,52 +10,63 @@
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 
---This script adds e-mail address to instructors with specific names
--- the script adds e-mail address by updating Instructor.Email column in
--- each matching instructor row, provided the current value in that column is
--- not NULL
+--This script adds e-mail address to instructors who don't already have one
+-- constructs unique addresses using instructor's least last name and first
+-- initial, and if necessary adds middle initial or ID;
+-- assigns e-mail addresses of the form 'x@example.edu', where 'x' is a string
+-- composed as outlined in the previous lines
+-- does not guarantee all instructors get an e-mail address, but guarantees
+-- that any assigned address is unique
 
---This script is designed to work with the sample course schedules present in
--- the directory /tests/data/OpenClose;
--- the number of instructor rows affected depends on which sample course
--- schedules have already been imported. For example, running this script  after
--- importing the 2017 Spring schedule updates the e-mail address of every
--- instructor identified in this script
+--The e-mail addresses assigned are syntactically valid, but are real addresses
+-- because the domain 'example.edu' cannot actually be registered: W3C
+-- designates this domain for use only in examples
 
---The e-mail addresses assigned are syntactically valid, but they are guaranteed
--- to not be real addresses because the domain 'example.edu' cannot actually be
--- registered: W3C designates this domain for use only in examples
-
--- Run the script addEmailByInstructorID.sql to add e-mail addresses based on
+--Run the script addEmailByInstructorID.sql to add e-mail addresses based on
 -- instructor IDs instead of names
 
 
-WITH SpecificInstructor(FName, LName, Email) AS
+--suppress NOTICE and other lower messages from being displayed
+SET client_min_messages TO WARNING;
+
+--use a temporary table with an index to construct unique e-mail addresses
+DROP TABLE IF EXISTS pg_temp.Instructor;
+CREATE TEMPORARY TABLE Instructor
 (
-   SELECT 'Patrice', 'Boily', 'BoilyP@example.edu'
-   UNION ALL
-   SELECT 'Russell', 'Selzer', 'selzerr@example.edu'
-   UNION ALL
-   SELECT 'Stavros', 'Christofi', 'christofis@example.edu'
-   UNION ALL
-   SELECT 'Dennis', 'Dawson', 'dawsond@example.edu'
-   UNION ALL
-   SELECT 'Zuohong', 'Pan', 'PanZ@example.edu'
-   UNION ALL
-   SELECT 'Gancho', 'Ganchev', 'ganchevg@example.edu'
-   UNION ALL
-   SELECT 'Todor', 'Ivanov', 'IvanovT@example.edu'
-   UNION ALL
-   SELECT 'William', 'Joel', 'joelw@example.edu'
-   UNION ALL
-   SELECT 'Daniel', 'Coffman', 'coffmand@example.edu'
-   UNION ALL
-   SELECT 'Rona', 'Gurkewitz', 'GurkewitzR@example.edu'
-   UNION ALL
-   SELECT 'Sean', 'Murthy', 'murthys@example.edu'
-)
-UPDATE Gradebook.Instructor I
-SET Email = SI.Email
-FROM SpecificInstructor SI
-WHERE I.FName = SI.FName AND I.LName = SI.LName
-      AND I.Email IS NULL;
+   ID INTEGER,
+   Email VARCHAR(319)
+);
+
+CREATE UNIQUE INDEX idx_Unique_Temp_Instructor
+ON pg_temp.Instructor(LOWER(TRIM(Email)));
+
+
+--try assigning last name and first initial
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(LName, LEFT(FName, 1), '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL
+ON CONFLICT DO NOTHING;
+
+
+--try assigning last name, first initial, middle initial
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(LName, LEFT(FName, 1), LEFT(MName, 1), '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
+ON CONFLICT DO NOTHING;
+
+
+--try assignung last name, first initial, ID
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(LName, LEFT(FName, 1), ID, '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
+ON CONFLICT DO NOTHING;
+
+
+--transfer e-mail addresses from the temporary table to Gradebook
+UPDATE Gradebook.Instructor I1
+SET Email = I2.Email
+FROM pg_temp.Instructor I2
+WHERE I1.Email IS NULL AND I1.ID = I2.ID;
