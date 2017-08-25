@@ -9,12 +9,12 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script is part of the procedure to import course schedules from a csv file.
+--This script is part of the procedure to import course schedules from a CSV file.
 -- This script is currently designed to work with data from the OpenClose system.
 -- To accomplish this, this script creates some temporary objects needed for import.
--- It should be run before copying csv data to the staging table.
+-- It should be run before copying CSV data to the staging table.
 
---The script addSeasonMgmt.sql should have been run before running this script
+--The script prepareDB.psql should have been run before running this script
 
 --This table is used to stage data from CSV file as part of the import process
 CREATE TEMPORARY TABLE CourseScheduleStaging
@@ -43,8 +43,8 @@ CREATE TEMPORARY TABLE CourseScheduleStaging
 --Checks if the supplied year and season belong to the next term in sequence.
 -- Returns true if the supplied term is the next term, otherwise false.
 -- This is accomplished by testing if [currentYear * COUNT(Seasons) + Season + 1]
--- is equal to [newYear * COUNT(Seasons) + Season]
--- Essentially, each year is mapped to a scale counting for the number of
+-- is equal to [newYear * COUNT(Seasons) + Season].
+--Each year is mapped to a scale counting for the number of
 -- seasons that are in Gradebook.  This allows a simple equality check to see
 -- if the supplied term is in sequence
 CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMERIC(1,0))
@@ -74,12 +74,14 @@ $$
 $$ LANGUAGE sql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
---the CourseScheduleStaging table - expects there to be one semster of data in the table,
---and that semester is specified by the input parameters startDate and endDate are
---for the term only, each course gets its dates from CourseScheduleStaging
+-- the CourseScheduleStaging table.
+--importCouseSchedule() expects there to be one term of data in the table per execution.
+-- That term is specified by the input parameters year and
+-- seasonIdentification, which can be a name, code, or order number
+--All sections in CourseScheduleStaging will be placed in the supplied term
 CREATE FUNCTION pg_temp.importCourseSchedule(year INT, seasonIdentification VARCHAR(20),
-                                        useSequence BOOLEAN DEFAULT TRUE
-                                       )
+                                             useSequence BOOLEAN DEFAULT TRUE
+                                            )
 RETURNS VOID AS
 $$
 DECLARE
@@ -91,14 +93,14 @@ BEGIN
    SELECT Gradebook.getSeasonOrder($2)
    INTO seasonOrder;
 
-   --Check if the provided term is the next term chronologicaly after the last imported
+   --Check if the provided term is the next term chronologically after the last imported
    SELECT pg_temp.checkTermSequence($1, seasonOrder) INTO termInSequence;
 
    --If the season is out of order and we are forcing in-order import, throw an error
    IF NOT termInSequence AND useSequence THEN
       RAISE EXCEPTION 'Error - Supplied term is out of sequence';
    ELSIF NOT (termInSequence OR useSequence) THEN
-      RAISE NOTICE 'Sequence check failed, but will be overriden';
+      RAISE NOTICE 'Sequence check failed, but will be overridden';
    END IF;
 
    WITH termDates AS
@@ -107,8 +109,7 @@ BEGIN
              substring(date FROM 6 FOR 5) eDate
       FROM pg_temp.CourseScheduleStaging
    )
-   --Select from the Table TermDates the most extreme start and
-   --end date
+   --Select the extreme start and end dates from TermDates
    INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
    SELECT $1, seasonOrder,
    $1 + MIN(to_date(sDate, 'MM-DD')),
@@ -118,10 +119,10 @@ BEGIN
 
    --Insert course into Course, concat subject || course to make 'Number'
    INSERT INTO Gradebook.Course(Number, Title)
-   SELECT DISTINCT ON (n) (subject || course) n, title
+   SELECT DISTINCT ON (n) (Subject || Course) n, Title
    FROM pg_temp.CourseScheduleStaging
-   WHERE NOT subject IS NULL
-   AND NOT course IS NULL
+   WHERE NOT Subject IS NULL
+   AND NOT Course IS NULL
    ON CONFLICT(Number)
       DO UPDATE
          SET Title = EXCLUDED.Title;
@@ -131,7 +132,7 @@ BEGIN
    WITH insertedFullNames AS
    (
       --This CTE creates a table of individual instructor names from single section,
-      -- created from the multi-name csv list provided in the CourseSchedule csv files
+      -- created from the multi-name CSV list provided in the CourseSchedule CSV files
       -- The names are then split into arrays using spaces as a delimiter, creating a
       -- table of instructor name arrays
       WITH instructorSplitNames AS
@@ -145,10 +146,13 @@ BEGIN
                ), ' '
             ) "name"
          FROM pg_temp.CourseScheduleStaging
-         WHERE instructor LIKE '% %' --Right now we can't handle names that clearly
-                                     --are missing a first or last name
-                                     --also ignores "names" like 'TBA'
-                                     --LIKE '% %' checks for at least one space
+         --Ignore names that only have one name part
+         -- EX. only have a first or last name
+         -- LIKE '% %' checks for at least one space,
+         -- which should mean there is at least a
+         -- first and last name
+         -- This method also ignores "names" like 'TBA'
+         WHERE instructor LIKE '% %'
       )
       INSERT INTO Gradebook.Instructor (FName, MName, LName)
       --Select the name parts from the array into the new Instructor row
@@ -168,7 +172,6 @@ BEGIN
    ),
    --This second CTE UNIONS any existing instructors that were not inserted into
    -- Gradebook.Instructor so they can be used for insertion into Gradebook.Section
-   --instructorFullNames AS
    instructorFullNames AS (
       SELECT id, FullName
       FROM insertedFullNames
@@ -179,26 +182,24 @@ BEGIN
    INSERT INTO Gradebook.Section(CRN, Course, SectionNumber, Term, Schedule,
                                  StartDate, EndDate,
                                  Location, Instructor1, Instructor2, Instructor3)
-   SELECT oc.crn, oc.subject || oc.course, oc.Section, t.id, oc.days,
+   SELECT oc.CRN, oc.Subject || oc.Course, oc.Section, t.ID, oc.Days,
           --Split the date on - (dash)
           to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
           to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
-          oc.location, i1.id, i2.id, i3.id
+          oc.Location, i1.ID, i2.ID, i3.ID
    FROM pg_temp.CourseScheduleStaging oc
    JOIN Gradebook.Term t ON t.Year = $1
         AND t.Season = seasonOrder
-   --Get one instructor record
-   --matching is position in
-   --the instructor field csv
+   --These joins get the instructor ID for up to three instructors teaching a section
    JOIN instructorFullNames i1 ON
-        (string_to_array(oc.instructor, ','))[1] LIKE '%' || i1.FullName || '%'
+        (string_to_array(oc.Instructor, ','))[1] LIKE '%' || i1.FullName || '%'
    LEFT OUTER JOIN InstructorFullNames i2 ON
-        (string_to_array(oc.instructor, ','))[2] LIKE '%' || i2.FullName || '%'
-        AND NOT i2.id = i1.id
+        (string_to_array(oc.Instructor, ','))[2] LIKE '%' || i2.FullName || '%'
+        AND NOT i2.ID = i1.ID
    LEFT OUTER JOIN InstructorFullNames i3 ON
         (string_to_array(oc.instructor, ','))[3] LIKE '%' || i3.FullName || '%'
-        AND NOT (i3.id = i2.id OR i3.id = i1.id)
-   WHERE NOT oc.crn IS NULL
+        AND NOT (i3.ID = i2.ID OR i3.ID = i1.ID)
+   WHERE NOT oc.CRN IS NULL
    ON CONFLICT DO NOTHING;
 END
 $$ LANGUAGE plpgsql;
