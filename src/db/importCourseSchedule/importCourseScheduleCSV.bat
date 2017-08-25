@@ -13,7 +13,7 @@ REM ALL ARTIFACTS PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOU
 REM Batch file to import course schedule Data
 REM USAGE: importCourseScheduleCSV.bat "filename" year season username database server:port
 
-IF "%1"=="" GOTO usage
+IF "%~1"=="" GOTO usage
 
 IF "%3"=="" GOTO argError
 
@@ -38,7 +38,7 @@ IF "%6"=="" (
 IF "%port%"=="" SET port=5432
 
 psql -h %hostname% -p %port% -d %database% -U %username% --single-transaction^
- -f "prepareCourseScheduleImport.sql" -c "\COPY CourseScheduleStaging FROM %1 WITH csv HEADER"^
+ -f "prepareCourseScheduleImport.sql" -c "\COPY CourseScheduleStaging FROM '%~1' WITH csv HEADER"^
  -c "SELECT pg_temp.importCourseSchedule(%2, '%3', false);"
 GOTO end
 
