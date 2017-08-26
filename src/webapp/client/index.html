@@ -23,6 +23,22 @@ Currently, only attendance information is served
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<!--Import Materialize framework - Learn more: http://materializecss.com/-->
 	<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+	<style>
+		/* Materialize attempts to use the Roboto font family by default */
+		html {
+			font-family: sans-serif;
+			font-size: 16px;
+		}
+		/* Default styling for strong tag is dependent on a specific font */
+		strong {
+			font-weight: bold;
+		}
+		/* Custom CSS for compact table cells */
+		td.compact {
+			padding: 6px 4px;
+			font-size: 13px;
+		}
+	</style>
 	</head>
 	<body>
 	
@@ -67,20 +83,26 @@ Currently, only attendance information is served
 		</div>
 		<div class="row">
 			<div class="input-field col s12 m6 l3">
+				<i class="material-icons prefix">mail</i>
 				<input id="email" type="email"/>
 				<label for="email">Email</label>
 			</div>
 			<div class="input-field col s12 m6 l3">
+				<i class="material-icons prefix">lock</i>
 				<input id="passwordBox" type="password"/>
 				<label for="passwordBox">Password</label>
 			</div>
 			<a id="btnLogin" class="waves-effect waves-light btn">Login</a>
 		</div>
-			
-		<div class="row">
-			<h5>DB Info</h5>
+		
+		<div class="divider"></div><br/>
+		
+		<ul id="dbInfoBox" class="collapsible" data-collapsible="expandable"><li>
+		<div class="collapsible-header">
+			<i id="dbInfoArrow" class="material-icons">keyboard_arrow_down</i>DB Info
 		</div>
-		<div class="row">
+		<div class="collapsible-body">
+			<div class="row">
 			<div class="input-field col s12 m6 l3">
 				<input id="host" type="text" value="localhost"/>
 				<label for="host">Host name</label>
@@ -97,8 +119,9 @@ Currently, only attendance information is served
 				<input id="user" type="text" value="GB_WebApp"/>
 				<label for="user">DB Username</label>
 			</div>
-
+			</div>
 		</div>
+		</li></ul>
 	</div>
 	
 	<div id="roster">
@@ -106,7 +129,7 @@ Currently, only attendance information is served
 	</div>
 	
 	<div id="attendance">
-	<div class="row section">
+	<div class="row">
 		<div class="input-field col s12 m6 l3">
 			<select id="yearSelect" disabled="true">
 				<option value="" disabled="true" selected="true">Choose year</option>
@@ -134,7 +157,36 @@ Currently, only attendance information is served
 	</div>
 	
 	<div class="divider"></div>
-	<div id="attendanceData" class="section"></div> <!--Populated dynamically-->
+	
+	<ul id="attnOptionsBox" class="collapsible" style="display: none" data-collapsible="expandable">
+	<li>
+		<div class="collapsible-header">
+			<i id="optionsArrow" class="material-icons">keyboard_arrow_down</i>Options
+		</div>
+		<div class="collapsible-body">
+			<div class="switch">
+			Display 'P' attendance code
+			<label>
+				<input id="opt-showPresent" type="checkbox">
+				<span class="lever"></span>
+			</label>
+			</div>
+			<br/>
+			<div class="switch">
+			Display compact table
+			<label>
+				<input id="opt-compactTab" type="checkbox">
+				<span class="lever"></span>
+			</label>
+			</div>
+		</div>
+	</li>
+	</ul>
+	
+	<br/>
+	<div id="attendanceData" class="col s12" style="overflow-x:auto">
+		<!--Populated dynamically-->
+	</div>
 	
 	</div>
 	
@@ -147,12 +199,69 @@ Currently, only attendance information is served
 	</div>
 	
 	<div id="about">
-		<p class="center-align">The About page is not yet complete</p>
-		<br/>
-		<h3>Gradebook</h3>
-		<p>Gradebook is an open-source product to provide a simple means for 
-			instructors to record student assessment and attendance.</p>
-		<a href="https://github.com/DASSL/Gradebook">View Gradebook on GitHub.com</a>
+		<h4>About Gradebook</h4>
+		<p>Gradebook is an open-source product for instructors to record student
+		 assessment and attendance. It is developed at the Data Science &amp;
+		 Systems Lab (<a href="https://dassl.github.io" target="_blank">DASSL</a>
+		 , read <em>dazzle</em>) at the Western Connecticut State University 
+		 (<a href="http://wcsu.edu/" target="_blank">WCSU</a>).</p>
+		<h5>Goals</h5>
+		<p>Gradebook is developed with the following goals:</p>
+		<ol>
+			<li>Provide instructors a free, open, and modern tool to record 
+			 student assessment and attendance</li>
+			<li>Provide instructors a framework to surface, analyze, and visualize
+			 patterns in student performance</li>
+			<li>Use (and demonstrate the use of) modern tools and processes in
+			 software and data engineering</li>
+			<li>Provide Computer Science students a real-life application to
+			 develop and maintain as both curricular and co-curricular activity</li>
+			<li>Provide Computer Science students a framework to experience
+			 first-hand topics such as: web and mobile application development;
+			 RESTful APIs; multi-tenancy; scalability; and cloud-based services.</li>
+		</ol>
+		<h5>Status</h5>
+		<p>Gradebook is still in early stages of development (“alpha stage”).
+		 Much of its external documentation is in the form of README files
+		 contained in various directories within the product repository. The
+		 source code is commented reasonably well. More information about Gradebook
+		 can be found by visiting its
+		 <a href="https://github.com/DASSL/Gradebook" target="_blank"> repository
+		 on GitHub</a>.</p>
+		<p><strong>Caution:</strong> Because the product is still in very early
+		 stages of development, it should not be used as a production system in
+		 its current state. There are no guarantees that future development
+		 releases will provide any kind of backward compatibility or portability.</p>
+		<h5>Contributors</h5>
+		<p>Gradebook was conceived by and is designed by 
+		 <a href="http://sites.wcsu.edu/murthys/" target="_blank">Sean Murthy</a>,
+		 a member of the Computer Science faculty at WCSU.</p>
+		<p>The following undergraduate Computer Science students at WCSU
+		 contribute(d) to the development of Gradebook:</p>
+		<ul class="browser-default">
+			<li><a href="https://github.com/bella004" target="_blank">Kyle Bella</a></li>
+			<li><a href="https://github.com/zbhujwala" target="_blank">Zaid Bhujwala</a></li>
+			<li><a href="https://github.com/ZBoylan" target="_blank">Zach Boylan</a></li>
+			<li><a href="https://github.com/afig" target="_blank">Andrew Figueroa</a></li>
+			<li><a href="https://github.com/griffine" target="_blank">Elly Griffin</a></li>
+			<li><a href="https://github.com/srrollo" target="_blank">Steven Rollo</a></li>
+			<li><a href="https://github.com/hunterSchloss" target="_blank">Hunter Schloss</a></li>
+		</ul>
+		<h5>Legal Stuff</h5>
+			<p>© 2017- DASSL. ALL RIGHTS RESERVED.</p>
+			<p>Gradebook is distributed under
+			 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">
+			 Creative Commons License BY-NC-SA 4.0</a>.</p>
+			<p>PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN
+			 RISK.</p>
+	</div>
+	
+	<!--Generic alert used by showAlert() in index.js-->
+	<div id="msg-genericAlert" class="modal">
+		<div id="genericAlertBody" class="modal-content"></div>
+		<div class="modal-footer">
+			<a href="#!" class="modal-action modal-close waves-effect waves-gray btn-flat">OK</a>
+		</div>
 	</div>
 	
 	</div>

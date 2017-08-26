@@ -39,23 +39,42 @@ Each instance of connInfo as a parameter in a function definition refers to an
 $(document).ready(function() {
 	$('select').material_select(); //load dropdown boxes
 	
+	$('#dbInfoBox').collapsible({
+		onOpen: function() {
+			$('#dbInfoArrow').html('keyboard_arrow_up');
+		},
+		onClose: function() {
+			$('#dbInfoArrow').html('keyboard_arrow_down');
+		}
+	});
+	
+	$('#attnOptionsBox').collapsible({
+		onOpen: function() {
+			$('#optionsArrow').html('keyboard_arrow_up');
+		},
+		onClose: function() {
+			$('#optionsArrow').html('keyboard_arrow_down');
+		}
+	});
 	
 	$('#btnLogin').click(function() {
 		dbInfo = getDBFields();
-		if (dbInfo != null) {
-			var email = $('#email').val().trim();
-			if (email != '') {
-				serverLogin(dbInfo, email, function() {
-					//clear login fields
-					$('#email').val('');
-					$('#passwordBox').val('');
-					
-					popYears(dbInfo);
-				});
-			}
-			else {
-				alert('One or more fields are empty');
-			}
+		var email = $('#email').val().trim();
+		if (dbInfo != null && email != '') {
+			serverLogin(dbInfo, email, function() {
+				//clear login fields and close DB Info box
+				$('#email').val('');
+				$('#passwordBox').val('');
+				$('#dbInfoBox').collapsible('close', 0);
+				$('#dbInfoArrow').html('keyboard_arrow_down');
+				
+				popYears(dbInfo);
+			});
+		}
+		else {
+			showAlert('<h5>Missing field(s)</h5><p>One or more fields are ' +
+			 'not filled in.</p><p>All fields are required, including those in ' +
+			 'DB Info.</p>');
 		}
 	});
 	
@@ -82,6 +101,12 @@ $(document).ready(function() {
 		popAttendance(dbInfo, sectionID);
 	});
 	
+	$('#opt-showPresent, #opt-compactTab').change(function() {
+		//reload attendance table since options were modified
+		var sectionID = $('#sectionSelect').val();
+		popAttendance(dbInfo, sectionID);
+	});
+	
 	$('#logout').click(function() {
 		dbInfo = null;
 		instInfo = null;
@@ -98,6 +123,11 @@ $(document).ready(function() {
 	});
 });
 
+function showAlert(htmlContent) {
+	$('#genericAlertBody').html(htmlContent);
+	$('#msg-genericAlert').modal('open');
+};
+
 function getDBFields() {
 	var host = $('#host').val().trim();
 	var port = $('#port').val().trim();
@@ -105,9 +135,7 @@ function getDBFields() {
 	var uname = $('#user').val().trim();
 	var pw =  $('#passwordBox').val().trim();
 	
-	if (host === "" || port === "" || db === "" || uname === "" || pw === "")
-	{
-		alert('One or more fields are empty');
+	if (host === "" || port === "" || db === "" || uname === "" || pw === "") {
 		return null;
 	}
 	
@@ -145,7 +173,9 @@ function serverLogin(connInfo, email, callback) {
 			callback();
 		},
 		error: function(result) {
-			alert('Login failed - ensure all fields are correct');
+			//currently does not distinguish between credential and connection errors
+			showAlert('<h5>Could not login</h5><p>Login failed - ensure ' +
+			 'all fields are correct</p>');
 			console.log(result);
 		}
 	});
@@ -164,7 +194,7 @@ function popYears(connInfo) {
 			setYears(years);
 		},
 		error: function(result) {
-			alert('Error while retrieving years - ensure DB info is correct');
+			showAlert('<p>Error while retrieving years</p>');
 			console.log(result);
 		}
 	});
@@ -184,7 +214,7 @@ function popSeasons(connInfo, year) {
 			setSeasons(seasons);
 		},
 		error: function(result) {
-			alert('Error while retrieving seasons');
+			showAlert('<p>Error while retrieving seasons</p>');
 			console.log(result);
 		}
 	});
@@ -204,7 +234,7 @@ function popCourses(connInfo, year, seasonorder) {
 			setCourses(courses);
 		},
 		error: function(result) {
-			alert('Error while retrieving courses');
+			showAlert('<p>Error while retrieving courses</p>');
 			console.log(result);
 		}
 	});
@@ -225,7 +255,7 @@ function popSections(connInfo, year, seasonorder, coursenumber) {
 			setSections(sections);
 		},
 		error: function(result) {
-			alert('Error while retrieving sections');
+			showAlert('<p>Error while retrieving sections</p>');
 			console.log(result);
 		}
 	});
@@ -237,20 +267,16 @@ function popAttendance(connInfo, sectionid) {
 		dataType: 'html',
 		data: urlParams,
 		success: function(result) {
-			var attnTable = result;
-			if (attnTable.substring(0, 7) === '<table>') {
-				attnTable = '<table class="striped" style="display:block;' +
-				 'margin:auto;overflow-x:auto">' + attnTable.substring(7);
-			}
-			else {
-				console.log('WARN: Unable to style attendance table;' +
-				 'first 7 chars did not match "<table>"');
-			}
-			$('#attendanceData').html(attnTable);
+			setAttendance(result);
 		},
 		error: function(result) {
-			alert('Error while retrieving attendance data');
-			resetAttendance();
+			if (result.responseText == '500 - No Attenance Records') {
+				showAlert('<p>No attendance records exist for this section</p>');
+			}
+			else {
+				showAlert('<p>Error while retrieving attendance data</p>');
+			}
+			setAttendance(null);
 			console.log(result);
 		}
 	});
@@ -293,9 +319,41 @@ function setSections(htmlText) {
 	$('#sectionSelect').prop('disabled', htmlText == null);
 	$('#sectionSelect').material_select(); //reload dropdown
 	
-	resetAttendance();
+	setAttendance(null);
 };
 
-function resetAttendance() {
-	$('#attendanceData').html('');
+function setAttendance(htmlText) {
+	var showPs = $('#opt-showPresent').is(':checked');
+	var isCompact = $('#opt-compactTab').is(':checked');
+	
+	if (htmlText == null) {
+		$('#attendanceData').html('');
+		$('#attnOptionsBox').css('display', 'none');
+	}
+	else {
+		if (htmlText.substring(0, 7) !== '<table>') {
+			console.log('WARN: setAttendance(): Unable to style attendance table;' +
+			 ' first 7 chars did not match "<table>"');
+		}
+		else {
+			if (!showPs) {
+				//replace all 'P' fields with a space
+				htmlText = htmlText.replace(/>P<\/td>/g, '> </td>');
+			}
+			if (isCompact) {
+				//add attibutes to <table> tag to use compact framework styling
+				htmlText = '<table class="striped" style="line-height:1.1;">' +
+				 htmlText.substring(7);
+				 
+				//give all td tags the "compact" class
+				htmlText = htmlText.replace(/<td /g, '<td class="compact" ');
+			}
+			else {
+				//add attibutes to <table> tag to use non-compact framework styling
+				htmlText = '<table class="striped">' + htmlText.substring(7);
+			}
+		}
+		$('#attnOptionsBox').css('display', 'block');
+		$('#attendanceData').html(htmlText);
+	}
 };
