@@ -1,6 +1,6 @@
 README.md - Gradebook
 
-Sean Murthy, Andrew Figueroa
+Sean Murthy, Andrew Figueroa   
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 (C) 2017- DASSL. ALL RIGHTS RESERVED.   
