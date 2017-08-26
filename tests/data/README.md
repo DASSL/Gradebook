@@ -18,7 +18,7 @@ This file describes the contents of the sub-directories of the directory
 
 This directory contains sample CSV-formatted attendance data, along with a
 script for importing this data. It is required to import the sample data from
-the other two sub-directories (`Open Close` and `Roster`) before importing the
+the other two sub-directories (`OpenClose` and `Roster`) before importing the
 sample attendance data.
 
 The data in the CSV files is structured in a manner that simplifies the import
