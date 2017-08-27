@@ -17,7 +17,7 @@ intermediate layer between the DBMS and client. It serves the static client web 
 to clients, and implements a REST API that the client web page uses to request Data
 from the DBMS.  
 
-The Gradebook web server is written in javascript using [node.js](https://nodejs.org/en/).
+The Gradebook web server is written in JavaScript using [node.js](https://nodejs.org/en/).
 The Gradebook web client is written in HTML, CSS, and javascript using
 [Materialize](http://materializecss.com/) and [jQuery](https://jquery.com/).
 The current version of the web server has been tested with node.js 6.11.2 on Ubuntu 16.04.

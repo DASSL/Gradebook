@@ -1,5 +1,6 @@
 <a href="https://postgresql.org"><img src="https://img.shields.io/badge/Powered%20by-PostgreSQL-blue.svg"/></a>
-<a href="https://github.com"><img src="https://img.shields.io/badge/Hosted%20on-GitHub-brightgreen.svg"/></a>
+<a href="https://nodejs.org"><img src="https://img.shields.io/badge/Served%20by-Node.js-brightgreen.svg"/></a>
+<a href="https://github.com"><img src="https://img.shields.io/badge/Hosted%20on-GitHub-blue.svg"/></a>
 <a href="https://zenhub.com"><img src="https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png"/></a>
 <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg"/></a>
 
@@ -44,16 +45,17 @@ running as a "fully owned" instance
 - Web server: Node.js version [6.11](https://nodejs.org/dist/latest-v6.x/docs/api/).
 Additional Node.js modules are required as described in the README in the
 directory `/src/webapp`.
-- Web client: Any web browser with support for JavaScript and CSS should do, but
-the application has been tested with Chrome, Edge, and Internet Explorer. The
-web site served uses the specific JavaScript libraries and CSS stylesheets
-listed in the README in the directory `/src/webapp`.
+- Web client: The web site uses the JavaScript libraries and CSS stylesheets
+listed in the README in the directory `/src/webapp`. The site has been tested
+with Chrome, Firefox, Edge, and Internet Explorer, and is expected to run in
+Safari and Opera as well. (See the [full list of browsers](https://github.com/Dogfalo/materialize#supported-browsers) with which
+the site is expected to be compatible.)
 
 Overall, the application has been tested on Windows 10 and Ubuntu Server 16.04,
 but it should run in any operating environment where the aforementioned
 components can run. It is possible to mix and match running environments. For
-example, it is possible to run the database server on Ubuntu and the web server
-on Windows.
+example, it should be possible to run the database server on Ubuntu, the web
+server on Windows, and the web client on macOS.
 
 Developing and testing the application requires only a text editor along with
 the tools that are typically bundled with the runtime components.
