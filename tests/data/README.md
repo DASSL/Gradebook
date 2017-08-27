@@ -1,6 +1,6 @@
 README.md - Gradebook
 
-Sean Murthy   
+Sean Murthy, Andrew Figueroa   
 Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
 (C) 2017- DASSL. ALL RIGHTS RESERVED.   
@@ -13,6 +13,31 @@ PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
 This file describes the contents of the sub-directories of the directory
 `/tests/data`.
+
+### Directory `Attendance`
+
+This directory contains sample CSV-formatted attendance data, along with a
+script for importing this data. It is required to import the sample data from
+the other two sub-directories (`OpenClose` and `Roster`) before importing the
+sample attendance data.
+
+The data in the CSV files is structured in a manner that simplifies the import
+procedure and the creation of additional test data. However, this structure is
+likely to differ from common structures for attendance information. The current
+structure was obtained by "un-pivoting" an existing set of sample data.
+
+The import script, `importAttendance.psql`, is designed to import the three
+files containing the sample data, but is not intended to import actual
+attendance data.
+
+The filename of each CSV file in `Attendance` encodes the year, season, course,
+and section that the file's data corresponds to. Each filename corresponds with
+sample data in the `Roster` directory.
+
+Similar to the sample roster data, the content of the sample data is based off
+of real attendance information, but have had all connections to real attendance
+data removed. See the description of the `Roster` directory for more information
+and warnings.
 
 ### Directory `OpenClose`
 
