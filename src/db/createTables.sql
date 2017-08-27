@@ -14,8 +14,11 @@
 --E-mail address management is based on the discussion presented at:
 -- https://gist.github.com/smurthys/feba310d8cc89c4e05bdb797ca0c6cac
 
+--This script should be run after running the script initializeDB.sql
+-- in the normal course of operations, this script should not be run
+-- individually, but instead should be called from the script prepareDB.sql
 
-CREATE SCHEMA IF NOT EXISTS Gradebook;
+--This script assumes a schema named "Gradebook" already exists and is empty
 
 
 CREATE TABLE Gradebook.Course
