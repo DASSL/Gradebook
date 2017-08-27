@@ -18,7 +18,7 @@ to clients, and implements a REST API that the client web page uses to request D
 from the DBMS.  
 
 The Gradebook web server is written in JavaScript using [node.js](https://nodejs.org/en/).
-The Gradebook web client is written in HTML, CSS, and javascript using
+The Gradebook web client is written in HTML, CSS, and JavaScript using
 [Materialize](http://materializecss.com/) and [jQuery](https://jquery.com/).
 The current version of the web server has been tested with node.js 6.11.2 on Ubuntu 16.04.
 The current version of the web client has been tested with Chrome, Edge, and Internet Explorer.
@@ -41,7 +41,7 @@ packages do not install it by default.
 
 ## Running the Server
 To run the server, simply open a command prompt or terminal and navigate to the
-`Gradebook/src/webapp` folder, and execute the command `npm start`. This will
+`/src/webapp` folder, and execute the command `npm start`. This will
 start the Gradebook server. Note that this command may need to be executed with
 elevated privileges, since the server listens on port 80 by default.
 
