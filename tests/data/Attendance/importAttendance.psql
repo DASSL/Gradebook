@@ -11,7 +11,7 @@
 
 
 --Due to the use of the \COPY meta-command, this script needs to be run using the
--- psql command line tool provided with most PostgreSQL installations. The current 
+-- psql command line tool provided with most PostgreSQL installations. The current
 -- working directory needs be the same as this script's location.
 
 --This script should only be run after importing all sample Roster data provided
@@ -51,8 +51,8 @@ $$
    FROM pg_temp.AttendanceStaging
    WHERE Code IS NOT NULL
    ON CONFLICT (Status) DO NOTHING;
-   
-   --Match student from each entry in sample data with their corresponsing entry in 
+
+   --Match student from each entry in sample data with their corresponsing entry in
    -- the Student table by joining on a match of the 3 name parts. MName can be NULL
    -- and rows with NULL as the attendance code are interpreted as Present and not
    -- imported. (See behavior of Gradebook.getAttendance() in /src/db/getAttendance.sql)
@@ -63,12 +63,13 @@ $$
         COALESCE(a.MName, '') = COALESCE(s.MName, '')
    WHERE a.Code IS NOT NULL
    ON CONFLICT DO NOTHING;
-$$ LANGUAGE sql;
+$$ LANGUAGE sql
+   RETURNS NULL ON NULL INPUT; --no need to run the function if sectionID is NULL
 
 
 --Import data from files to staging table and call import function for each section
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-05Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '05'));
+SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '5'));
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-72Attendance.csv' WITH csv HEADER
