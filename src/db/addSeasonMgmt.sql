@@ -12,27 +12,14 @@
 --This script creates functions related to seasons
 -- the script should be run as part of application installation
 
---Function to get the details of the season matching a season order
+
+--Suppress messages below WARNING level for the duration of this script
+SET LOCAL client_min_messages TO WARNING;
+
+
+--Drop function from M1 that has since been renamed or removed
+-- remove the DROP statement after M2
 DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
-
-CREATE FUNCTION Gradebook.getSeason(seasonOrder NUMERIC(1,0))
-RETURNS TABLE
-(
-   "Order" NUMERIC(1,0),
-   Name VARCHAR(20),
-   Code CHAR(1)
-)
-AS
-$$
-
-   SELECT "Order", Name, Code
-   FROM Gradebook.Season
-   WHERE "Order" = $1;
-
-$$ LANGUAGE sql
-   STABLE
-   RETURNS NULL ON NULL INPUT
-   ROWS 1;
 
 
 --Function to get the details of the season matching a "season identification"
