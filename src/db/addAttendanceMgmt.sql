@@ -81,10 +81,11 @@ $$
    WITH
    --get all dates the section meets: each date will be unique
    SectionDate AS
-   (SELECT ScheduleDate
-    FROM Gradebook.Section,
-         Gradebook.getScheduleDates(StartDate, EndDate, Schedule)
-    WHERE ID = $1
+   (
+      SELECT ScheduleDate
+      FROM Gradebook.Section,
+           Gradebook.getScheduleDates(StartDate, EndDate, Schedule)
+      WHERE ID = $1
    ),
    --combine every student enrolled in section w/ each meeting date of section
    Enrollee_Date AS
@@ -92,36 +93,37 @@ $$
       SELECT Student, ScheduleDate
       FROM Gradebook.Enrollee, SectionDate
       WHERE Section = $1
-    ),
-    --get the recorded attendance for each enrollee, marking as "Present" if
-    --attendance is not recorded for an enrollee-date combo
-    sdar AS
-    (
-        SELECT ed.Student, ScheduleDate, COALESCE(ar.Status, 'P') c
-        FROM Enrollee_Date ed
-             LEFT OUTER JOIN Gradebook.AttendanceRecord ar
-             ON ed.Student = ar.Student
-                AND ed.ScheduleDate = ar.Date
-                AND ar.Section = $1 --can't move test on section to WHERE clause
-    )
-    --generate attendance data as CSV data with headers
-    -- order columns in each row by meeting date;
-    -- order rows in the data portion by student name;
-    -- function concat_ws is used to easily generate CSV strings
-    SELECT concat_ws(',', 'Last', 'First', 'Middle',
+   ),
+   --get the recorded attendance for each enrollee, marking as "Present" if
+   --attendance is not recorded for an enrollee-date combo
+   sdar AS
+   (
+      SELECT ed.Student, ScheduleDate, COALESCE(ar.Status, 'P') c
+      FROM Enrollee_Date ed
+           LEFT OUTER JOIN Gradebook.AttendanceRecord ar
+           ON ed.Student = ar.Student
+              AND ed.ScheduleDate = ar.Date
+              AND ar.Section = $1 --can't move test on section to WHERE clause
+   )
+   --generate attendance data as CSV data with headers
+   -- order columns in each row by meeting date;
+   -- order rows in the data portion by student name;
+   -- function concat_ws is used to easily generate CSV strings
+   SELECT concat_ws(',', 'Last', 'First', 'Middle',
                      string_agg(to_char(ScheduleDate, 'MM-DD-YYYY'), ','
                                 ORDER BY ScheduleDate
                                )
                     ) csv_header
-    FROM SectionDate
-    UNION ALL
-    (SELECT concat_ws(',', st.LName, st.FName, COALESCE(st.MName, ''),
+   FROM SectionDate
+   UNION ALL
+   (
+      SELECT concat_ws(',', st.LName, st.FName, COALESCE(st.MName, ''),
                       string_agg(c, ',' ORDER BY ScheduleDate)
                      )
-     FROM sdar JOIN Gradebook.Student st ON sdar.Student = st.ID
-     GROUP BY st.ID
-     ORDER BY st.LName, st.FName, COALESCE(st.MName, '')
-    );
+      FROM sdar JOIN Gradebook.Student st ON sdar.Student = st.ID
+      GROUP BY st.ID
+      ORDER BY st.LName, st.FName, COALESCE(st.MName, '')
+   );
 
 $$ LANGUAGE sql;
 
@@ -138,10 +140,5 @@ CREATE FUNCTION Gradebook.getAttendance(year NUMERIC(4,0),
                                                   )
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
-   SELECT Gradebook.getAttendance(Gradebook.getSectionID(year,
-                                                         seasonIdentification,
-                                                         course, sectionNumber
-                                                        )
-                                 );
-
+   SELECT Gradebook.getAttendance(Gradebook.getSectionID($1, $2, $3, $4));
 $$ LANGUAGE sql;

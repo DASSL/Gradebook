@@ -45,7 +45,7 @@ $$
    SELECT N.ID
    FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder(seasonIdentification)
+         AND T.Season = Gradebook.getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
@@ -91,7 +91,7 @@ $$
           N.MidtermDate, N.Instructor1, N.Instructor2, N.Instructor3
    FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder(seasonIdentification)
+         AND T.Season = Gradebook.getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
