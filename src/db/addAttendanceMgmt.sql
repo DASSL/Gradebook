@@ -25,6 +25,7 @@ DROP FUNCTION IF EXISTS Gradebook.datesFromSchedule(DATE, DATE, VARCHAR(7));
 
 
 --Function to generate a list of dates for a class schedule, within a date range
+-- startDate should not be past endDate
 -- schedule is a string such as 'MWF' which means Mondays, Wednesdays, Fridays
 
 --The following day codes are recognized:
@@ -51,7 +52,8 @@ AS $$
    -- generate_series(startDate, endDate, '1 day')
    WITH RECURSIVE EnumeratedDate AS
    (
-      SELECT $1 sd --Start with startDate
+      SELECT $1 sd --Start with startDate as long as it is not past the end date
+      WHERE $1 <= $2
       UNION ALL
       SELECT sd + 1 --Increment by one day for each row
       FROM EnumeratedDate
@@ -68,7 +70,9 @@ AS $$
       WHEN EXTRACT(DOW FROM sd) = 5 THEN $3 LIKE '%F%'
       WHEN EXTRACT(DOW FROM sd) = 6 THEN $3 LIKE '%S%'
    END;
-$$ LANGUAGE sql;
+$$ LANGUAGE sql
+            IMMUTABLE
+            RETURNS NULL ON NULL INPUT;
 
 
 --Function to get attendance for a section ID
