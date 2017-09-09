@@ -17,11 +17,6 @@
 SET LOCAL client_min_messages TO WARNING;
 
 
---Drop function from M1 that has since been renamed or removed
--- remove the DROP statement after M2
-DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
-
-
 --Function to get the details of the season matching a "season identification"
 -- a season identification is season order, season code, or season name
 -- performs case-insensitive match of season name and code
@@ -51,6 +46,32 @@ $$ LANGUAGE sql
    STABLE
    RETURNS NULL ON NULL INPUT
    ROWS 1;
+
+
+--Function to get the details of the season matching a season order
+-- this function exists to support clients that pass season order as a number
+DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
+
+CREATE FUNCTION Gradebook.getSeason(seasonOrder NUMERIC(1,0))
+RETURNS TABLE
+(
+   "Order" NUMERIC(1,0),
+   Name VARCHAR(20),
+   Code CHAR(1)
+)
+AS
+$$
+
+   SELECT "Order", Name, Code
+   FROM Gradebook.Season
+   WHERE "Order" = $1;
+
+$$ LANGUAGE sql
+   STABLE
+   RETURNS NULL ON NULL INPUT
+   ROWS 1;
+
+
 
 --Function to get the "order" of the season matching a "season identification"
 DROP FUNCTION IF EXISTS Gradebook.getSeasonOrder(VARCHAR(20));
