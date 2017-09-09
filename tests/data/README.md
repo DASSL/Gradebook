@@ -59,7 +59,8 @@ don't already have one:
 `n@example.edu`, where `n` is an instructor ID
 - The script `addEmailByInstructorName.sql` assigns e-mail addresses of the
 form `x@example.edu`, where `x` is a string composed of last name and first
-initial, followed by middle initial or ID if necessary
+initial, followed by up to two letters of the middle name or the entire
+instructor ID as necessary
 
 Neither script guarantees all instructors get an e-mail address, but both
 scripts guarantee that any assigned address is unique.
