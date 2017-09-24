@@ -70,7 +70,7 @@ $$
    WITH FixedEnrollmentInfo(SectionID, StartDate) AS
    (
       SELECT ID, (CASE WHEN $5 > N.StartDate THEN $5 ELSE NULL END)
-      FROM Gradebook.getSection($1, Gradebook.getSeasonOrder($2), $3, $4) N
+      FROM Gradebook.getSection($1, $2, $3, $4) N
    )
    --record students as enrollees in the section: ignore conflicts
    INSERT INTO Gradebook.Enrollee(Student, Section, DateEnrolled, YearEnrolled,

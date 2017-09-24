@@ -12,7 +12,7 @@
 
 --This script adds e-mail address to instructors who don't already have one
 -- constructs unique addresses using instructor's last name and first
--- initial, and if necessary adds middle initial or ID;
+-- initial, and if necessary adds 1 or 2 letters from middle name, or ID;
 -- assigns e-mail addresses of the form 'x@example.edu', where 'x' is a string
 -- composed as outlined in the previous lines
 -- does not guarantee all instructors get an e-mail address, but guarantees
@@ -41,17 +41,41 @@ CREATE UNIQUE INDEX idx_Unique_Temp_Instructor
 ON pg_temp.Instructor(LOWER(TRIM(Email)));
 
 
+--gather existing e-mail addresses in the example.edu domain
+-- need to do this so existing addresses are not reused
+INSERT INTO pg_temp.Instructor
+SELECT ID, Email
+FROM Gradebook.Instructor
+WHERE Email LIKE '%@example.edu';
+
+
+--try assigning last name and first initial for instructors with no middle name
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(LName, LEFT(FName, 1), '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL AND COALESCE(MName, '') = ''
+ON CONFLICT DO NOTHING;
+
+
 --try assigning last name and first initial
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), '@example.edu')
 FROM Gradebook.Instructor
-WHERE Email IS NULL
+WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
 
 --try assigning last name, first initial, middle initial
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), LEFT(MName, 1), '@example.edu')
+FROM Gradebook.Instructor
+WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
+ON CONFLICT DO NOTHING;
+
+
+--try assigning last name, first initial, 2 letters of middle name
+INSERT INTO pg_temp.Instructor
+SELECT ID, CONCAT(LName, LEFT(FName, 1), LEFT(MName, 2), '@example.edu')
 FROM Gradebook.Instructor
 WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;

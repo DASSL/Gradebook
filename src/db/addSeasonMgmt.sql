@@ -12,27 +12,9 @@
 --This script creates functions related to seasons
 -- the script should be run as part of application installation
 
---Function to get the details of the season matching a season order
-DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
 
-CREATE FUNCTION Gradebook.getSeason(seasonOrder NUMERIC(1,0))
-RETURNS TABLE
-(
-   "Order" NUMERIC(1,0),
-   Name VARCHAR(20),
-   Code CHAR(1)
-)
-AS
-$$
-
-   SELECT "Order", Name, Code
-   FROM Gradebook.Season
-   WHERE "Order" = $1;
-
-$$ LANGUAGE sql
-   STABLE
-   RETURNS NULL ON NULL INPUT
-   ROWS 1;
+--Suppress messages below WARNING level for the duration of this script
+SET LOCAL client_min_messages TO WARNING;
 
 
 --Function to get the details of the season matching a "season identification"
@@ -64,6 +46,32 @@ $$ LANGUAGE sql
    STABLE
    RETURNS NULL ON NULL INPUT
    ROWS 1;
+
+
+--Function to get the details of the season matching a season order
+-- this function exists to support clients that pass season order as a number
+DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
+
+CREATE FUNCTION Gradebook.getSeason(seasonOrder NUMERIC(1,0))
+RETURNS TABLE
+(
+   "Order" NUMERIC(1,0),
+   Name VARCHAR(20),
+   Code CHAR(1)
+)
+AS
+$$
+
+   SELECT "Order", Name, Code
+   FROM Gradebook.Season
+   WHERE "Order" = $1;
+
+$$ LANGUAGE sql
+   STABLE
+   RETURNS NULL ON NULL INPUT
+   ROWS 1;
+
+
 
 --Function to get the "order" of the season matching a "season identification"
 DROP FUNCTION IF EXISTS Gradebook.getSeasonOrder(VARCHAR(20));
