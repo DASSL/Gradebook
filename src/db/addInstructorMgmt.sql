@@ -112,7 +112,8 @@ $$
 
    SELECT DISTINCT Year
    FROM Gradebook.Term T JOIN Gradebook.Section N ON T.ID  = N.Term
-   WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3);
+   WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3)
+   ORDER BY Year DESC;
 
 $$ LANGUAGE sql
    STABLE
