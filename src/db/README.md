@@ -115,7 +115,7 @@ the user `gb_webapp`. It is sufficient to complete only the first step shown,
 but it is recommended that all steps be performed in the sequence shown. A
 verification step is considered successful if it completes without any error.
 
-1. Import the course schedule in the file `/tests/data/OpenClose/2015SpringOpenClose.csv`
+1. Import the course schedule in the file `/tests/data/OpenClose/2017SpringOpenClose.csv`
 
 2. Assign e-mail addresses to instructors: run the script `/tests/data/InstructorEmail/addEmailByInstructorName.sql`
 
