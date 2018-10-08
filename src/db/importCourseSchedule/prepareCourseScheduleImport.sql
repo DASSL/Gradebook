@@ -106,7 +106,7 @@ BEGIN
    WITH termDates AS
    ( --make a list of the start and end dates for each class
       SELECT substring(date FROM 1 FOR 5) sDate,
-             substring(date FROM 6 FOR 5) eDate
+             substring(date FROM 7 FOR 5) eDate
       FROM pg_temp.CourseScheduleStaging
    )
    --Select the extreme start and end dates from TermDates
