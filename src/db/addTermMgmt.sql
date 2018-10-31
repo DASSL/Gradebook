@@ -23,9 +23,14 @@ SET LOCAL client_min_messages TO WARNING;
 --Reason represents a short description of a reason for the significant date
 --(such as “Holiday”, or “Weather). The school can use reason to form categories
 --for significant dates.
-CREATE OR REPLACE FUNCTION addSignificantDate(term INT, date DATE,
-name VARCHAR(30), classesHeld BOOLEAN NOT NULL, reason VARCHAR(30))
-RETURNS NULL AS
+CREATE OR REPLACE FUNCTION addSignificantDate(term INT,
+                                              date DATE,
+                                              name VARCHAR(30),
+                                              classesHeld BOOLEAN NOT NULL,
+                                              reason VARCHAR(30)
+                                             )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -48,8 +53,11 @@ TO GB_RegistrarAdmin, GB_DBAdmin;
 --season attributes match the arguments year and season. Year is the actual
 --calendar year (such as 2018), and season is the season code (‘F' for fall,
 --‘S' for spring, and so on). Returns NULL if such a term does not exist.
-CREATE OR REPLACE FUNCTION getTermID(year NUMERIC(4,0), season CHAR(1))
-RETURNS INT AS
+CREATE OR REPLACE FUNCTION getTermID(year NUMERIC(4,0),
+                                     season CHAR(1)
+                                    )
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -71,7 +79,9 @@ GB_Admissions, GB_DBAdmin;
 
 --Returns the start date of a row from the Term table which matches the given
 --termID. Returns NULL if termID does not refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermStart(termID INT) RETURNS DATE AS
+CREATE OR REPLACE FUNCTION getTermStart(termID INT)
+RETURNS DATE
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -91,7 +101,9 @@ GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 
 --Returns the end date of a row from the Term table which matches the given
 --termID. Returns NULL if termID does not refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermEnd(termID INT) RETURNS DATE AS
+CREATE OR REPLACE FUNCTION getTermEnd(termID INT)
+RETURNS DATE
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -113,8 +125,12 @@ GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 --Returns no rows of no significant dates are defined for the term and NULL if
 --termID does not refer to a known Term.
 CREATE OR REPLACE FUNCTION getSignificantDates(termID INT)
-RETURNS TABLE (Date DATE, Name VARCHAR(30), ClosureStatus CHAR(1),
-Reason VARCHAR(30)) AS
+RETURNS TABLE (Date DATE,
+               Name VARCHAR(30),
+               ClosureStatus CHAR(1),
+               Reason VARCHAR(30)
+              )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -137,7 +153,9 @@ GB_DBAdmin;
 --count of rows in the Section table where the row's Term attribute matches the
 --argument termID, and where Course is distinct. Returns 0 if no courses are
 --offered in the Term and NULL if termID does not refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermCourseCount(termID INT) RETURNS INT AS
+CREATE OR REPLACE FUNCTION getTermCourseCount(termID INT)
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -160,7 +178,9 @@ GB_DBAdmin;
 --the number of rows in the Section table where the row's Term attribute matches
 --the argument termID, and where Section is distinct. Returns 0 if no sections
 --are offered in the Term and NULL if termID does not refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermSectionCount(termID INT) RETURNS INT AS
+CREATE OR REPLACE FUNCTION getTermSectionCount(termID INT)
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -182,7 +202,9 @@ GB_DBAdmin;
 --Returns the total count of instructors teaching during a given term. Returns 0
 --if no instructors are teaching in the term and NULL if termID does not refer
 --to a known Term.
-CREATE OR REPLACE FUNCTION getTermInstructorCount(termID INT) RETURNS INT AS
+CREATE OR REPLACE FUNCTION getTermInstructorCount(termID INT)
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -207,9 +229,17 @@ GB_DBAdmin;
 --Returns no rows if no sections are offered in the term, and NULL if termID
 --does not refer to a known Term.
 CREATE OR REPLACE FUNCTION getTermSectionsReport(termID INT)
-RETURNS TABLE (Course VARCHAR(8), SectionNumber VARCHAR(3), CRN VARCHAR(5),
-Schedule VARCHAR(7), Location VARCHAR(25), StartDate DATE, EndDate DATE,
-MidtermDate DATE, Instructors VARCHAR) AS
+RETURNS TABLE (Course VARCHAR(8),
+               SectionNumber VARCHAR(3),
+               CRN VARCHAR(5),
+               Schedule VARCHAR(7),
+               Location VARCHAR(25),
+               StartDate DATE,
+               EndDate DATE,
+               MidtermDate DATE,
+               Instructors VARCHAR
+              )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -231,10 +261,22 @@ GB_DBAdmin;
 --Returns a table matching the schema of a Section table, containing rows which
 --have a matching termID. Returns no rows if no sections are offered in the
 --term, and NULL if termID does not refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermSections(termID INT) RETURNS TABLE (ID INT,
-Term INT, Course VARCHAR(8), SectionNumber VARCHAR(3), CRN VARCHAR(5),
-Schedule VARCHAR(7), Location VARCHAR(25), StartDate DATE, EndDate DATE,
-MidtermDate DATE, Instructor1 INT, Instructor2 INT, Instructor3 INT) AS
+CREATE OR REPLACE FUNCTION getTermSections(termID INT)
+RETURNS TABLE (ID INT,
+               Term INT,
+               Course VARCHAR(8),
+               SectionNumber VARCHAR(3),
+               CRN VARCHAR(5),
+               Schedule VARCHAR(7),
+               Location VARCHAR(25),
+               StartDate DATE,
+               EndDate DATE,
+               MidtermDate DATE,
+               Instructor1 INT,
+               Instructor2 INT,
+               Instructor3 INT
+              )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -256,7 +298,9 @@ GB_DBAdmin;
 --Returns the total count of students which are taking a class in a given term.
 --Returns 0 if no students are enrolled in the term and NULL if termID does not
 --refer to a known Term.
-CREATE OR REPLACE FUNCTION getTermStudentCount(termID INT) RETURNS INT AS
+CREATE OR REPLACE FUNCTION getTermStudentCount(termID INT)
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -279,8 +323,13 @@ GB_DBAdmin;
 --courses. Returns courses held during the specified year. Returns no rows if a
 --match is not made.
 CREATE OR REPLACE FUNCTION showCoursesByYear(year NUMERIC(4,0))
-RETURNS TABLE(Number VARCHAR(8), Title VARCHAR(100),
-InstructorFullName VARCHAR(100), StartDate DATE, EndDate DATE) AS
+RETURNS TABLE(Number VARCHAR(8),
+              Title VARCHAR(100),
+              InstructorFullName VARCHAR(100),
+              StartDate DATE,
+              EndDate DATE
+             )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -303,8 +352,13 @@ GB_DBAdmin;
 --courses. Returns courses held during the specified term. Returns no rows if a
 --match is not made.
 CREATE OR REPLACE FUNCTION showCoursesByTerm(termID INT)
-RETURNS TABLE(Number VARCHAR(8), Title VARCHAR(100),
-InstructorFullName VARCHAR(100), StartDate DATE, EndDate DATE) AS
+RETURNS TABLE(Number VARCHAR(8),
+              Title VARCHAR(100),
+              InstructorFullName VARCHAR(100),
+              StartDate DATE,
+              EndDate DATE
+             )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';

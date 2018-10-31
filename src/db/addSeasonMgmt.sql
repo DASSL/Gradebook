@@ -90,7 +90,10 @@ $$ LANGUAGE sql
 
    --Returns a table listing season names and codes from the Season table.
    CREATE OR REPLACE FUNCTION listSeasons() RETURNS TABLE (Order NUMERIC(1,0),
-   Name VARCHAR(20), Code CHAR(1)) AS
+                                                           Name VARCHAR(20),
+                                                           Code CHAR(1)
+                                                          )
+   AS
    $$
    BEGIN
       RAISE WARNING 'Function not implemented';

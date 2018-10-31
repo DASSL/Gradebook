@@ -21,7 +21,8 @@ SET LOCAL client_min_messages TO WARNING;
 --has not been enrolled in a section, or if studentID does not match a valid
 --student.
 CREATE OR REPLACE FUNCTION getStudentYears(studentID INT)
-RETURNS TABLE(Year NUMERIC(4,0)) AS
+RETURNS TABLE(Year NUMERIC(4,0))
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -43,7 +44,9 @@ GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 --SESSION_USER has been enrolled in at least one section. Returns 0 rows if
 --student has not been enrolled in any sections, or NULL if the SESSION_USER is
 --not a student.
-CREATE OR REPLACE FUNCTION getYearsAsStudent() RETURNS TABLE(Year NUMERIC(4,0)) AS
+CREATE OR REPLACE FUNCTION getYearsAsStudent()
+RETURNS TABLE(Year NUMERIC(4,0))
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -63,8 +66,13 @@ GRANT EXECUTE ON FUNCTION getYearsAsStudent() TO GB_Student;
 --the seasons in the given year that the student has been enrolled in a section.
 --Returns 0 rows if the student was not enrolled in any section in the given
 --year or if studentID does not match a valid student.
-CREATE OR REPLACE FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-RETURNS TABLE(SeasonOrder Numeric(1,0), SeasonName VARCHAR(20)) AS
+CREATE OR REPLACE FUNCTION getStudentSeasons(studentID INT,
+                                             year NUMERIC(4,0)
+                                            )
+RETURNS TABLE(SeasonOrder Numeric(1,0),
+              SeasonName VARCHAR(20)
+             )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -74,7 +82,9 @@ $$ LANGUAGE plpgsql
    STABLE
    RETURNS NULL ON NULL INPUT;
 
-ALTER FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
+ALTER FUNCTION getStudentSeasons(studentID INT,
+                                 year NUMERIC(4,0)
+                                )
 OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
@@ -90,7 +100,10 @@ GB_Admin;
 --Returns 0 rows if student has not been enrolled in any sections, or NULL if
 --the SESSION_USER is not a student.
 CREATE OR REPLACE FUNCTION getSeasonsAsStudent(year NUMERIC(4,0))
-RETURNS TABLE(SeasonOrder Numeric(1,0), SeasonName VARCHAR(20)) AS
+RETURNS TABLE(SeasonOrder Numeric(1,0),
+              SeasonName VARCHAR(20)
+             )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -111,9 +124,15 @@ GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO GB_Student;
 --mName, or lName must be provided. schoolIssuedID should be unique among
 --students and instructors combined. Raises exception if schoolIssuedID or email
 --are not unique among instructors and students.
-CREATE OR REPLACE FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) RETURNS NULL AS
+CREATE OR REPLACE FUNCTION addStudent(fName VARCHAR(50),
+                                      mName VARCHAR(50),
+                                      lName VARCHAR(50),
+                                      schoolIssuedID VARCHAR(50),
+                                      email VARCHAR(319),
+                                      year VARCHAR(30)
+                                     )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -140,8 +159,11 @@ year VARCHAR(30)) TO GB_Admissions, GB_DBAdmin;
 --necessary. Major should match a known major (case insensitive). Exceptions are
 --raised if student does not match a known student or if major does not match a
 --known major. A student may have 0 or more majors.
-CREATE OR REPLACE FUNCTION assignMajor(student INT, major VARCHAR(30))
-RETURNS NULL AS
+CREATE OR REPLACE FUNCTION assignMajor(student INT,
+                                       major VARCHAR(30)
+                                      )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -165,7 +187,9 @@ TO GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 --necessary. Major should match a major assigned to the student (case
 --insensitive). Exceptions are raised if student does not match a known student
 --or if the student is not assigned the given major.
-CREATE OR REPLACE FUNCTION revokeMajor(student INT, major VARCHAR(30))
+CREATE OR REPLACE FUNCTION revokeMajor(student INT,
+                                       major VARCHAR(30)
+                                      )
 RETURNS NULL AS
 $$
 BEGIN
@@ -186,10 +210,18 @@ TO GB_Registrar, GB_RegistrarAdmin, GB_DBAdmin;
 --Returns a table with fName, mName, lName, schoolIssuedID, email, and year
 --attributes , populated by rows from the Student table which match all of the
 --given arguments.
-CREATE OR REPLACE FUNCTION searchStudent(fname VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50)) RETURNS TABLE(FName VARCHAR(50), MName VARCHAR(50),
-LName VARCHAR(50), SchoolIssuedID VARCHAR(50), Email VARCHAR(319),
-Year VARCHAR(30)) AS
+CREATE OR REPLACE FUNCTION searchStudent(fname VARCHAR(50),
+                                         mName VARCHAR(50),
+                                         lName VARCHAR(50)
+                                        )
+RETURNS TABLE(FName VARCHAR(50),
+              MName VARCHAR(50),
+              LName VARCHAR(50),
+              SchoolIssuedID VARCHAR(50),
+              Email VARCHAR(319),
+              Year VARCHAR(30)
+             )
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -232,7 +264,8 @@ GRANT EXECUTE ON FUNCTION getMyStudentID() TO GB_Student;
 --attribute matches the argument schoolIssuedID, or where the row's email
 --attribute matches the argument email.
 CREATE OR REPLACE FUNCTION getStudentIDByIssuedID(schoolIssuedID VARCHAR(50))
-RETURNS INT AS
+RETURNS INT
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -279,7 +312,10 @@ GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 --student attribute matches the argument student, and where the student is in
 --the section that the instructor teaches.
 CREATE OR REPLACE FUNCTION assignMidtermGrade(student INT,
-midtermGradeAwarded VARCHAR(2)) RETURNS NULL AS
+                                              midtermGradeAwarded VARCHAR(2)
+                                             )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -302,7 +338,10 @@ midtermGradeAwarded VARCHAR(2)) TO GB_Instructor, GB_DBAdmin;
 --student attribute matches the argument student, and where the student is in
 --the section that the instructor teaches.
 CREATE OR REPLACE FUNCTION assignFinalGrade(student INT,
-finalGradeAwarded VARCHAR(2)) RETURNS NULL AS
+                                            finalGradeAwarded VARCHAR(2)
+                                           )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';

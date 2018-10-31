@@ -16,9 +16,6 @@
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
 
-
-
-
 --Function to get ID of section matching a year-season-course-section# combo
 -- season is "season identification"
 DROP FUNCTION IF EXISTS Gradebook.getSectionID(NUMERIC(4,0), VARCHAR(20),
@@ -161,8 +158,12 @@ $$ LANGUAGE sql
   --attribute of a row from the Section table where the row's term, course, and
   --sectionNumber attributes match all of the arguments term, courseNumber, and
   --sectionNumber, respectively.
-  CREATE OR REPLACE FUNCTION getSectionID(term INT, courseNumber VARCHAR(8),
-  sectionNumber VARCHAR(3)) RETURNS INT AS
+  CREATE OR REPLACE FUNCTION getSectionID(term INT,
+                                          courseNumber VARCHAR(8),
+                                          sectionNumber VARCHAR(3)
+                                         )
+  RETURNS INT
+  AS
   $$
   BEGIN
      RAISE WARNING 'Function not implemented';
@@ -179,15 +180,16 @@ $$ LANGUAGE sql
   sectionNumber VARCHAR(3)) FROM PUBLIC;
 
   GRANT EXECUTE ON FUNCTION getSectionID(term INT, courseNumber VARCHAR(8),
-  sectionNumber VARCHAR(3)) TO GB_Webapp, GB_Instructor, GB_Student, GB_Registrar,
-  GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+  sectionNumber VARCHAR(3)) TO GB_Webapp, GB_Instructor, GB_Student,
+  GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 
 
-  --Returns the ID
-  --attribute of a row from the Section table where the row's term, course, and
-  --sectionNumber attributes match all of the arguments term, courseNumber, and
-  --sectionNumber, respectively.
-  CREATE OR REPLACE FUNCTION getSectionID(term INT, CRN VARCHAR(5)) RETURNS INT AS
+  --Returns the ID attribute of a row from the Section table where the row's
+  --term, course, and sectionNumber attributes match all of the arguments term,
+  --courseNumber, and sectionNumber, respectively.
+  CREATE OR REPLACE FUNCTION getSectionID(term INT, CRN VARCHAR(5))
+  RETURNS INT
+  AS
   $$
   BEGIN
      RAISE WARNING 'Function not implemented';
@@ -204,13 +206,23 @@ $$ LANGUAGE sql
   GRANT EXECUTE ON FUNCTION getSectionID(term INT, CRN VARCHAR(5)) TO GB_Webapp,
   GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
   GB_DBAdmin;
-  --Returns a table
-  --describing the section, which is populated with rows in which the ID attribute
-  --of Section matches the argument ID.
-  CREATE OR REPLACE FUNCTION getSection(sectionID INT) RETURNS TABLE(Term INT,
-  Course VARCHAR(8), SectionNumber VARCHAR(3), CRN VARCHAR(5),
-  Schedule VARCHAR(7), Location (VARCHAR(25), StartDate DATE, EndDate DATE,
-  MidtermDate DATE, Instructors VARCHAR(150)) AS
+
+
+  --Returns a table describing the section, which is populated with rows in
+  --which the ID attribute of Section matches the argument ID.
+  CREATE OR REPLACE FUNCTION getSection(sectionID INT)
+  RETURNS TABLE(Term INT,
+                Course VARCHAR(8),
+                SectionNumber VARCHAR(3),
+                CRN VARCHAR(5),
+                Schedule VARCHAR(7),
+                Location (VARCHAR(25),
+                StartDate DATE,
+                EndDate DATE,
+                MidtermDate DATE,
+                Instructors VARCHAR(150)
+               )
+  AS
   $$
   BEGIN
      RAISE WARNING 'Function not implemented';
@@ -230,8 +242,12 @@ $$ LANGUAGE sql
 
   --Generates a list of class dates within a specified range. Uses char codes for
   --days of the week (In order, starting with Sunday: NMTWRFS).
-  CREATE OR REPLACE FUNCTION getScheduleDates(startDate DATE, endDate DATE,
-  schedule VARCHAR(7)) RETURNS TABLE(DATE) AS
+  CREATE OR REPLACE FUNCTION getScheduleDates(startDate DATE,
+                                              endDate DATE,
+                                              schedule VARCHAR(7)
+                                             )
+ RETURNS TABLE(DATE)
+ AS
   $$
   BEGIN
      RAISE WARNING 'Function not implemented';
@@ -254,12 +270,17 @@ $$ LANGUAGE sql
 
   --Returns a table of rows from the section table where the title argument
   --matches or closely matches section number or course title, with an added
-  --attribute that represents the relative difference from the original string to
-  --the matched string (a value of 0 represents an exact match). Uses fuzzy
+  --attribute that represents the relative difference from the original string
+  --to the matched string (a value of 0 represents an exact match). Uses fuzzy
   --matching to make comparisons. Returns no rows if no section titles reasonably
   --match the argument.
-  CREATE OR REPLACE FUNCTION searchSectionTitles(termID INT, title VARCHAR(100))
-  RETURNS TABLE(Number VARCHAR(8), Title(VARCHAR(100), Difference INTEGER) AS
+  CREATE OR REPLACE FUNCTION searchSectionTitles(termID INT,
+                                                 title VARCHAR(100)
+                                                )
+  RETURNS TABLE(Number VARCHAR(8),
+                Title(VARCHAR(100),
+                Difference INTEGER)
+  AS
   $$
   BEGIN
      RAISE WARNING 'Function not implemented';

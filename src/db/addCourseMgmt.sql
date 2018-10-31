@@ -21,7 +21,10 @@ SET LOCAL client_min_messages TO WARNING;
 --number. Returns the previous course title or NULL if the courseNumber did not
 --correspond to a known course.
 CREATE OR REPLACE FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
-newDefaultTitle VARCHAR(100)) RETURNS VARCHAR(100) AS
+                                                    newDefaultTitle VARCHAR(100)
+                                                   )
+RETURNS VARCHAR(100)
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -34,19 +37,25 @@ ALTER FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
 newDefaultTitle VARCHAR(100)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
-newDefaultTitle VARCHAR(100)) FROM PUBLIC;
+                                                newDefaultTitle VARCHAR(100)
+                                               )
+FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
-newDefaultTitle VARCHAR(100)) TO GB_RegistrarAdmin, GB_DBAdmin;
-
+                                                   newDefaultTitle VARCHAR(100)
+                                                  )
+TO GB_RegistrarAdmin, GB_DBAdmin;
 
 --Returns a table of rows from the course table where the argument matches or
 --closely matches course title, with an added attribute that represents the
 --relative difference from the original string to the matched string (a value
 --of 0 represents an exact match). Uses fuzzy matching to make comparisons.
 --Returns no rows if no course titles reasonably match the argument.
-CREATE OR REPLACE FUNCTION searchCourseTitles(title VARCHAR(100)) RETURNS
-TABLE(Number VARCHAR(8), Title VARCHAR(100), Difference INTEGER) AS
+CREATE OR REPLACE FUNCTION searchCourseTitles(title VARCHAR(100))
+RETURNS TABLE(Number VARCHAR(8),
+              Title VARCHAR(100),
+              Difference INTEGER)
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -72,8 +81,11 @@ GB_DBAdmin;
 --used for sections, or a section of the course may use its own title. Exception
 --raised if course name (not default title) already corresponded to an existing
 --course.
-CREATE OR REPLACE FUNCTION addCourse(name VARCHAR(8), defaultTitle VARCHAR(100))
-RETURNS NULL AS
+CREATE OR REPLACE FUNCTION addCourse(name VARCHAR(8),
+                                     defaultTitle VARCHAR(100)
+                                    )
+RETURNS NULL
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -94,7 +106,8 @@ TO GB_RegistrarAdmin, GB_DBAdmin;
 --Returns the default title of the Course corresponding to the given
 --courseNumber. Returns NULL if no course matches the argument.
 CREATE OR REPLACE FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8))
-RETURNS VARCHAR(100)) AS
+RETURNS VARCHAR(100))
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
