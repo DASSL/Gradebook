@@ -9,7 +9,7 @@
 
 --PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
---This script creates functions related to seasons
+--This script creates functions related to terms
 -- the script should be run as part of application installation
 
 
