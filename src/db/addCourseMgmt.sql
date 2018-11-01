@@ -51,7 +51,7 @@ TO GB_RegistrarAdmin, GB_DBAdmin;
 --relative difference from the original string to the matched string (a value
 --of 0 represents an exact match). Uses fuzzy matching to make comparisons.
 --Returns no rows if no course titles reasonably match the argument.
-CREATE OR REPLACE FUNCTION searchCourseTitles(title VARCHAR(100))
+CREATE OR REPLACE FUNCTION searchCourseTitles(titleSearch VARCHAR(100))
 RETURNS TABLE(Number VARCHAR(8),
               Title VARCHAR(100),
               Difference INTEGER)
@@ -84,7 +84,7 @@ GB_DBAdmin;
 CREATE OR REPLACE FUNCTION addCourse(name VARCHAR(8),
                                      defaultTitle VARCHAR(100)
                                     )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
@@ -106,7 +106,7 @@ TO GB_RegistrarAdmin, GB_DBAdmin;
 --Returns the default title of the Course corresponding to the given
 --courseNumber. Returns NULL if no course matches the argument.
 CREATE OR REPLACE FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8))
-RETURNS VARCHAR(100))
+RETURNS VARCHAR(100)
 AS
 $$
 BEGIN

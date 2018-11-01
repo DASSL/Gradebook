@@ -26,10 +26,10 @@ SET LOCAL client_min_messages TO WARNING;
 CREATE OR REPLACE FUNCTION addSignificantDate(term INT,
                                               date DATE,
                                               name VARCHAR(30),
-                                              classesHeld BOOLEAN NOT NULL,
+                                              classesHeld BOOLEAN,
                                               reason VARCHAR(30)
                                              )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
@@ -39,13 +39,13 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER;
 
 ALTER FUNCTION addSignificantDate(term INT, date DATE, name VARCHAR(30),
-classesHeld BOOLEAN NOT NULL, reason VARCHAR(30)) OWNER TO CURRENT_USER;
+classesHeld BOOLEAN, reason VARCHAR(30)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION addSignificantDate(term INT, date DATE, name VARCHAR(30),
-classesHeld BOOLEAN NOT NULL, reason VARCHAR(30)) FROM PUBLIC;
+classesHeld BOOLEAN, reason VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION addSignificantDate(term INT, date DATE,
-name VARCHAR(30), classesHeld BOOLEAN NOT NULL, reason VARCHAR(30))
+name VARCHAR(30), classesHeld BOOLEAN, reason VARCHAR(30))
 TO GB_RegistrarAdmin, GB_DBAdmin;
 
 

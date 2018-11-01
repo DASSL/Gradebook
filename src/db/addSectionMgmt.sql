@@ -216,7 +216,7 @@ $$ LANGUAGE sql
                 SectionNumber VARCHAR(3),
                 CRN VARCHAR(5),
                 Schedule VARCHAR(7),
-                Location (VARCHAR(25),
+                Location VARCHAR(25),
                 StartDate DATE,
                 EndDate DATE,
                 MidtermDate DATE,
@@ -246,7 +246,7 @@ $$ LANGUAGE sql
                                               endDate DATE,
                                               schedule VARCHAR(7)
                                              )
- RETURNS TABLE(DATE)
+ RETURNS TABLE("Dates" DATE)
  AS
   $$
   BEGIN
@@ -278,7 +278,7 @@ $$ LANGUAGE sql
                                                  title VARCHAR(100)
                                                 )
   RETURNS TABLE(Number VARCHAR(8),
-                Title(VARCHAR(100),
+                SectionTitle VARCHAR(100),
                 Difference INTEGER)
   AS
   $$

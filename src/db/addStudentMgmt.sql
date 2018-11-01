@@ -131,7 +131,7 @@ CREATE OR REPLACE FUNCTION addStudent(fName VARCHAR(50),
                                       email VARCHAR(319),
                                       year VARCHAR(30)
                                      )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
@@ -162,7 +162,7 @@ year VARCHAR(30)) TO GB_Admissions, GB_DBAdmin;
 CREATE OR REPLACE FUNCTION assignMajor(student INT,
                                        major VARCHAR(30)
                                       )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
@@ -190,7 +190,8 @@ TO GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 CREATE OR REPLACE FUNCTION revokeMajor(student INT,
                                        major VARCHAR(30)
                                       )
-RETURNS NULL AS
+RETURNS VOID
+AS
 $$
 BEGIN
    RAISE WARNING 'Function not implemented';
@@ -214,12 +215,12 @@ CREATE OR REPLACE FUNCTION searchStudent(fname VARCHAR(50),
                                          mName VARCHAR(50),
                                          lName VARCHAR(50)
                                         )
-RETURNS TABLE(FName VARCHAR(50),
-              MName VARCHAR(50),
-              LName VARCHAR(50),
-              SchoolIssuedID VARCHAR(50),
-              Email VARCHAR(319),
-              Year VARCHAR(30)
+RETURNS TABLE("First Name" VARCHAR(50),
+              "Middlet Name" VARCHAR(50),
+              "Last Name" VARCHAR(50),
+              "School ID" VARCHAR(50),
+              "Email" VARCHAR(319),
+              "Year" VARCHAR(30)
              )
 AS
 $$
@@ -314,7 +315,7 @@ GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
 CREATE OR REPLACE FUNCTION assignMidtermGrade(student INT,
                                               midtermGradeAwarded VARCHAR(2)
                                              )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
@@ -340,7 +341,7 @@ midtermGradeAwarded VARCHAR(2)) TO GB_Instructor, GB_DBAdmin;
 CREATE OR REPLACE FUNCTION assignFinalGrade(student INT,
                                             finalGradeAwarded VARCHAR(2)
                                            )
-RETURNS NULL
+RETURNS VOID
 AS
 $$
 BEGIN
