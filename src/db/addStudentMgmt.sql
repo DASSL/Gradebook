@@ -215,10 +215,10 @@ CREATE OR REPLACE FUNCTION searchStudent(fname VARCHAR(50),
                                          mName VARCHAR(50),
                                          lName VARCHAR(50)
                                         )
-RETURNS TABLE("First Name" VARCHAR(50),
-              "Middlet Name" VARCHAR(50),
-              "Last Name" VARCHAR(50),
-              "School ID" VARCHAR(50),
+RETURNS TABLE("FirstName" VARCHAR(50),
+              "MiddleName" VARCHAR(50),
+              "LastName" VARCHAR(50),
+              "SchoolID" VARCHAR(50),
               "Email" VARCHAR(319),
               "Year" VARCHAR(30)
              )
