@@ -87,3 +87,20 @@ $$
 $$ LANGUAGE sql
    STABLE
    RETURNS NULL ON NULL INPUT;
+
+   --Returns a table listing season names and codes from the Season table.
+   CREATE OR REPLACE FUNCTION listSeasons()
+   RETURNS TABLE ("Order" NUMERIC(1,0),
+                  Name VARCHAR(20),
+                  Code CHAR(1)
+                 )
+   AS
+   $$
+   BEGIN
+      RAISE WARNING 'Function not implemented';
+   END
+   $$ LANGUAGE plpgsql
+      SECURITY DEFINER
+      STABLE;
+
+   ALTER FUNCTION listSeasons() OWNER TO CURRENT_USER;
