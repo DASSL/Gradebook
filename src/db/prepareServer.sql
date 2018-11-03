@@ -71,7 +71,7 @@ BEGIN
    --Gradebook role
    -- a default password is assigned to the user: user/admin should change it
    IF NOT pg_temp.existsRole('gb_webapp') THEN
-      CREATE USER GB_WebApp WITH PASSWORD 'dassl2017';
+      CREATE USER GB_WebApp WITH PASSWORD 'dassl2018';
    END IF;
 
    --make user GB_WebApp a member of role Gradebook
@@ -79,6 +79,37 @@ BEGIN
    -- functions, and the functions are made to execute in the context of their
    -- owner
    GRANT Gradebook TO GB_WebApp;
+
+
+   --create role GB_Instructor
+   IF NOT pg_temp.existRole('gb_instructor') THEN
+      CREATE ROLE GB_Instructor;
+   END IF;
+
+   --create role GB_Registrar
+   IF NOT pg_temp.existRole('gb_registrar') THEN
+      CREATE ROLE GB_Registrar;
+   END IF;
+
+   --create role GB_RegistrarAdmin
+   IF NOT pg_temp.existRole('gb_registraradmin') THEN
+      CREATE ROLE GB_RegistrarAdmin;
+   END IF;
+
+   --create role GB_Admissions
+   IF NOT pg_temp.existRole('gb_admissions') THEN
+      CREATE ROLE GB_Admissions;
+   END IF;
+
+   --create role GB_DBAdmin
+   IF NOT pg_temp.existRole('gb_dbadmin') THEN
+      CREATE ROLE gb_dbAdmin;
+   END IF;
+
+   --create role GB_Student
+   IF NOT pg_temp.existRole('gb_student') THEN
+      CREATE ROLE GB_Student;
+   END IF;
 
 END
 $$;
