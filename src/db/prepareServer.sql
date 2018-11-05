@@ -63,23 +63,6 @@ BEGIN
       CREATE ROLE Gradebook;
    END IF;
 
-   ALTER ROLE Gradebook CREATEROLE CREATEDB;
-   GRANT pg_signal_backend TO Gradebook;
-
-
-   --create user GB_WebApp if necessary and make sure the user is a member of
-   --Gradebook role
-   -- a default password is assigned to the user: user/admin should change it
-   IF NOT pg_temp.existsRole('gb_webapp') THEN
-      CREATE USER GB_WebApp WITH PASSWORD 'dassl2017';
-   END IF;
-
-   --make user GB_WebApp a member of role Gradebook
-   -- a temporary solution until the role Gradebook is made owner of all
-   -- functions, and the functions are made to execute in the context of their
-   -- owner
-   GRANT Gradebook TO GB_WebApp;
-
    --create role GB_Instructor
    IF NOT pg_temp.existRole('gb_instructor') THEN
       CREATE ROLE GB_Instructor;
@@ -109,6 +92,28 @@ BEGIN
    IF NOT pg_temp.existRole('gb_student') THEN
       CREATE ROLE GB_Student;
    END IF;
+
+
+   ALTER ROLE Gradebook CREATEROLE CREATEDB;
+
+   --Grant all roles to gradebook role
+   GRANT pg_signal_backend, gb_instructor, gb_registrar, GB_RegistrarAdmin,
+     gb_admissions, gb_dbAdmin, gb_student
+   TO Gradebook;
+
+
+   --create user GB_WebApp if necessary and make sure the user is a member of
+   --Gradebook role
+   -- a default password is assigned to the user: user/admin should change it
+   IF NOT pg_temp.existsRole('gb_webapp') THEN
+      CREATE USER GB_WebApp WITH PASSWORD 'dassl2017';
+   END IF;
+
+   --make user GB_WebApp a member of role Gradebook
+   -- a temporary solution until the role Gradebook is made owner of all
+   -- functions, and the functions are made to execute in the context of their
+   -- owner
+   GRANT Gradebook TO GB_WebApp;
 
 END
 $$;
