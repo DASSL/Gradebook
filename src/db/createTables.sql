@@ -18,10 +18,14 @@
 -- in the normal course of operations, this script should not be run
 -- individually, but instead should be called from the script prepareDB.sql
 
---This script assumes a schema named "Gradebook" already exists and is empty
+--This script assumes a schema named "alpha" already exists and is empty,
+-- but this can be changed in the line that begins with "SET LOCAL SCHEMA"
 
+START TRANSACTION;
 
-CREATE TABLE Gradebook.Course
+SET LOCAL SCHEMA 'alpha';
+
+CREATE TABLE Course
 (
    --Wonder if this table will eventually need a separate ID field
    Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
@@ -29,7 +33,7 @@ CREATE TABLE Gradebook.Course
 );
 
 
-CREATE TABLE Gradebook.Season
+CREATE TABLE Season
 (
    --Order denotes the sequence of seasons within a year: 0, 1,...9
    "Order" NUMERIC(1,0) PRIMARY KEY CHECK ("Order" >= 0),
@@ -44,21 +48,21 @@ CREATE TABLE Gradebook.Season
 );
 
 --enforce case-insensitive uniqueness of season name
-CREATE UNIQUE INDEX idx_Unique_SeasonName ON Gradebook.Season(LOWER(TRIM(Name)));
+CREATE UNIQUE INDEX idx_Unique_SeasonName ON Season(LOWER(TRIM(Name)));
 
 
-CREATE TABLE Gradebook.Term
+CREATE TABLE Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
    Year NUMERIC(4,0) NOT NULL CHECK (Year > 0), --'2017'
-   Season NUMERIC(1,0) NOT NULL REFERENCES Gradebook.Season,
+   Season NUMERIC(1,0) NOT NULL REFERENCES Season,
    StartDate DATE NOT NULL, --date the term begins
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
    UNIQUE(Year, Season)
 );
 
 
-CREATE TABLE Gradebook.Instructor
+CREATE TABLE Instructor
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50) NOT NULL,
@@ -71,19 +75,19 @@ CREATE TABLE Gradebook.Instructor
 
 --enforce case-insensitive uniqueness of instructor e-mail addresses
 CREATE UNIQUE INDEX idx_Unique_InstructorEmail
-ON Gradebook.Instructor(LOWER(TRIM(Email)));
+ON Instructor(LOWER(TRIM(Email)));
 
 --Create a partial index on the instructor names.  This enforces the CONSTRAINT
 -- that only one of any (FName, NULL, LName) is unique
 CREATE UNIQUE INDEX idx_Unique_Names_NULL
-ON Gradebook.Instructor(FName, LName)
+ON Instructor(FName, LName)
 WHERE MName IS NULL;
 
-CREATE TABLE Gradebook.Section
+CREATE TABLE Section
 (
    ID SERIAL PRIMARY KEY,
-   Term INT NOT NULL REFERENCES Gradebook.Term,
-   Course VARCHAR(8) NOT NULL REFERENCES Gradebook.Course,
+   Term INT NOT NULL REFERENCES Term,
+   Course VARCHAR(8) NOT NULL REFERENCES Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
    Schedule VARCHAR(7),  --days the class meets: 'MW', 'TR', 'MWF', etc.
@@ -91,9 +95,9 @@ CREATE TABLE Gradebook.Section
    StartDate DATE, --first date the section meets
    EndDate DATE, --last date the section meets
    MidtermDate DATE, --date of the "middle" of term: used to compute mid-term grade
-   Instructor1 INT NOT NULL REFERENCES Gradebook.Instructor, --primary instructor
-   Instructor2 INT REFERENCES Gradebook.Instructor, --optional 2nd instructor
-   Instructor3 INT REFERENCES Gradebook.Instructor, --optional 3rd instructor
+   Instructor1 INT NOT NULL REFERENCES Instructor, --primary instructor
+   Instructor2 INT REFERENCES Instructor, --optional 2nd instructor
+   Instructor3 INT REFERENCES Instructor, --optional 3rd instructor
    UNIQUE(Term, Course, SectionNumber),
 
    --make sure instructors are distinct
@@ -107,7 +111,7 @@ CREATE TABLE Gradebook.Section
 
 --Table to store all possible letter grades
 --some universities permit A+
-CREATE TABLE Gradebook.Grade
+CREATE TABLE Grade
 (
    Letter VARCHAR(2) NOT NULL PRIMARY KEY,
    GPA NUMERIC(4,3) NOT NULL,
@@ -121,10 +125,10 @@ CREATE TABLE Gradebook.Grade
 
 
 --Table to store mapping of percentage score to a letter grade: varies by section
-CREATE TABLE Gradebook.Section_GradeTier
+CREATE TABLE Section_GradeTier
 (
-   Section INT REFERENCES Gradebook.Section,
-   LetterGrade VARCHAR(2) NOT NULL REFERENCES Gradebook.Grade,
+   Section INT REFERENCES Section,
+   LetterGrade VARCHAR(2) NOT NULL REFERENCES Grade,
    LowPercentage NUMERIC(4,2) NOT NULL CHECK (LowPercentage > 0),
    HighPercentage NUMERIC(5,2) NOT NULL CHECK (HighPercentage > 0),
    PRIMARY KEY(Section, LetterGrade),
@@ -132,7 +136,7 @@ CREATE TABLE Gradebook.Section_GradeTier
 );
 
 
-CREATE TABLE Gradebook.Student
+CREATE TABLE Student
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50), --at least one of the name fields must be used: see below
@@ -148,13 +152,13 @@ CREATE TABLE Gradebook.Student
 
 --enforce case-insensitive uniqueness of student e-mail addresses
 CREATE UNIQUE INDEX idx_Unique_StudentEmail
-ON Gradebook.Student(LOWER(TRIM(Email)));
+ON Student(LOWER(TRIM(Email)));
 
 
-CREATE TABLE Gradebook.Enrollee
+CREATE TABLE Enrollee
 (
-   Student INT NOT NULL REFERENCES Gradebook.Student,
-   Section INT REFERENCES Gradebook.Section,
+   Student INT NOT NULL REFERENCES Student,
+   Section INT REFERENCES Section,
    DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
    YearEnrolled VARCHAR(30) NOT NULL,
    MajorEnrolled VARCHAR(50) NOT NULL,
@@ -165,32 +169,32 @@ CREATE TABLE Gradebook.Enrollee
    FinalGradeComputed VARCHAR(2),  --will eventually move to a view
    FinalGradeAwarded VARCHAR(2), --actual grade assigned
    PRIMARY KEY (Student, Section),
-   FOREIGN KEY (Section, MidtermGradeAwarded) REFERENCES Gradebook.Section_GradeTier,
-   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Gradebook.Section_GradeTier
+   FOREIGN KEY (Section, MidtermGradeAwarded) REFERENCES Section_GradeTier,
+   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Section_GradeTier
 );
 
 
-CREATE TABLE Gradebook.AttendanceStatus
+CREATE TABLE AttendanceStatus
 (
    Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', ...
    Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', ...
 );
 
 
-CREATE TABLE Gradebook.AttendanceRecord
+CREATE TABLE AttendanceRecord
 (
    Student INT NOT NULL,
    Section INT NOT NULL,
    Date DATE NOT NULL,
-   Status CHAR(1) NOT NULL REFERENCES Gradebook.AttendanceStatus,
+   Status CHAR(1) NOT NULL REFERENCES AttendanceStatus,
    PRIMARY KEY (Student, Section, Date),
-   FOREIGN KEY (Student, Section) REFERENCES Gradebook.Enrollee
+   FOREIGN KEY (Student, Section) REFERENCES Enrollee
 );
 
 
-CREATE TABLE Gradebook.Section_AssessmentComponent
+CREATE TABLE Section_AssessmentComponent
 (
-   Section INT NOT NULL REFERENCES Gradebook.Section,
+   Section INT NOT NULL REFERENCES Section,
    Type VARCHAR(20) NOT NULL, --"Assignment", "Quiz", "Exam",...
    Weight NUMERIC(3,2) NOT NULL CHECK (Weight >= 0), --a percentage value: 0.25, 0.5,...
    NumItems INT NOT NULL DEFAULT 1,
@@ -198,7 +202,7 @@ CREATE TABLE Gradebook.Section_AssessmentComponent
 );
 
 
-CREATE TABLE Gradebook.Section_AssessmentItem
+CREATE TABLE Section_AssessmentItem
 (
    Section INT NOT NULL,
    Component VARCHAR(20) NOT NULL,
@@ -208,11 +212,11 @@ CREATE TABLE Gradebook.Section_AssessmentItem
    AssignedDate Date,
    DueDate Date,
    PRIMARY KEY(Section, Component, SequenceInComponent),
-   FOREIGN KEY (Section, Component) REFERENCES Gradebook.Section_AssessmentComponent
+   FOREIGN KEY (Section, Component) REFERENCES Section_AssessmentComponent
 );
 
 
-CREATE TABLE Gradebook.Enrollee_AssessmentItem
+CREATE TABLE Enrollee_AssessmentItem
 (
    Student INT NOT NULL,
    Section INT NOT NULL,
@@ -223,6 +227,8 @@ CREATE TABLE Gradebook.Enrollee_AssessmentItem
    SubmissionDate DATE,
    Penalty NUMERIC(5,2) CHECK (Penalty >= 0),
    PRIMARY KEY(Student, Section, Component, SequenceInComponent),
-   FOREIGN KEY (Student, Section) REFERENCES Gradebook.Enrollee,
-   FOREIGN KEY (Section, Component, SequenceInComponent) REFERENCES Gradebook.Section_AssessmentItem
+   FOREIGN KEY (Student, Section) REFERENCES Enrollee,
+   FOREIGN KEY (Section, Component, SequenceInComponent) REFERENCES Section_AssessmentItem
 );
+
+COMMIT;
