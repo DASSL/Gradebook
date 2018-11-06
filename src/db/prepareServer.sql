@@ -1,6 +1,6 @@
 --prepareServer.sql - Gradebook
 
---Edited by Team Alpha (Bruno DaSilva, Andrew Figueroa, Jonathan Middleton)
+--Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
 -- in support of CS305 coursework at Western Connecticut State University.
 
 --Licensed to others under CC 4.0 BY-SA-NC
