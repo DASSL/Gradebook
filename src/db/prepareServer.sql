@@ -1,5 +1,12 @@
 --prepareServer.sql - Gradebook
 
+--Edited by Team Alpha (Bruno DaSilva, Andrew Figueroa, Jonathan Middleton)
+-- in support of CS305 coursework at Western Connecticut State University.
+
+--Licensed to others under CC 4.0 BY-SA-NC
+
+--This work is a derivative of Gradebook, originally developed by:
+
 --Andrew Figueroa, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
@@ -21,7 +28,6 @@
 -- stored
 
 --This script should be run by a superuser
-
 
 START TRANSACTION;
 
@@ -58,48 +64,49 @@ DO
 $$
 BEGIN
 
-   --create role Gradebook if necessary; give it the required rights
-   IF NOT pg_temp.existsRole('gradebook') THEN
-      CREATE ROLE Gradebook;
+   --create role alpha if necessary; give it the required rights
+   IF NOT pg_temp.existsRole('alpha') THEN
+      CREATE ROLE alpha;
    END IF;
 
    --create role GB_Instructor
-   IF NOT pg_temp.existRole('gb_instructor') THEN
-      CREATE ROLE GB_Instructor;
+   IF NOT pg_temp.existRole('alpha_gb_instructor') THEN
+      CREATE ROLE alpha_GB_Instructor;
    END IF;
 
    --create role GB_Registrar
-   IF NOT pg_temp.existRole('gb_registrar') THEN
-      CREATE ROLE GB_Registrar;
+   IF NOT pg_temp.existRole('alpha_gb_registrar') THEN
+      CREATE ROLE alpha_GB_Registrar;
    END IF;
 
    --create role GB_RegistrarAdmin
-   IF NOT pg_temp.existRole('gb_registraradmin') THEN
-      CREATE ROLE GB_RegistrarAdmin;
+   IF NOT pg_temp.existRole('alpha_gb_registraradmin') THEN
+      CREATE ROLE alpha_GB_RegistrarAdmin;
    END IF;
 
    --create role GB_Admissions
-   IF NOT pg_temp.existRole('gb_admissions') THEN
-      CREATE ROLE GB_Admissions;
+   IF NOT pg_temp.existRole('alpha_gb_admissions') THEN
+      CREATE ROLE alpha_GB_Admissions;
    END IF;
 
    --create role GB_DBAdmin
-   IF NOT pg_temp.existRole('gb_dbadmin') THEN
-      CREATE ROLE gb_dbAdmin;
+   IF NOT pg_temp.existRole('alpha_gb_dbadmin') THEN
+      CREATE ROLE alpha_GB_DBAdmin;
    END IF;
 
    --create role GB_Student
-   IF NOT pg_temp.existRole('gb_student') THEN
-      CREATE ROLE GB_Student;
+   IF NOT pg_temp.existRole('alpha_gb_student') THEN
+      CREATE ROLE alpha_GB_Student;
    END IF;
 
-
-   ALTER ROLE Gradebook CREATEROLE CREATEDB;
+   --CS305-Alpha - removed a line to grant CREATEDB to Gradebook
 
    --Grant all roles to gradebook role
-   GRANT pg_signal_backend, gb_instructor, gb_registrar, GB_RegistrarAdmin,
-     gb_admissions, gb_dbAdmin, gb_student
-   TO Gradebook;
+   --CS305-Alpha - removed grant of pg_signal_backend
+   GRANT alpha_GB_Instructor, alpha_GB_Registrar,
+         alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin,
+         alpha_GB_Student
+   TO alpha;
 
 
    --create user GB_WebApp if necessary and make sure the user is a member of
@@ -113,7 +120,7 @@ BEGIN
    -- a temporary solution until the role Gradebook is made owner of all
    -- functions, and the functions are made to execute in the context of their
    -- owner
-   GRANT Gradebook TO GB_WebApp;
+   GRANT alpha TO GB_WebApp;
 
 END
 $$;
