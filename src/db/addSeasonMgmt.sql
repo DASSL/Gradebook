@@ -22,9 +22,9 @@ SET LOCAL client_min_messages TO WARNING;
 -- performs case-insensitive match of season name and code
 -- this function makes it easier for users to indicate a season by any of the
 -- three possible identifiers for seasons
-DROP FUNCTION IF EXISTS Gradebook.getSeason(VARCHAR(20));
+DROP FUNCTION IF EXISTS qwerty.getSeason(VARCHAR(20));
 
-CREATE FUNCTION Gradebook.getSeason(seasonIdentification VARCHAR(20))
+CREATE FUNCTION qwerty.getSeason(seasonIdentification VARCHAR(20))
 RETURNS TABLE
 (
    "Order" NUMERIC(1,0),
@@ -35,7 +35,7 @@ AS
 $$
 
    SELECT "Order", Name, Code
-   FROM Gradebook.Season
+   FROM qwerty.Season
    WHERE CASE
             WHEN $1 ~ '^[0-9]$' THEN "Order" = to_number($1,'9')
             WHEN LENGTH($1) = 1 THEN Code = UPPER($1)
@@ -50,9 +50,9 @@ $$ LANGUAGE sql
 
 --Function to get the details of the season matching a season order
 -- this function exists to support clients that pass season order as a number
-DROP FUNCTION IF EXISTS Gradebook.getSeason(NUMERIC(1,0));
+DROP FUNCTION IF EXISTS qwerty.getSeason(NUMERIC(1,0));
 
-CREATE FUNCTION Gradebook.getSeason(seasonOrder NUMERIC(1,0))
+CREATE FUNCTION qwerty.getSeason(seasonOrder NUMERIC(1,0))
 RETURNS TABLE
 (
    "Order" NUMERIC(1,0),
@@ -63,7 +63,7 @@ AS
 $$
 
    SELECT "Order", Name, Code
-   FROM Gradebook.Season
+   FROM qwerty.Season
    WHERE "Order" = $1;
 
 $$ LANGUAGE sql
@@ -74,15 +74,15 @@ $$ LANGUAGE sql
 
 
 --Function to get the "order" of the season matching a "season identification"
-DROP FUNCTION IF EXISTS Gradebook.getSeasonOrder(VARCHAR(20));
+DROP FUNCTION IF EXISTS qwerty.getSeasonOrder(VARCHAR(20));
 
-CREATE FUNCTION Gradebook.getSeasonOrder(seasonIdentification VARCHAR(20))
+CREATE FUNCTION qwerty.getSeasonOrder(seasonIdentification VARCHAR(20))
 RETURNS NUMERIC(1,0)
 AS
 $$
 
    SELECT "Order"
-   FROM Gradebook.getSeason($1);
+   FROM qwerty.getSeason($1);
 
 $$ LANGUAGE sql
    STABLE
