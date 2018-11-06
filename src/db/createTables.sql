@@ -32,6 +32,11 @@ CREATE TABLE Course
    Title VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
 );
 
+ALTER TABLE Course OWNER TO alpha;
+REVOKE ALL ON Course FROM PUBLIC;
+GRANT ALL ON Course TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE Season
 (
@@ -50,6 +55,11 @@ CREATE TABLE Season
 --enforce case-insensitive uniqueness of season name
 CREATE UNIQUE INDEX idx_Unique_SeasonName ON Season(LOWER(TRIM(Name)));
 
+ALTER TABLE Season OWNER TO alpha;
+REVOKE ALL ON Season FROM PUBLIC;
+GRANT ALL ON Season TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE Term
 (
@@ -60,6 +70,11 @@ CREATE TABLE Term
    EndDate DATE NOT NULL, --date the term ends (last day of  "finals" week)
    UNIQUE(Year, Season)
 );
+
+ALTER TABLE Term OWNER TO alpha;
+REVOKE ALL ON Term FROM PUBLIC;
+GRANT ALL ON Term TO alpha_GB_DBAdmin;
+
 
 
 CREATE TABLE Instructor
@@ -82,6 +97,12 @@ ON Instructor(LOWER(TRIM(Email)));
 CREATE UNIQUE INDEX idx_Unique_Names_NULL
 ON Instructor(FName, LName)
 WHERE MName IS NULL;
+
+ALTER TABLE Instructor OWNER TO alpha;
+REVOKE ALL ON Instructor FROM PUBLIC;
+GRANT ALL ON Instructor TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE Section
 (
@@ -108,6 +129,11 @@ CREATE TABLE Section
               )
 );
 
+ALTER TABLE Section OWNER TO alpha;
+REVOKE ALL ON Section FROM PUBLIC;
+GRANT ALL ON Section TO alpha_GB_DBAdmin;
+
+
 
 --Table to store all possible letter grades
 --some universities permit A+
@@ -123,6 +149,11 @@ CREATE TABLE Grade
       CHECK (GPA IN (4.333, 4, 3.667, 3.333, 3, 2.667, 2.333, 2, 1.667, 1.333, 1, 0.667, 0))
 );
 
+ALTER TABLE Grade OWNER TO alpha;
+REVOKE ALL ON Grade FROM PUBLIC;
+GRANT ALL ON Grade TO alpha_GB_DBAdmin;
+
+
 
 --Table to store mapping of percentage score to a letter grade: varies by section
 CREATE TABLE Section_GradeTier
@@ -134,6 +165,11 @@ CREATE TABLE Section_GradeTier
    PRIMARY KEY(Section, LetterGrade),
    UNIQUE(Section, LowPercentage, HighPercentage)
 );
+
+ALTER TABLE Section_GradeTier OWNER TO alpha;
+REVOKE ALL ON Section_GradeTier FROM PUBLIC;
+GRANT ALL ON Section_GradeTier TO alpha_GB_DBAdmin;
+
 
 
 CREATE TABLE Student
@@ -154,6 +190,11 @@ CREATE TABLE Student
 CREATE UNIQUE INDEX idx_Unique_StudentEmail
 ON Student(LOWER(TRIM(Email)));
 
+ALTER TABLE Student OWNER TO alpha;
+REVOKE ALL ON Student FROM PUBLIC;
+GRANT ALL ON Student TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE Enrollee
 (
@@ -173,12 +214,22 @@ CREATE TABLE Enrollee
    FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Section_GradeTier
 );
 
+ALTER TABLE Enrollee OWNER TO alpha;
+REVOKE ALL ON Enrollee FROM PUBLIC;
+GRANT ALL ON Enrollee TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE AttendanceStatus
 (
    Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', ...
    Description VARCHAR(20) NOT NULL UNIQUE --'Present', 'Absent', ...
 );
+
+ALTER TABLE AttendanceStatus OWNER TO alpha;
+REVOKE ALL ON AttendanceStatus FROM PUBLIC;
+GRANT ALL ON AttendanceStatus TO alpha_GB_DBAdmin;
+
 
 
 CREATE TABLE AttendanceRecord
@@ -191,6 +242,11 @@ CREATE TABLE AttendanceRecord
    FOREIGN KEY (Student, Section) REFERENCES Enrollee
 );
 
+ALTER TABLE AttendanceRecord OWNER TO alpha;
+REVOKE ALL ON AttendanceRecord FROM PUBLIC;
+GRANT ALL ON AttendanceRecord TO alpha_GB_DBAdmin;
+
+
 
 CREATE TABLE Section_AssessmentComponent
 (
@@ -200,6 +256,11 @@ CREATE TABLE Section_AssessmentComponent
    NumItems INT NOT NULL DEFAULT 1,
    PRIMARY KEY (Section, Type)
 );
+
+ALTER TABLE Section_AssessmentComponent OWNER TO alpha;
+REVOKE ALL ON Section_AssessmentComponent FROM PUBLIC;
+GRANT ALL ON Section_AssessmentComponent TO alpha_GB_DBAdmin;
+
 
 
 CREATE TABLE Section_AssessmentItem
@@ -214,6 +275,11 @@ CREATE TABLE Section_AssessmentItem
    PRIMARY KEY(Section, Component, SequenceInComponent),
    FOREIGN KEY (Section, Component) REFERENCES Section_AssessmentComponent
 );
+
+ALTER TABLE Section_AssessmentItem OWNER TO alpha;
+REVOKE ALL ON Section_AssessmentItem FROM PUBLIC;
+GRANT ALL ON Section_AssessmentItem TO alpha_GB_DBAdmin;
+
 
 
 CREATE TABLE Enrollee_AssessmentItem
@@ -230,5 +296,11 @@ CREATE TABLE Enrollee_AssessmentItem
    FOREIGN KEY (Student, Section) REFERENCES Enrollee,
    FOREIGN KEY (Section, Component, SequenceInComponent) REFERENCES Section_AssessmentItem
 );
+
+ALTER TABLE Enrollee_AssessmentItem OWNER TO alpha;
+REVOKE ALL ON Enrollee_AssessmentItem FROM PUBLIC;
+GRANT ALL ON Enrollee_AssessmentItem TO alpha_GB_DBAdmin;
+
+
 
 COMMIT;
