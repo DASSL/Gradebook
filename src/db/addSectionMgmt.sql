@@ -170,6 +170,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -196,6 +197,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -229,6 +231,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -254,6 +257,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -287,6 +291,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 

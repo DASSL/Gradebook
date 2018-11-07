@@ -101,6 +101,7 @@ $$ LANGUAGE sql
    END
    $$ LANGUAGE plpgsql
       SECURITY DEFINER
+   SET search_path FROM CURRENT
       STABLE;
 
    ALTER FUNCTION listSeasons() OWNER TO CURRENT_USER;
