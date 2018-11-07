@@ -13,7 +13,7 @@ PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 ## Overview
 
 The procedure to import a roster is designed to copy enrollment information
-maintained in external systems to  It is designed to provide the
+maintained in external systems to Gradebook. It is designed to provide the
 following features:
 - Add students automatically to the database, avoiding users from having to do
 so explicitly.

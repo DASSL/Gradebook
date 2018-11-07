@@ -45,7 +45,7 @@ CREATE TEMPORARY TABLE CourseScheduleStaging
 -- This is accomplished by testing if [currentYear * COUNT(Seasons) + Season + 1]
 -- is equal to [newYear * COUNT(Seasons) + Season].
 --Each year is mapped to a scale counting for the number of
--- seasons that are in   This allows a simple equality check to see
+-- seasons that are in Gradebook. This allows a simple equality check to see
 -- if the supplied term is in sequence
 CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMERIC(1,0))
 RETURNS BOOLEAN AS
