@@ -16,8 +16,9 @@
 START TRANSACTION;
 
 
---Remove the following line to drop tables from default schema instead
-SET LOCAL SCHEMA 'gradebook';
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 
 DROP TABLE IF EXISTS Course CASCADE;

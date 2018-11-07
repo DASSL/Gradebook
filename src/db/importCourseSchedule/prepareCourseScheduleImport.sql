@@ -16,6 +16,11 @@
 
 --The script prepareDB.psql should have been run before running this script
 
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
+
+
 --This table is used to stage data from CSV file as part of the import process
 CREATE TEMPORARY TABLE CourseScheduleStaging
 (

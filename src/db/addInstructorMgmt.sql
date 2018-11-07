@@ -16,6 +16,12 @@
 -- STABLE: result remains the same for a given input within the same statement
 -- RETURNS NULL ON NULL INPUT: returns NULL or no result if any input is NULL
 
+START TRANSACTION;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
+
 
 --Function to get details of all known instructors
 DROP FUNCTION IF EXISTS getInstructors();
@@ -224,3 +230,6 @@ $$
 $$ LANGUAGE sql
    STABLE
    RETURNS NULL ON NULL INPUT;
+
+
+COMMIT;

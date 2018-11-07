@@ -12,9 +12,14 @@
 --This script creates functions related to courses
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 
 --Removes a row from the Course table where courseName matches the course
@@ -130,3 +135,6 @@ FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8)) TO
 GB_Webapp, GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin,
 GB_Admissions, GB_DBAdmin;
+
+
+COMMIT;

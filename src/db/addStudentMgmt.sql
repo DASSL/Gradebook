@@ -12,9 +12,15 @@
 --This script creates functions related to students
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
+
 
 --Given Gradebook's identifier for a student, returns a table listing the years
 --in which the student has been enrolled in a section. Returns 0 rows if student
@@ -372,3 +378,6 @@ finalGradeAwarded VARCHAR(2)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION assignFinalGrade(student INT,
 finalGradeAwarded VARCHAR(2)) TO GB_Instructor, GB_DBAdmin;
+
+
+COMMIT;

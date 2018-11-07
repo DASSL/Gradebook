@@ -16,6 +16,12 @@
 -- the script should be run before adding rows into any other tables because
 -- the rows added here influence all other data, either directly or indirectly 
 
+START TRANSACTION;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
+
 
 --populate the Season table with values found in the OpenClose system at WCSU
 -- the value of the "Order" column should start with zero and be incremented by
@@ -50,3 +56,6 @@ VALUES
    ('P', 'Present'),           ('A', 'Absent'),   ('E', 'Explained'),
    ('S', 'Stopped Attending'), ('X', 'Excused'),  ('N', 'Not Registered'),
    ('C', 'Cancelled'),         ('W', 'Withdrawn');
+
+
+COMMIT;

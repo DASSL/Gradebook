@@ -12,9 +12,14 @@
 --This script creates functions related to seasons
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 
 --Function to get the details of the season matching a "season identification"
@@ -105,3 +110,6 @@ $$ LANGUAGE sql
       STABLE;
 
    ALTER FUNCTION listSeasons() OWNER TO CURRENT_USER;
+
+
+COMMIT;

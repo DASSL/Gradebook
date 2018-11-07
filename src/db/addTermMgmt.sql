@@ -12,9 +12,14 @@
 --This script creates functions related to terms
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 --Adds a date for a holiday, closure, or other notable event. Term references
 --the PK of a Term entity. Date is the date of the event. Name is the name of
@@ -388,3 +393,6 @@ REVOKE ALL ON FUNCTION showCoursesByTerm(termID INT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION showCoursesByTerm(termID INT) TO GB_Webapp,
 GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
 GB_DBAdmin;
+
+
+COMMIT;

@@ -15,8 +15,14 @@ PROVIDED AS IS. NO WARRANTIES EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 --This file has some issues related to formatting, clarity, and efficiency
 -- fix after milestone M1: delete this comment block after fixing the issues
 
+START TRANSACTION;
+
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 
 --Drop function from M1 that has since been renamed or removed
@@ -146,3 +152,6 @@ RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
    SELECT getAttendance(getSectionID($1, $2, $3, $4));
 $$ LANGUAGE sql;
+
+
+COMMIT;

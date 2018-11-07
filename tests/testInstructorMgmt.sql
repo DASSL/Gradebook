@@ -17,6 +17,10 @@
 
 START TRANSACTION;
 
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
+
 DO
 $$
 

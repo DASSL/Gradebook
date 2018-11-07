@@ -12,9 +12,14 @@
 --This script creates functions related to sections
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 --Function to get ID of section matching a year-season-course-section# combo
 -- season is "season identification"
@@ -304,3 +309,6 @@ $$ LANGUAGE sql
   GRANT EXECUTE ON FUNCTION searchSectionTitles(termID INT, title VARCHAR(100))
   TO GB_Webapp, GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin,
   GB_Admissions, GB_DBAdmin;
+
+
+COMMIT;
