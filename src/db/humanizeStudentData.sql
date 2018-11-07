@@ -235,7 +235,7 @@ BEGIN
     -- test a concatenation of all name columns to prevent falsely identifying
     -- a row as needing update: unlikely a real human name has all name parts
     -- made of only hex digits. "Ada E Cadefa"? "Abe Bead"?
-    UPDATE Gradebook.Student
+    UPDATE Student
     SET FName = pg_temp.GetHumanNamePart(FName, '0', numOfFirstNames),
         MName = pg_temp.GetHumanNamePart(MName, '1', numOfMiddleNames),
         LName = pg_temp.GetHumanNamePart(LName, '2', numOfLastNames)

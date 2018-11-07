@@ -43,13 +43,13 @@ ON pg_temp.Instructor(LOWER(TRIM(Email)));
 --try assigning ID
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(ID, '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL
 ON CONFLICT DO NOTHING;
 
 
 --transfer e-mail addresses from the temporary table to Gradebook
-UPDATE Gradebook.Instructor I1
+UPDATE Instructor I1
 SET Email = I2.Email
 FROM pg_temp.Instructor I2
 WHERE I1.Email IS NULL AND I1.ID = I2.ID;

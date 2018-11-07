@@ -45,7 +45,7 @@ use the `\i` meta-command to execute the script
 ### Prepare the server
 
 Run the SQL script `prepareServer.sql` to prepare the server. This script should
-be the first to run, before creating any database for use with Gradebook.
+be the first to run, before creating any database for use with 
 
 This script defines application-specific role `gradebook` and user `gb_webapp`.
 The user is given a default initial password (see the script), and it is highly
@@ -129,5 +129,5 @@ verification step is considered successful if it completes without any error.
 imported:
 
 ```sql
-SELECT * FROM Gradebook.getAttendance(2017, 'Spring', 'CS110', '5');
+SELECT * FROM getAttendance(2017, 'Spring', 'CS110', '5');
 ```

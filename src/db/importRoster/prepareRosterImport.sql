@@ -39,7 +39,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS RosterStaging
 
 --Function to import a roster currently in the rosterStaging table
 --param seasonIdentification is a season order, code, or name
--- see function Gradebook.getSeasonOrder(VARCHAR(20))
+-- see function getSeasonOrder(VARCHAR(20))
 CREATE OR REPLACE FUNCTION pg_temp.importRoster(year INT,
                                                 seasonIdentification VARCHAR(20),
                                                 course VARCHAR(8),
@@ -52,7 +52,7 @@ $$
    --add students: if a student already exists, update selected fields
    -- assumes rosters are imported in chronological order so that updating
    -- info of an existing student reflects the most recent info for that student
-   INSERT INTO Gradebook.Student(FName, MName, LName, SchoolIssuedID, Email,
+   INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email,
                                  Major, Year
                                 )
    SELECT r.FName, r.MName, r.LName, r.ID, r.email, r.Major, r.Class
@@ -70,16 +70,16 @@ $$
    WITH FixedEnrollmentInfo(SectionID, StartDate) AS
    (
       SELECT ID, (CASE WHEN $5 > N.StartDate THEN $5 ELSE NULL END)
-      FROM Gradebook.getSection($1, $2, $3, $4) N
+      FROM getSection($1, $2, $3, $4) N
    )
    --record students as enrollees in the section: ignore conflicts
-   INSERT INTO Gradebook.Enrollee(Student, Section, DateEnrolled, YearEnrolled,
+   INSERT INTO Enrollee(Student, Section, DateEnrolled, YearEnrolled,
                                   MajorEnrolled
                                  )
       SELECT S.ID, f.SectionID, f.StartDate, r.Class, r.Major
       FROM FixedEnrollmentInfo f,
            pg_temp.RosterStaging r
-           JOIN Gradebook.Student S ON r.ID = S.SchoolIssuedID
+           JOIN Student S ON r.ID = S.SchoolIssuedID
       ON CONFLICT DO NOTHING;
 
 $$ LANGUAGE SQL;

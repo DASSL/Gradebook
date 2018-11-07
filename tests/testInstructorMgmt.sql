@@ -31,32 +31,32 @@ BEGIN
    --Step 1: add test data
 
    --add two courses
-   INSERT INTO Gradebook.Course
+   INSERT INTO Course
    VALUES
       ('AB101', 'Course AB 101'),
       ('CD201', 'Course CD 201')
    ON CONFLICT DO NOTHING;
 
    --add two seasons
-   INSERT INTO Gradebook.Season
+   INSERT INTO Season
    VALUES
       (0, 'Spring', 'S'),
       (1, 'Summer', 'M')
    ON CONFLICT DO NOTHING;
 
    --add two terms: 2017 Spring, 2017 Summer
-   INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
+   INSERT INTO Term(Year, Season, StartDate, EndDate)
    VALUES
       (2017, 0, current_date, current_date+1),
       (2017, 1, current_date, current_date+1)
    ON CONFLICT DO NOTHING;
 
    --extract the IDs assigned to the two terms just added
-   SELECT ID FROM Gradebook.Term
+   SELECT ID FROM Term
    WHERE Year = 2017 AND Season = 0
    INTO term2017Spring;
 
-   SELECT ID FROM Gradebook.Term
+   SELECT ID FROM Term
    WHERE Year = 2017 AND Season = 1
    INTO term2017Summer;
 
@@ -65,17 +65,17 @@ BEGIN
    --however, because some tests are count-based, do not ignore conflicts as is
    --done with other tables; instead let the transaction fail so the test is
    --abandoned
-   INSERT INTO Gradebook.Instructor(FName, LName, Email)
+   INSERT INTO Instructor(FName, LName, Email)
    VALUES
       ('F1', 'L1', 'f1.l1@example.com'),
       ('F2', 'L2', 'f2.l2@example.com');
 
    --extract IDs of the two instructors
-   SELECT ID FROM Gradebook.Instructor
+   SELECT ID FROM Instructor
    WHERE Email = 'f1.l1@example.com'
    INTO instructor1;
 
-   SELECT ID FROM Gradebook.Instructor
+   SELECT ID FROM Instructor
    WHERE Email = 'f2.l2@example.com'
    INTO instructor2;
 
@@ -84,7 +84,7 @@ BEGIN
    --i1 and i2 each teach their own section as well
    --i1 teaches two sections in just one term: 2017 Spring
    --i2 teaches one section in 2017 Spring; one in 2017 Summer
-   INSERT INTO Gradebook.Section(Term, Course, SectionNumber, CRN,
+   INSERT INTO Section(Term, Course, SectionNumber, CRN,
                                  Instructor1, Instructor2
                                 )
    VALUES
@@ -99,9 +99,9 @@ BEGIN
    --test if getInstructors returns same #rows as directly obtained from table
    RAISE INFO '%   getInstructors Count',
    (SELECT
-      CASE ((SELECT COUNT(*) FROM Gradebook.getInstructors())
+      CASE ((SELECT COUNT(*) FROM getInstructors())
             =
-            (SELECT COUNT(*) FROM Gradebook.Instructor)
+            (SELECT COUNT(*) FROM Instructor)
            )
          WHEN true THEN 'PASS'
          ELSE 'FAIL: Code 1'
@@ -112,7 +112,7 @@ BEGIN
    --test if getInstructor finds instructor1 by e-mail address
    RAISE INFO '%   getInstructor(email) Count',
    (SELECT
-      CASE (SELECT COUNT(*) FROM Gradebook.getInstructor('f1.l1@example.com'))
+      CASE (SELECT COUNT(*) FROM getInstructor('f1.l1@example.com'))
          WHEN 1 THEN 'PASS'
          ELSE 'FAIL: Code 2'
       END
@@ -123,7 +123,7 @@ BEGIN
    --an invalid email address is used to simulate look-up falure
    RAISE INFO '%   getInstructor(emai) Count Negative',
    (SELECT
-      CASE (SELECT COUNT(*) FROM Gradebook.getInstructor('not_a_mail_address'))
+      CASE (SELECT COUNT(*) FROM getInstructor('not_a_mail_address'))
          WHEN 0 THEN 'PASS'
          ELSE 'FAIL: Code 3'
       END
@@ -133,7 +133,7 @@ BEGIN
    --test if getInstructor returns F1 as first name of instructor1
    RAISE INFO '%   getInstructor(instructorID) Value',
    (SELECT
-      CASE (SELECT FName FROM Gradebook.getInstructor(instructor1) LIMIT 1)
+      CASE (SELECT FName FROM getInstructor(instructor1) LIMIT 1)
          WHEN 'F1' THEN 'PASS'
          ELSE 'FAIL: Code 4'
       END
@@ -143,7 +143,7 @@ BEGIN
    --test if getInstructorYears returns one row for instructor1
    RAISE INFO '%   getInstructorYears Count',
    (SELECT
-      CASE (SELECT COUNT(*) FROM Gradebook.getInstructorYears(instructor1))
+      CASE (SELECT COUNT(*) FROM getInstructorYears(instructor1))
          WHEN 1 THEN 'PASS'
          ELSE 'FAIL: Code 5'
       END
@@ -153,7 +153,7 @@ BEGIN
    --test if getInstructorYears returns 2017 for instructor1
    RAISE INFO '%   getInstructorYears Value',
    (SELECT
-      CASE (SELECT Year FROM Gradebook.getInstructorYears(instructor1) LIMIT 1)
+      CASE (SELECT Year FROM getInstructorYears(instructor1) LIMIT 1)
          WHEN 2017 THEN 'PASS'
          ELSE 'FAIL: Code 6'
       END
@@ -164,7 +164,7 @@ BEGIN
    RAISE INFO '%   getInstructorSeasons(instructor1) Count',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorSeasons(instructor1, 2017)
+            FROM getInstructorSeasons(instructor1, 2017)
            )
          WHEN 1 THEN 'PASS'
          ELSE 'FAIL: Code 7'
@@ -176,7 +176,7 @@ BEGIN
    RAISE INFO '%   getInstructorSeasons(instructor1) Value',
    (SELECT
       CASE (SELECT SeasonName
-            FROM Gradebook.getInstructorSeasons(instructor1, 2017)
+            FROM getInstructorSeasons(instructor1, 2017)
             LIMIT 1
            )
          WHEN 'Spring' THEN 'PASS'
@@ -189,7 +189,7 @@ BEGIN
    RAISE INFO '%   getInstructorSeasons(instructor2) Count',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorSeasons(instructor2, 2017)
+            FROM getInstructorSeasons(instructor2, 2017)
            )
          WHEN 2 THEN 'PASS'
          ELSE 'FAIL: Code 9'
@@ -201,7 +201,7 @@ BEGIN
    RAISE INFO '%   getInstructorCourses(instructor1) Count',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorCourses(instructor1, 2017, 0)
+            FROM getInstructorCourses(instructor1, 2017, 0)
            )
          WHEN 2 THEN 'PASS'
          ELSE 'FAIL: Code 10'
@@ -213,7 +213,7 @@ BEGIN
    RAISE INFO '%   getInstructorCourses(instructor2) Count',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorCourses(instructor2, 2017, 1)
+            FROM getInstructorCourses(instructor2, 2017, 1)
            )
          WHEN 1 THEN 'PASS'
          ELSE 'FAIL: Code 11'
@@ -225,7 +225,7 @@ BEGIN
    RAISE INFO '%   getInstructorCourses(instructor2) Value',
    (SELECT
       CASE (SELECT Course
-            FROM Gradebook.getInstructorCourses(instructor2, 2017, 1)
+            FROM getInstructorCourses(instructor2, 2017, 1)
             LIMIT 1
            )
          WHEN 'AB101' THEN 'PASS'
@@ -238,7 +238,7 @@ BEGIN
    RAISE INFO '%   getInstructorCourses(instructor1) Count Negative',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorCourses(instructor1, 2017, 1)
+            FROM getInstructorCourses(instructor1, 2017, 1)
            )
          WHEN 0 THEN 'PASS'
          ELSE 'FAIL: Code 13'
@@ -250,7 +250,7 @@ BEGIN
    RAISE INFO '%   getInstructorSections(instructor1) Count',
    (SELECT
       CASE (SELECT COUNT(*)
-            FROM Gradebook.getInstructorSections(instructor1, 2017, 0)
+            FROM getInstructorSections(instructor1, 2017, 0)
            )
          WHEN 2 THEN 'PASS'
          ELSE 'FAIL: Code 14'
@@ -262,7 +262,7 @@ BEGIN
    RAISE INFO '%   getInstructorSections(instructor2) Value',
    (SELECT
       CASE (SELECT SectionNumber
-            FROM Gradebook.getInstructorSections(instructor2, 2017, 1, 'AB101')
+            FROM getInstructorSections(instructor2, 2017, 1, 'AB101')
             LIMIT 1
            )
          WHEN '02' THEN 'PASS'

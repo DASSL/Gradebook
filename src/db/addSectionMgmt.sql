@@ -18,11 +18,11 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Function to get ID of section matching a year-season-course-section# combo
 -- season is "season identification"
-DROP FUNCTION IF EXISTS Gradebook.getSectionID(NUMERIC(4,0), VARCHAR(20),
+DROP FUNCTION IF EXISTS getSectionID(NUMERIC(4,0), VARCHAR(20),
                                                VARCHAR(8), VARCHAR(3)
                                               );
 
-CREATE FUNCTION Gradebook.getSectionID(year NUMERIC(4,0),
+CREATE FUNCTION getSectionID(year NUMERIC(4,0),
                                        seasonIdentification VARCHAR(20),
                                        course VARCHAR(8),
                                        sectionNumber VARCHAR(3)
@@ -32,9 +32,9 @@ AS
 $$
 
    SELECT N.ID
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder($2)
+         AND T.Season = getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
@@ -47,11 +47,11 @@ $$ LANGUAGE sql
 -- season is "season order"
 -- reuses the season-identification version
 -- this function exists to support clients that pass season order as a number
-DROP FUNCTION IF EXISTS Gradebook.getSectionID(NUMERIC(4,0), NUMERIC(1,0),
+DROP FUNCTION IF EXISTS getSectionID(NUMERIC(4,0), NUMERIC(1,0),
                                                VARCHAR(8), VARCHAR(3)
                                               );
 
-CREATE FUNCTION Gradebook.getSectionID(year NUMERIC(4,0),
+CREATE FUNCTION getSectionID(year NUMERIC(4,0),
                                        seasonOrder NUMERIC(1,0),
                                        course VARCHAR(8),
                                        sectionNumber VARCHAR(3)
@@ -60,7 +60,7 @@ RETURNS INT
 AS
 $$
 
-    SELECT Gradebook.getSectionID($1, $2::VARCHAR, $3, $4);
+    SELECT getSectionID($1, $2::VARCHAR, $3, $4);
 
 $$ LANGUAGE sql
  STABLE
@@ -71,11 +71,11 @@ $$ LANGUAGE sql
 -- input season is "season identification"
 -- StartDate column contains term start date if section does not have start date;
 -- likewise with EndDate column
-DROP FUNCTION IF EXISTS Gradebook.getSection(NUMERIC(4,0), VARCHAR(20),
+DROP FUNCTION IF EXISTS getSection(NUMERIC(4,0), VARCHAR(20),
                                              VARCHAR(8), VARCHAR(3)
                                             );
 
-CREATE FUNCTION Gradebook.getSection(year NUMERIC(4,0),
+CREATE FUNCTION getSection(year NUMERIC(4,0),
                                      seasonIdentification VARCHAR(20),
                                      course VARCHAR(8), sectionNumber VARCHAR(3)
                                     )
@@ -101,9 +101,9 @@ $$
    SELECT N.ID, N.Term, N.Course, N.SectionNumber, N.CRN, N.Schedule, N.Location,
           COALESCE(N.StartDate, T.StartDate), COALESCE(N.EndDate, T.EndDate),
           N.MidtermDate, N.Instructor1, N.Instructor2, N.Instructor3
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder($2)
+         AND T.Season = getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
@@ -117,11 +117,11 @@ $$ LANGUAGE sql
 -- input season is "season order"
 -- reuses the season-identification version
 -- this function exists to support clients that pass season order as a number
-DROP FUNCTION IF EXISTS Gradebook.getSection(NUMERIC(4,0), NUMERIC(1,0),
+DROP FUNCTION IF EXISTS getSection(NUMERIC(4,0), NUMERIC(1,0),
                                              VARCHAR(8), VARCHAR(3)
                                             );
 
-CREATE FUNCTION Gradebook.getSection(year NUMERIC(4,0), seasonOrder NUMERIC(1,0),
+CREATE FUNCTION getSection(year NUMERIC(4,0), seasonOrder NUMERIC(1,0),
                                     course VARCHAR(8), sectionNumber VARCHAR(3)
                                    )
 RETURNS TABLE
@@ -146,7 +146,7 @@ $$
    SELECT ID, Term, Course, SectionNumber, CRN, Schedule, Location,
           StartDate, EndDate,
           MidtermDate, Instructor1, Instructor2, Instructor3
-   FROM Gradebook.getSection($1, $2::VARCHAR, $3, $4);
+   FROM getSection($1, $2::VARCHAR, $3, $4);
 
 $$ LANGUAGE sql
   STABLE
