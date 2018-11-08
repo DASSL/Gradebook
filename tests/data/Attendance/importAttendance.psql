@@ -26,6 +26,11 @@
 --  2017SpringCS110-72Attendance.csv
 --  2017SpringCS110-74Attendance.csv
 
+START TRANSACTION;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 --Create temporary staging table
 DROP TABLE IF EXISTS pg_temp.AttendanceStaging;
@@ -79,3 +84,6 @@ TRUNCATE pg_temp.AttendanceStaging;
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-74Attendance.csv' WITH csv HEADER
 SELECT pg_temp.importAttendance(getSectionID(2017, 0, 'CS110', '74'));
 TRUNCATE pg_temp.AttendanceStaging;
+
+
+COMMIT;

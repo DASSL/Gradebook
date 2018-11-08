@@ -25,9 +25,14 @@
 --Run the script addEmailByInstructorID.sql to add e-mail addresses based on
 --instructor IDs instead of names
 
+START TRANSACTION;
 
 --suppress NOTICE and other lower messages from being displayed
 SET client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 --use a temporary table with an index to construct unique e-mail addresses
 DROP TABLE IF EXISTS pg_temp.Instructor;
@@ -94,3 +99,6 @@ UPDATE Instructor I1
 SET Email = I2.Email
 FROM pg_temp.Instructor I2
 WHERE I1.Email IS NULL AND I1.ID = I2.ID;
+
+
+COMMIT;
