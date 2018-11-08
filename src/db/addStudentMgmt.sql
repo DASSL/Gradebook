@@ -44,7 +44,7 @@ ALTER FUNCTION getStudentYears(studentID INT) OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION getStudentYears(studentID INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO GB_Webapp,
-GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table listing the years in which the student specified by
@@ -67,7 +67,7 @@ ALTER FUNCTION getYearsAsStudent() OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getYearsAsStudent() FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getYearsAsStudent() TO GB_Student;
+GRANT EXECUTE ON FUNCTION getYearsAsStudent() TO alpha_GB_Student;
 
 
 --Given Gradebook's identifier for a student and a year, returns a table listing
@@ -100,8 +100,8 @@ REVOKE ALL ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-TO GB_Webapp, GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
-GB_Admin;
+TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
+alpha_GB_DBAdmin;
 
 
 --Returns a table listing the seasons in which the student specified by
@@ -126,7 +126,7 @@ ALTER FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO GB_Student;
+GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO alpha_GB_Student;
 
 
 --Adds a student to the student table and creates database role for new student
@@ -161,7 +161,7 @@ year VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
 lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) TO GB_Admissions, GB_DBAdmin;
+year VARCHAR(30)) TO alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Assigns a major to a student by adding an entry to the Student_Major table.
@@ -189,7 +189,7 @@ OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION assignMajor(student INT, major VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION assignMajor(student INT, major VARCHAR(30))
-TO GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Removes a major from a student by deleting an entry to the Student_Major table
@@ -218,7 +218,7 @@ OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION revokeMajor(student INT, major VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION revokeMajor(student INT, major VARCHAR(30))
-TO GB_Registrar, GB_RegistrarAdmin, GB_DBAdmin;
+TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
 
 
 --Returns a table with fName, mName, lName, schoolIssuedID, email, and year
@@ -253,8 +253,8 @@ REVOKE ALL ON FUNCTION searchStudent(fname VARCHAR(50), mName VARCHAR(50),
 lName VARCHAR(50)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION searchStudent(fname VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50)) TO GB_Webapp, GB_Instructor, GB_Registrar, GB_RegistrarAdmin,
-GB_Admissions, GB_DBAdmin;
+lName VARCHAR(50)) TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the ID for the row in the Student table where the row's schoolIssuedID
@@ -273,7 +273,7 @@ ALTER FUNCTION getMyStudentID() OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getMyStudentID() FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getMyStudentID() TO GB_Student;
+GRANT EXECUTE ON FUNCTION getMyStudentID() TO alpha_GB_Student;
 
 
 --Returns the ID for the row in the Student table where the row's schoolIssuedID
@@ -299,8 +299,8 @@ REVOKE ALL ON FUNCTION getStudentIDByIssuedID(schoolIssuedID VARCHAR(50))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentIDByIssuedID(schoolIssuedID VARCHAR(50))
-TO GB_Webapp, GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
-GB_DBAdmin;
+TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
+alpha_GB_DBAdmin;
 
 
 --Returns the ID for the row in the Student table where the row's schoolIssuedID
@@ -323,7 +323,7 @@ ALTER FUNCTION getStudentIDbyEmail(email VARCHAR(319)) OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION getStudentIDbyEmail(email VARCHAR(319)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentIDbyEmail(email VARCHAR(319)) TO GB_Webapp,
-GB_Instructor, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Changes midtermGradeAwarded in a row of the Enrollee table where the row's
@@ -350,7 +350,7 @@ REVOKE ALL ON FUNCTION assignMidtermGrade(student INT,
 midtermGradeAwarded VARCHAR(2)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION assignMidtermGrade(student INT,
-midtermGradeAwarded VARCHAR(2)) TO GB_Instructor, GB_DBAdmin;
+midtermGradeAwarded VARCHAR(2)) TO alpha_GB_Instructor, alpha_GB_DBAdmin;
 
 
 --Changes finalGradeAwarded in a row of the Enrollee table where the row's
@@ -377,7 +377,7 @@ REVOKE ALL ON FUNCTION assignFinalGrade(student INT,
 finalGradeAwarded VARCHAR(2)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION assignFinalGrade(student INT,
-finalGradeAwarded VARCHAR(2)) TO GB_Instructor, GB_DBAdmin;
+finalGradeAwarded VARCHAR(2)) TO alpha_GB_Instructor, alpha_GB_DBAdmin;
 
 
 COMMIT;
