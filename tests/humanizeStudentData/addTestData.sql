@@ -32,7 +32,7 @@ actual email address
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha, pg_temp';
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 
 INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email)

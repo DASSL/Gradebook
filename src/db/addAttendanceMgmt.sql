@@ -22,7 +22,7 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha, pg_temp';
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 
 --Drop function from M1 that has since been renamed or removed

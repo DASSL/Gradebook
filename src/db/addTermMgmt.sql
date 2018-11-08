@@ -19,7 +19,7 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha, pg_temp';
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 --Adds a date for a holiday, closure, or other notable event. Term references
 --the PK of a Term entity. Date is the date of the event. Name is the name of

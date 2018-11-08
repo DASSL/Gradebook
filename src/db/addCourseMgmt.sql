@@ -19,7 +19,7 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha, pg_temp';
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 
 --Removes a row from the Course table where courseName matches the course
