@@ -24,6 +24,13 @@ List of human names obtained from:
  https://www.ssa.gov/oact/babynames/
 */
 
+START TRANSACTION;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
+
+
 --create temporary tables for actual human names
 -- these tables will be automatically dropped after the session ends;
 -- no constraints are placed on the Name column in these tables for reasons of
@@ -235,7 +242,7 @@ BEGIN
     -- test a concatenation of all name columns to prevent falsely identifying
     -- a row as needing update: unlikely a real human name has all name parts
     -- made of only hex digits. "Ada E Cadefa"? "Abe Bead"?
-    UPDATE Gradebook.Student
+    UPDATE Student
     SET FName = pg_temp.GetHumanNamePart(FName, '0', numOfFirstNames),
         MName = pg_temp.GetHumanNamePart(MName, '1', numOfMiddleNames),
         LName = pg_temp.GetHumanNamePart(LName, '2', numOfLastNames)
@@ -243,3 +250,6 @@ BEGIN
 
 END
 $$;
+
+
+COMMIT;

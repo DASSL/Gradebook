@@ -51,8 +51,8 @@ is used to copy the contents of a CSV schedule file to the staging table.
 
 __Step 3__: The function `importCourseSchedule` is invoked to read the data in the
 staging table, apply any necessary transformation, and add to or update the
-tables `Gradebook.Term`, `Gradebook.Course`, `Gradebook.Section`, and
-`Gradebook.Instructor`.
+tables `Term`, `Course`, `Section`, and
+`Instructor`.
 
 ## Running the import procedure
 
@@ -69,7 +69,7 @@ shown inside brackets are optional parameters.
 The batch command accepts the following parameters:
 - `csvFilePath`: The path to the file containing the CSV schedule data
 - `year`: The year the schedule CSV depicts, for example, 2017
-- `season`: The "order", name, or code of the season in which the schedule depicts, for example, 'Spring'. (See comments associated with the function `Gradebook.getSeason` for
+- `season`: The "order", name, or code of the season in which the schedule depicts, for example, 'Spring'. (See comments associated with the function `getSeason` for
 details.)
 - The remaining parameters are passed to `psql` after being formatted according
 to that program's need. These parameters are self explanatory.

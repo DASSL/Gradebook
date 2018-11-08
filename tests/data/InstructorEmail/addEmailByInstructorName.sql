@@ -25,9 +25,14 @@
 --Run the script addEmailByInstructorID.sql to add e-mail addresses based on
 --instructor IDs instead of names
 
+START TRANSACTION;
 
 --suppress NOTICE and other lower messages from being displayed
 SET client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 --use a temporary table with an index to construct unique e-mail addresses
 DROP TABLE IF EXISTS pg_temp.Instructor;
@@ -45,14 +50,14 @@ ON pg_temp.Instructor(LOWER(TRIM(Email)));
 -- need to do this so existing addresses are not reused
 INSERT INTO pg_temp.Instructor
 SELECT ID, Email
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email LIKE '%@example.edu';
 
 
 --try assigning last name and first initial for instructors with no middle name
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL AND COALESCE(MName, '') = ''
 ON CONFLICT DO NOTHING;
 
@@ -60,7 +65,7 @@ ON CONFLICT DO NOTHING;
 --try assigning last name and first initial
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
@@ -68,7 +73,7 @@ ON CONFLICT DO NOTHING;
 --try assigning last name, first initial, middle initial
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), LEFT(MName, 1), '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
@@ -76,7 +81,7 @@ ON CONFLICT DO NOTHING;
 --try assigning last name, first initial, 2 letters of middle name
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), LEFT(MName, 2), '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
@@ -84,13 +89,16 @@ ON CONFLICT DO NOTHING;
 --try assigning last name, first initial, ID
 INSERT INTO pg_temp.Instructor
 SELECT ID, CONCAT(LName, LEFT(FName, 1), ID, '@example.edu')
-FROM Gradebook.Instructor
+FROM Instructor
 WHERE Email IS NULL AND ID NOT IN (SELECT ID FROM pg_temp.Instructor)
 ON CONFLICT DO NOTHING;
 
 
 --transfer e-mail addresses from the temporary table to Gradebook
-UPDATE Gradebook.Instructor I1
+UPDATE Instructor I1
 SET Email = I2.Email
 FROM pg_temp.Instructor I2
 WHERE I1.Email IS NULL AND I1.ID = I2.ID;
+
+
+COMMIT;

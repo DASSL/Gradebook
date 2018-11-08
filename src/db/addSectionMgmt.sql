@@ -12,17 +12,22 @@
 --This script creates functions related to sections
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
 
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
+
 --Function to get ID of section matching a year-season-course-section# combo
 -- season is "season identification"
-DROP FUNCTION IF EXISTS Gradebook.getSectionID(NUMERIC(4,0), VARCHAR(20),
+DROP FUNCTION IF EXISTS getSectionID(NUMERIC(4,0), VARCHAR(20),
                                                VARCHAR(8), VARCHAR(3)
                                               );
 
-CREATE FUNCTION Gradebook.getSectionID(year NUMERIC(4,0),
+CREATE FUNCTION getSectionID(year NUMERIC(4,0),
                                        seasonIdentification VARCHAR(20),
                                        course VARCHAR(8),
                                        sectionNumber VARCHAR(3)
@@ -32,9 +37,9 @@ AS
 $$
 
    SELECT N.ID
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder($2)
+         AND T.Season = getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
@@ -47,11 +52,11 @@ $$ LANGUAGE sql
 -- season is "season order"
 -- reuses the season-identification version
 -- this function exists to support clients that pass season order as a number
-DROP FUNCTION IF EXISTS Gradebook.getSectionID(NUMERIC(4,0), NUMERIC(1,0),
+DROP FUNCTION IF EXISTS getSectionID(NUMERIC(4,0), NUMERIC(1,0),
                                                VARCHAR(8), VARCHAR(3)
                                               );
 
-CREATE FUNCTION Gradebook.getSectionID(year NUMERIC(4,0),
+CREATE FUNCTION getSectionID(year NUMERIC(4,0),
                                        seasonOrder NUMERIC(1,0),
                                        course VARCHAR(8),
                                        sectionNumber VARCHAR(3)
@@ -60,7 +65,7 @@ RETURNS INT
 AS
 $$
 
-    SELECT Gradebook.getSectionID($1, $2::VARCHAR, $3, $4);
+    SELECT getSectionID($1, $2::VARCHAR, $3, $4);
 
 $$ LANGUAGE sql
  STABLE
@@ -71,11 +76,11 @@ $$ LANGUAGE sql
 -- input season is "season identification"
 -- StartDate column contains term start date if section does not have start date;
 -- likewise with EndDate column
-DROP FUNCTION IF EXISTS Gradebook.getSection(NUMERIC(4,0), VARCHAR(20),
+DROP FUNCTION IF EXISTS getSection(NUMERIC(4,0), VARCHAR(20),
                                              VARCHAR(8), VARCHAR(3)
                                             );
 
-CREATE FUNCTION Gradebook.getSection(year NUMERIC(4,0),
+CREATE FUNCTION getSection(year NUMERIC(4,0),
                                      seasonIdentification VARCHAR(20),
                                      course VARCHAR(8), sectionNumber VARCHAR(3)
                                     )
@@ -101,9 +106,9 @@ $$
    SELECT N.ID, N.Term, N.Course, N.SectionNumber, N.CRN, N.Schedule, N.Location,
           COALESCE(N.StartDate, T.StartDate), COALESCE(N.EndDate, T.EndDate),
           N.MidtermDate, N.Instructor1, N.Instructor2, N.Instructor3
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE T.Year = $1
-         AND T.Season = Gradebook.getSeasonOrder($2)
+         AND T.Season = getSeasonOrder($2)
          AND LOWER(N.Course) = LOWER($3)
          AND LOWER(N.SectionNumber) = LOWER($4);
 
@@ -117,11 +122,11 @@ $$ LANGUAGE sql
 -- input season is "season order"
 -- reuses the season-identification version
 -- this function exists to support clients that pass season order as a number
-DROP FUNCTION IF EXISTS Gradebook.getSection(NUMERIC(4,0), NUMERIC(1,0),
+DROP FUNCTION IF EXISTS getSection(NUMERIC(4,0), NUMERIC(1,0),
                                              VARCHAR(8), VARCHAR(3)
                                             );
 
-CREATE FUNCTION Gradebook.getSection(year NUMERIC(4,0), seasonOrder NUMERIC(1,0),
+CREATE FUNCTION getSection(year NUMERIC(4,0), seasonOrder NUMERIC(1,0),
                                     course VARCHAR(8), sectionNumber VARCHAR(3)
                                    )
 RETURNS TABLE
@@ -146,7 +151,7 @@ $$
    SELECT ID, Term, Course, SectionNumber, CRN, Schedule, Location,
           StartDate, EndDate,
           MidtermDate, Instructor1, Instructor2, Instructor3
-   FROM Gradebook.getSection($1, $2::VARCHAR, $3, $4);
+   FROM getSection($1, $2::VARCHAR, $3, $4);
 
 $$ LANGUAGE sql
   STABLE
@@ -170,6 +175,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -180,8 +186,8 @@ $$ LANGUAGE sql
   sectionNumber VARCHAR(3)) FROM PUBLIC;
 
   GRANT EXECUTE ON FUNCTION getSectionID(term INT, courseNumber VARCHAR(8),
-  sectionNumber VARCHAR(3)) TO GB_Webapp, GB_Instructor, GB_Student,
-  GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+  sectionNumber VARCHAR(3)) TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student,
+  alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
   --Returns the ID attribute of a row from the Section table where the row's
@@ -196,6 +202,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -204,8 +211,8 @@ $$ LANGUAGE sql
   REVOKE ALL ON FUNCTION getSectionID(term INT, CRN VARCHAR(5)) FROM PUBLIC;
 
   GRANT EXECUTE ON FUNCTION getSectionID(term INT, CRN VARCHAR(5)) TO GB_Webapp,
-  GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
-  GB_DBAdmin;
+  alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
+  alpha_GB_DBAdmin;
 
 
   --Returns a table describing the section, which is populated with rows in
@@ -229,6 +236,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -236,8 +244,8 @@ $$ LANGUAGE sql
 
   REVOKE ALL ON FUNCTION getSection(sectionID INT) FROM PUBLIC;
 
-  GRANT EXECUTE ON FUNCTION getSection(sectionID INT) TO GB_Webapp, GB_Instructor,
-  GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+  GRANT EXECUTE ON FUNCTION getSection(sectionID INT) TO GB_Webapp, alpha_GB_Instructor,
+  alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
   --Generates a list of class dates within a specified range. Uses char codes for
@@ -254,6 +262,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -264,8 +273,8 @@ $$ LANGUAGE sql
   schedule VARCHAR(7)) FROM PUBLIC;
 
   GRANT EXECUTE ON FUNCTION getScheduleDates(startDate DATE, endDate DATE,
-  schedule VARCHAR(7)) TO GB_Webapp, GB_Instructor, GB_Student, GB_Registrar,
-  GB_RegistrarAdmin, GB_Admissions, GB_DBAdmin;
+  schedule VARCHAR(7)) TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar,
+  alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
   --Returns a table of rows from the section table where the title argument
@@ -287,6 +296,7 @@ $$ LANGUAGE sql
   END
   $$ LANGUAGE plpgsql
      SECURITY DEFINER
+   SET search_path FROM CURRENT
      STABLE
      RETURNS NULL ON NULL INPUT;
 
@@ -297,5 +307,8 @@ $$ LANGUAGE sql
   FROM PUBLIC;
 
   GRANT EXECUTE ON FUNCTION searchSectionTitles(termID INT, title VARCHAR(100))
-  TO GB_Webapp, GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin,
-  GB_Admissions, GB_DBAdmin;
+  TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
+  alpha_GB_Admissions, alpha_GB_DBAdmin;
+
+
+COMMIT;

@@ -28,7 +28,7 @@
 
 \set ON_ERROR_STOP on
 SET client_min_messages TO WARNING;
-\i initializeDB.sql
+--\i initializeDB.sql
 \i createTables.sql
 \i addReferenceData.sql
 \i addSeasonMgmt.sql

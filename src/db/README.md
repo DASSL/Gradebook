@@ -129,5 +129,5 @@ verification step is considered successful if it completes without any error.
 imported:
 
 ```sql
-SELECT * FROM Gradebook.getAttendance(2017, 'Spring', 'CS110', '5');
+SELECT * FROM getAttendance(2017, 'Spring', 'CS110', '5');
 ```

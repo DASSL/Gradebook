@@ -12,9 +12,14 @@
 --This script creates functions related to courses
 -- the script should be run as part of application installation
 
+START TRANSACTION;
 
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
 
 
 --Removes a row from the Course table where courseName matches the course
@@ -31,6 +36,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
+   SET search_path FROM CURRENT
    RETURNS NULL ON NULL INPUT;
 
 ALTER FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
@@ -44,7 +50,7 @@ FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION changeCourseDefaultTitle(courseNumber VARCHAR(8),
                                                    newDefaultTitle VARCHAR(100)
                                                   )
-TO GB_RegistrarAdmin, GB_DBAdmin;
+TO alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
 
 --Returns a table of rows from the course table where the argument matches or
 --closely matches course title, with an added attribute that represents the
@@ -62,6 +68,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
+   SET search_path FROM CURRENT
    STABLE
    RETURNS NULL ON NULL INPUT;
 
@@ -70,8 +77,8 @@ ALTER FUNCTION searchCourseTitles(title VARCHAR(100)) OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION searchCourseTitles(title VARCHAR(100)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION searchCourseTitles(title VARCHAR(100)) TO GB_Webapp,
-GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
-GB_DBAdmin;
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
+alpha_GB_DBAdmin;
 
 
 --Adds a course to the Course table. Name represents the abbreviated name of the
@@ -91,7 +98,8 @@ BEGIN
    RAISE WARNING 'Function not implemented';
 END
 $$ LANGUAGE plpgsql
-   SECURITY DEFINER;
+   SECURITY DEFINER
+   SET search_path FROM CURRENT;
 
 ALTER FUNCTION addCourse(name VARCHAR(8), defaultTitle VARCHAR(100))
 OWNER TO CURRENT_USER;
@@ -100,7 +108,7 @@ REVOKE ALL ON FUNCTION addCourse(name VARCHAR(8), defaultTitle VARCHAR(100))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION addCourse(name VARCHAR(8), defaultTitle VARCHAR(100))
-TO GB_RegistrarAdmin, GB_DBAdmin;
+TO alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
 
 
 --Returns the default title of the Course corresponding to the given
@@ -114,6 +122,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
+   SET search_path FROM CURRENT
    STABLE
    RETURNS NULL ON NULL INPUT;
 
@@ -124,5 +133,8 @@ REVOKE ALL ON FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8)) TO
-GB_Webapp, GB_Instructor, GB_Student, GB_Registrar, GB_RegistrarAdmin,
-GB_Admissions, GB_DBAdmin;
+GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
+alpha_GB_Admissions, alpha_GB_DBAdmin;
+
+
+COMMIT;
