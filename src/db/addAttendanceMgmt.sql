@@ -74,6 +74,19 @@ $$ LANGUAGE sql
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
 
+    ALTER FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
+                                          schedule VARCHAR(7))
+    OWNER TO alpha;
+
+    REVOKE ALL ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
+                                          schedule VARCHAR(7))
+    FROM PUBLIC;
+
+    GRANT EXECUTE ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
+                                          schedule VARCHAR(7))
+    TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student,
+    alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+
 
 --Function to get attendance for a section ID
 DROP FUNCTION IF EXISTS Gradebook.getAttendance(INT);
@@ -131,6 +144,15 @@ $$
 
 $$ LANGUAGE sql;
 
+    ALTER FUNCTION getAttendance(sectionID INT)
+    OWNER TO alpha;
+
+    REVOKE ALL ON FUNCTION getAttendance(sectionID INT)
+    FROM PUBLIC;
+
+    GRANT EXECUTE ON FUNCTION getAttendance(sectionID INT)
+    TO alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_DBAdmin;
+
 
 --Function to get attendance for a year-season-course-section# combo
 DROP FUNCTION IF EXISTS Gradebook.getAttendance(NUMERIC(4,0), VARCHAR(20),
@@ -146,3 +168,24 @@ RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
    SELECT Gradebook.getAttendance(Gradebook.getSectionID($1, $2, $3, $4));
 $$ LANGUAGE sql;
+
+   ALTER FUNCTION getAttendance(year NUMERIC(4,0),
+                                                   seasonIdentification VARCHAR(20),
+                                                   course VARCHAR(8),
+                                                   sectionNumber VARCHAR(3)
+                                                  )
+   OWNER TO alpha;
+
+   REVOKE ALL ON FUNCTION getAttendance(year NUMERIC(4,0),
+                                                   seasonIdentification VARCHAR(20),
+                                                   course VARCHAR(8),
+                                                   sectionNumber VARCHAR(3)
+                                                  )
+   FROM PUBLIC;
+
+   GRANT EXECUTE ON FUNCTION getAttendance(year NUMERIC(4,0),
+                                                   seasonIdentification VARCHAR(20),
+                                                   course VARCHAR(8),
+                                                   sectionNumber VARCHAR(3)
+                                                  )
+   TO alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_DBAdmin;
