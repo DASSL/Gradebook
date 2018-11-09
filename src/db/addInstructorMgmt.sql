@@ -343,5 +343,17 @@ $$ LANGUAGE sql
     TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
             alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
+--Returns the full name of an instructor given an instructor ID
+CREATE OR REPLACE FUNCTION getInstructorName(instructorID INT)
+RETURNS VARCHAR
+AS
+$$
+   SELECT COALESCE(fname,'') || COALESCE(', ' || mname,'') ||
+      COALESCE(', ' || lname,'')
+   FROM Gradebook.Instructor
+   WHERE id = $1;
+$$ LANGUAGE sql
+STABLE
+RETURNS NULL ON NULL INPUT;
 
 COMMIT;
