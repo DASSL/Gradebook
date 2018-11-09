@@ -1,5 +1,12 @@
 --addInstructorMgmt.sql - Gradebook
 
+--Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
+-- in support of CS305 coursework at Western Connecticut State University.
+
+--Licensed to others under CC 4.0 BY-SA-NC
+ 
+--This work is a derivative of Gradebook, originally developed by:
+
 --Zaid Bhujwala, Elly Griffin, Steven Rollo, Andrew Figueroa, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
 
@@ -348,12 +355,20 @@ CREATE OR REPLACE FUNCTION getInstructorName(instructorID INT)
 RETURNS VARCHAR
 AS
 $$
-   SELECT COALESCE(fname,'') || COALESCE(', ' || mname,'') ||
-      COALESCE(', ' || lname,'')
-   FROM Gradebook.Instructor
-   WHERE id = $1;
+    SELECT COALESCE(fname,'') || COALESCE(', ' || mname,'') ||
+       COALESCE(', ' || lname,'')
+    FROM Gradebook.Instructor
+    WHERE id = $1;
 $$ LANGUAGE sql
 STABLE
 RETURNS NULL ON NULL INPUT;
+
+    ALTER FUNCTION getInstructorName(instructorID INT) OWNER TO CURRENT_USER;
+
+    REVOKE ALL ON FUNCTION getInstructorNames(instructorID INT) FROM PUBLIC;
+
+    GRANT EXECUTE ON FUNCTION getInstructorNames(insstructorID INT
+    TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
+        alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 COMMIT;
