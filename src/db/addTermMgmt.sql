@@ -80,8 +80,8 @@ OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION getTermID(year NUMERIC(4,0), season CHAR(1)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getTermID(year NUMERIC(4,0), season CHAR(1))
-TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-alpha_GB_Admissions, alpha_GB_DBAdmin;
+TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
+alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the start date of a row from the Term table which matches the given
@@ -103,8 +103,9 @@ ALTER FUNCTION getTermStart(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermStart(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermStart(termID INT) TO GB_Webapp, alpha_GB_Instructor,
-alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermStart(termID INT) TO alpha_GB_Webapp, 
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the end date of a row from the Term table which matches the given
@@ -126,8 +127,9 @@ ALTER FUNCTION getTermEnd(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermEnd(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermEnd(termID INT) TO GB_Webapp, alpha_GB_Instructor,
-alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermEnd(termID INT) TO alpha_GB_Webapp, 
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns rows from the SignificantDate table which have a matching TermID.
@@ -154,9 +156,9 @@ ALTER FUNCTION getSignificantDates(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getSignificantDates(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getSignificantDates(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getSignificantDates(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the total count of courses which occur in a given term. Returns a
@@ -180,9 +182,9 @@ ALTER FUNCTION getTermCourseCount(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermCourseCount(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermCourseCount(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermCourseCount(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the total count of sections which occur during a given term. Counts
@@ -206,9 +208,9 @@ ALTER FUNCTION getTermSectionCount(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermSectionCount(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermSectionCount(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermSectionCount(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the total count of instructors teaching during a given term. Returns 0
@@ -231,9 +233,9 @@ ALTER FUNCTION getTermInstructorCount(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermInstructorCount(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermInstructorCount(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermInstructorCount(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table matching rows in the Section table, which has a schema similar
@@ -267,9 +269,9 @@ ALTER FUNCTION getTermSectionsReport(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermSectionsReport(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermSectionsReport(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermSectionsReport(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table matching the schema of a Section table, containing rows which
@@ -305,9 +307,9 @@ ALTER FUNCTION getTermSections(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermSections(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermSections(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermSections(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the total count of students which are taking a class in a given term.
@@ -330,9 +332,9 @@ ALTER FUNCTION getTermStudentCount(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getTermStudentCount(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getTermStudentCount(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getTermStudentCount(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table of rows from the Course table. Without arguments, returns all
@@ -360,9 +362,9 @@ ALTER FUNCTION showCoursesByYear(year NUMERIC(4,0)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION showCoursesByYear(year NUMERIC(4,0)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION showCoursesByYear(year NUMERIC(4,0)) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION showCoursesByYear(year NUMERIC(4,0)) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table of rows from the Course table. Without arguments, returns all
@@ -390,9 +392,9 @@ ALTER FUNCTION showCoursesByTerm(termID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION showCoursesByTerm(termID INT) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION showCoursesByTerm(termID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION showCoursesByTerm(termID INT) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 COMMIT;
