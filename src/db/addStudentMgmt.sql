@@ -30,10 +30,12 @@ CREATE OR REPLACE FUNCTION getStudentYears(studentID INT)
 RETURNS TABLE(Year NUMERIC(4,0))
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT DISTINCT T.Year
+   FROM Term T JOIN Section S ON T.ID = S.Term
+   JOIN Enrollee E ON S.ID = E.Section
+   WHERE E.Student = $1
+   ORDER BY T.Year DESC;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -44,7 +46,8 @@ ALTER FUNCTION getStudentYears(studentID INT) OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION getStudentYears(studentID INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+   alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
+   alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table listing the years in which the student specified by
