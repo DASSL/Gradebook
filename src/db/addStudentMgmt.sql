@@ -58,10 +58,8 @@ CREATE OR REPLACE FUNCTION getYearsAsStudent()
 RETURNS TABLE(Year NUMERIC(4,0))
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT getStudentYears(getMyStudentID());
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE;
@@ -265,7 +263,7 @@ alpha_GB_Admissions, alpha_GB_DBAdmin;
 CREATE OR REPLACE FUNCTION getMyStudentID() RETURNS INT AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   RETURN 11; --TEMP
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
