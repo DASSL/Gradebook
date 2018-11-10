@@ -89,13 +89,13 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT
    ROWS 1; --returns at most one row
 
-    ALTER FUNCTION getInstructor(Email Gradebook.Instructor.Email%TYPE)
+    ALTER FUNCTION getInstructor(Email alpha.Instructor.Email%TYPE)
     OWNER TO alpha;
 
-    REVOKE ALL ON FUNCTION getInstructor(Email Gradebook.Instructor.Email%TYPE)
+    REVOKE ALL ON FUNCTION getInstructor(Email alpha.Instructor.Email%TYPE)
     FROM PUBLIC;
 
-    GRANT EXECUTE ON FUNCTION getInstructor(Email Gradebook.Instructor.Email%TYPE)
+    GRANT EXECUTE ON FUNCTION getInstructor(Email alpha.Instructor.Email%TYPE)
     TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
             alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
@@ -166,6 +166,7 @@ $$ LANGUAGE sql
     OWNER TO alpha;
 
     REVOKE ALL ON FUNCTION getInstructorYears(instructorID INT)
+    FROM PUBLIC;
 
     GRANT EXECUTE ON FUNCTION getInstructorYears(instructorID INT)
     TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
@@ -201,6 +202,7 @@ $$ LANGUAGE sql
     REVOKE ALL ON FUNCTION getInstructorSeasons(instructorID INT,
                                                year NUMERIC(4,0)
                                               )
+    FROM PUBLIC;
 
     GRANT EXECUTE ON FUNCTION getInstructorSeasons(instructorID INT,
                                                year NUMERIC(4,0)
@@ -243,6 +245,7 @@ $$ LANGUAGE sql
                                                year NUMERIC(4,0),
                                                seasonOrder NUMERIC(1,0)
                                               )
+    FROM PUBLIC;
 
     GRANT EXECUTE ON FUNCTION getInstructorCourses(instructorID INT,
                                                year NUMERIC(4,0),
@@ -296,6 +299,7 @@ $$ LANGUAGE sql
                                                 year NUMERIC(4,0),
                                                 seasonOrder NUMERIC(1,0)
                                                )
+    FROM PUBLIC;
 
     GRANT EXECUTE ON FUNCTION getInstructorSections(instructorID INT,
                                                 year NUMERIC(4,0),
@@ -341,6 +345,7 @@ $$ LANGUAGE sql
                                                 seasonOrder NUMERIC(1,0),
                                                 courseNumber VARCHAR(8)
                                                )
+    FROM PUBLIC;
 
     GRANT EXECUTE ON FUNCTION getInstructorSections(instructorID INT,
                                                 year NUMERIC(4,0),
@@ -357,7 +362,7 @@ AS
 $$
     SELECT COALESCE(fname,'') || COALESCE(', ' || mname,'') ||
        COALESCE(', ' || lname,'')
-    FROM Gradebook.Instructor
+    FROM alpha.Instructor
     WHERE id = $1;
 $$ LANGUAGE sql
 STABLE
@@ -365,10 +370,10 @@ RETURNS NULL ON NULL INPUT;
 
     ALTER FUNCTION getInstructorName(instructorID INT) OWNER TO CURRENT_USER;
 
-    REVOKE ALL ON FUNCTION getInstructorNames(instructorID INT) FROM PUBLIC;
+    REVOKE ALL ON FUNCTION getInstructorName(instructorID INT) FROM PUBLIC;
 
-    GRANT EXECUTE ON FUNCTION getInstructorNames(insstructorID INT
-    TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
+    GRANT EXECUTE ON FUNCTION getInstructorName(insstructorID INT)
+    TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
         alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 COMMIT;
