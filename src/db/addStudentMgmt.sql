@@ -32,7 +32,7 @@ AS
 $$
    SELECT DISTINCT T.Year
    FROM Term T JOIN Section S ON T.ID = S.Term
-   JOIN Enrollee E ON S.ID = E.Section
+      JOIN Enrollee E ON S.ID = E.Section
    WHERE E.Student = $1
    ORDER BY T.Year DESC;
 $$ LANGUAGE sql
@@ -85,8 +85,8 @@ AS
 $$
    SELECT DISTINCT S."Order", S.Name
    FROM Season S JOIN Term T ON S."Order" = T.Season
-   JOIN Section C ON T.ID = C.Term
-   JOIN Enrollee E ON C.ID = E.Section
+      JOIN Section C ON T.ID = C.Term
+      JOIN Enrollee E ON C.ID = E.Section
    WHERE E.Student = $1 AND T.Year = $2
    ORDER BY S."Order" ASC;
 $$ LANGUAGE sql
@@ -101,11 +101,11 @@ ALTER FUNCTION getStudentSeasons(studentID INT,
 OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-FROM PUBLIC;
+   FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+   TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
+   alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table listing the seasons in which the student specified by
@@ -264,7 +264,7 @@ alpha_GB_Admissions, alpha_GB_DBAdmin;
 CREATE OR REPLACE FUNCTION getMyStudentID() RETURNS INT AS
 $$
 BEGIN
-   RETURN 11; --TEMP
+   RAISE WARNING 'Function not implemented';
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
