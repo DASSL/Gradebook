@@ -83,10 +83,13 @@ RETURNS TABLE(SeasonOrder Numeric(1,0),
              )
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT DISTINCT S."Order", S.Name
+   FROM Season S JOIN Term T ON S."Order" = T.Season
+   JOIN Section C ON T.ID = C.Term
+   JOIN Enrollee E ON C.ID = E.Section
+   WHERE E.Student = $1 AND T.Year = $2
+   ORDER BY S."Order" ASC;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -115,10 +118,8 @@ RETURNS TABLE(SeasonOrder Numeric(1,0),
              )
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT getStudentSeasons(getMyStudentID());
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE;
