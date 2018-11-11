@@ -1,4 +1,11 @@
---createTables.sql - GradeBook
+--createTables.sql - Gradebook
+
+--Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
+-- in support of CS305 coursework at Western Connecticut State University.
+
+--Licensed to others under CC 4.0 BY-SA-NC
+
+--This work is a derivative of Gradebook, originally developed by:
 
 --Zaid Bhujwala, Zach Boylan, Steven Rollo, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
@@ -31,7 +38,7 @@ CREATE TABLE Course
 (
    --Wonder if this table will eventually need a separate ID field
    Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
-   Title VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
+   DefaultTitle VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
 );
 
 ALTER TABLE Course OWNER TO CURRENT_USER;
@@ -79,12 +86,35 @@ GRANT ALL ON Term TO alpha_GB_DBAdmin;
 
 
 
+CREATE TABLE SignificantDate
+(
+   Term INTEGER REFERENCES Term,
+   Date DATE NOT NULL,
+   Name VARCHAR(30) NOT NULL CHECK (TRIM(Name) <> ''), --"Memorial Day", "Snow Day", ...
+   ClosureStatus CHAR(1), --Degree of closing (see CHECK constraint)
+   Reason VARCHAR(30) NOT NULL, --"Holiday", "Weather", ...
+   PRIMARY KEY(Term, Date, Name),
+
+   --'C' represents complete closure, 'A' only administrative offices closed
+   CHECK (ClosureStatus IS NULL OR ClosureStatus IN ('C', 'A')),
+
+   --May switch to CHAR(1) type
+   CHECK (Reason IN ('Holiday', 'Weather', 'Other'))
+);
+
+ALTER TABLE SignificantDate OWNER TO CURRENT_USER;
+REVOKE ALL ON SignificantDate FROM PUBLIC;
+GRANT ALL ON SignificantDate TO alpha_GB_DBAdmin;
+
+
+
 CREATE TABLE Instructor
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50) NOT NULL,
    MName VARCHAR(50),
    LName VARCHAR(50) NOT NULL,
+   SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE, --cannot match any other schoolIssuedID
    Department VARCHAR(30),
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
    UNIQUE(FName, MName, LName)
@@ -113,6 +143,7 @@ CREATE TABLE Section
    Course VARCHAR(8) NOT NULL REFERENCES Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
+   Title VARCHAR(100) NOT NULL, --may or may not match course's default title
    Schedule VARCHAR(7),  --days the class meets: 'MW', 'TR', 'MWF', etc.
    Location VARCHAR(25), --likely a classroom
    StartDate DATE, --first date the section meets
@@ -182,7 +213,6 @@ CREATE TABLE Student
    LName VARCHAR(50), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
    SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE,
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
-   Major VARCHAR(50), --non-matriculated students are not required to have a major
    Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
       CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)
@@ -198,13 +228,36 @@ GRANT ALL ON Student TO alpha_GB_DBAdmin;
 
 
 
+CREATE TABLE Major
+(
+   Name VARCHAR(30) PRIMARY KEY  --ensures names of majors are unique
+);
+
+ALTER TABLE Major OWNER TO CURRENT_USER;
+REVOKE ALL ON Major FROM PUBLIC;
+GRANT ALL ON Major TO alpha_GB_DBAdmin;
+
+
+
+CREATE TABLE Student_Major
+(
+    Student INTEGER NOT NULL REFERENCES Student,
+    Major VARCHAR(30) NOT NULL REFERENCES Major
+);
+
+ALTER TABLE Student_Major OWNER TO CURRENT_USER;
+REVOKE ALL ON Student_Major FROM PUBLIC;
+GRANT ALL ON Student_Major TO alpha_GB_DBAdmin;
+
+
+
 CREATE TABLE Enrollee
 (
    Student INT NOT NULL REFERENCES Student,
    Section INT REFERENCES Section,
    DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
    YearEnrolled VARCHAR(30) NOT NULL,
-   MajorEnrolled VARCHAR(50) NOT NULL,
+   MajorEnrolled VARCHAR(30) NOT NULL REFERENCES Major,
    MidtermWeightedAggregate NUMERIC(5,2), --weighted aggregate computed at mid-term
    MidtermGradeComputed VARCHAR(2), --will eventually move to a view
    MidtermGradeAwarded VARCHAR(2), --actual grade assigned, if any
@@ -212,8 +265,10 @@ CREATE TABLE Enrollee
    FinalGradeComputed VARCHAR(2),  --will eventually move to a view
    FinalGradeAwarded VARCHAR(2), --actual grade assigned
    PRIMARY KEY (Student, Section),
+   FOREIGN KEY (Section, MidtermGradeComputed) REFERENCES Section_GradeTier,
    FOREIGN KEY (Section, MidtermGradeAwarded) REFERENCES Section_GradeTier,
-   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Section_GradeTier
+   FOREIGN KEY (Section, FinalGradeAwarded) REFERENCES Section_GradeTier,
+   FOREIGN KEY (Section, FinalGradeComputed) REFERENCES Section_GradeTier
 );
 
 ALTER TABLE Enrollee OWNER TO CURRENT_USER;
