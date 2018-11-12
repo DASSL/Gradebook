@@ -246,19 +246,41 @@ RETURNS VOID
 AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   IF NOT EXISTS(SELECT * FROM Student S WHERE S.ID = $1) THEN
+      RAISE EXCEPTION 'ID does not match known student';
+   END IF;
+
+   IF NOT EXISTS(SELECT * FROM Major M WHERE M.Name ILIKE $2) THEN
+      RAISE EXCEPTION 'Major does not match known major';
+   END IF;
+
+   IF NOT EXISTS (SELECT * FROM Student_Major SM
+              WHERE SM.Student = $1 AND SM.Major ILIKE $2)
+   THEN
+      RAISE WARNING 'Student was not majoring in %', $2;
+      RETURN;
+   END IF;
+
+   WITH CasedMajor AS
+   (
+      SELECT M.Name Maj
+      FROM Major M
+      WHERE M.Name ILIKE $2
+   )
+   DELETE FROM Student_Major SM
+   WHERE SM.Student = $1 AND SM.Major = (SELECT Maj FROM CasedMajor);
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT;
 
 ALTER FUNCTION revokeMajor(student INT, major VARCHAR(30))
-OWNER TO CURRENT_USER;
+   OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION revokeMajor(student INT, major VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION revokeMajor(student INT, major VARCHAR(30))
-TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
+   TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
 
 
 --Returns a table with fName, mName, lName, schoolIssuedID, email, and year
