@@ -362,18 +362,20 @@ AS
 $$
     SELECT COALESCE(fname,'') || COALESCE(', ' || mname,'') ||
        COALESCE(', ' || lname,'')
-    FROM alpha.Instructor
+    FROM Instructor
     WHERE id = $1;
 $$ LANGUAGE sql
+SECURITY DEFINER
+SET search_path FROM CURRENT;
 STABLE
 RETURNS NULL ON NULL INPUT;
 
-    ALTER FUNCTION getInstructorName(instructorID INT) OWNER TO CURRENT_USER;
+ALTER FUNCTION getInstructorName(instructorID INT) OWNER TO CURRENT_USER;
 
-    REVOKE ALL ON FUNCTION getInstructorName(instructorID INT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION getInstructorName(instructorID INT) FROM PUBLIC;
 
-    GRANT EXECUTE ON FUNCTION getInstructorName(insstructorID INT)
-    TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
-        alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getInstructorName(instructorID INT)
+TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
+   alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 COMMIT;
