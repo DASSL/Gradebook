@@ -118,12 +118,12 @@ BEGIN
 IF NOT EXISTS (
     SELECT EndDate 
     FROM Term
-    WHERE ID = $1;)
+    WHERE ID = $1)
 THEN RETURN NULL;
 ELSE
     RETURN QUERY SELECT EndDate 
                     FROM Term
-                    WHERE ID = $1;
+                    WHERE ID = $1
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
