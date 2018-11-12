@@ -145,23 +145,41 @@ RETURNS VOID
 AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   --May eventually integrate checks with helper functions
+   IF EXISTS (SELECT * FROM Student S WHERE S.schoolIssuedID = $4) THEN
+      RAISE EXCEPTION 'SchoolIssuedID ''%'' is already assigned to a student', $4;
+   ELSIF EXISTS (SELECT * FROM Instructor I WHERE I.schoolIssuedID = $4) THEN
+      RAISE EXCEPTION 'SchoolIssuedID ''%'' is already assigned to an instructor', $4;
+   END IF;
+
+   --Server role name will be set to schoolIssuedID, so an existing role name
+   -- should not match schoolIssuedID. ILIKE is used to ignore case sensitivity
+   IF EXISTS (SELECT * FROM pg_catalog.pg_roles WHERE rolname ILIKE $4)
+   THEN
+      RAISE EXCEPTION 'Server role matching SchoolIssuedID already exists';
+   END IF;
+
+   --Create student user with lowercase schoolIssuedID
+   EXECUTE FORMAT('CREATE USER alpha_%s IN ROLE alpha_GB_Student'
+                  ' ENCRYPTED PASSWORD ''%s''', LOWER($4), LOWER($4));
+
+   INSERT INTO Student VALUES(DEFAULT, $1, $2, $3, $4, $5, $6);
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT;
 
 ALTER FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) OWNER TO CURRENT_USER;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) FROM PUBLIC;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) TO alpha_GB_Admissions, alpha_GB_DBAdmin;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) TO alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Assigns a major to a student by adding an entry to the Student_Major table.
