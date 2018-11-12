@@ -30,10 +30,12 @@ CREATE OR REPLACE FUNCTION getStudentYears(studentID INT)
 RETURNS TABLE(Year NUMERIC(4,0))
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT DISTINCT T.Year
+   FROM Term T JOIN Section S ON T.ID = S.Term
+      JOIN Enrollee E ON S.ID = E.Section
+   WHERE E.Student = $1
+   ORDER BY T.Year DESC;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -43,9 +45,10 @@ ALTER FUNCTION getStudentYears(studentID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentYears(studentID INT) FROM PUBLIC;
 
+
 GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO alpha_GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, 
-alpha_GB_DBAdmin;
+   alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
+   alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table listing the years in which the student specified by
@@ -56,10 +59,8 @@ CREATE OR REPLACE FUNCTION getYearsAsStudent()
 RETURNS TABLE(Year NUMERIC(4,0))
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT getStudentYears(getMyStudentID());
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE;
@@ -83,10 +84,13 @@ RETURNS TABLE(SeasonOrder Numeric(1,0),
              )
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT DISTINCT S."Order", S.Name
+   FROM Season S JOIN Term T ON S."Order" = T.Season
+      JOIN Section C ON T.ID = C.Term
+      JOIN Enrollee E ON C.ID = E.Section
+   WHERE E.Student = $1 AND T.Year = $2
+   ORDER BY S."Order" ASC;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -98,11 +102,11 @@ ALTER FUNCTION getStudentSeasons(studentID INT,
 OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-FROM PUBLIC;
+   FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-alpha_GB_Admissions, alpha_GB_DBAdmin;
+   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
+   alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns a table listing the seasons in which the student specified by
@@ -115,10 +119,8 @@ RETURNS TABLE(SeasonOrder Numeric(1,0),
              )
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT getStudentSeasons(getMyStudentID());
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE;
@@ -127,7 +129,8 @@ ALTER FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO alpha_GB_Student;
+GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO
+   alpha_GB_Student;
 
 
 --Adds a student to the student table and creates database role for new student
