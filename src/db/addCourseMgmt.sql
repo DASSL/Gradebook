@@ -76,9 +76,9 @@ ALTER FUNCTION searchCourseTitles(title VARCHAR(100)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION searchCourseTitles(title VARCHAR(100)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION searchCourseTitles(title VARCHAR(100)) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION searchCourseTitles(title VARCHAR(100)) TO alpha_GB_Webapp,
+alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Adds a course to the Course table. Name represents the abbreviated name of the
@@ -133,8 +133,8 @@ REVOKE ALL ON FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getCourseDefaultTitle(courseNumber VARCHAR(8)) TO
-GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-alpha_GB_Admissions, alpha_GB_DBAdmin;
+alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
+alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 COMMIT;

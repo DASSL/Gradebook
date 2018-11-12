@@ -32,9 +32,9 @@ SET client_min_messages TO WARNING;
 \i createTables.sql
 \i addReferenceData.sql
 \i addSeasonMgmt.sql
-\i addSectionMgmt.sql
-\i addAttendanceMgmt.sql
 \i addInstructorMgmt.sql
 \i addCourseMgmt.sql
 \i addStudentMgmt.sql
 \i addTermMgmt.sql
+\i addSectionMgmt.sql
+\i addAttendanceMgmt.sql
