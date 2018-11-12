@@ -45,6 +45,7 @@ ALTER FUNCTION getStudentYears(studentID INT) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentYears(studentID INT) FROM PUBLIC;
 
+
 GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO GB_Webapp,
    alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
    alpha_GB_Admissions, alpha_GB_DBAdmin;
@@ -255,8 +256,8 @@ REVOKE ALL ON FUNCTION searchStudent(fname VARCHAR(50), mName VARCHAR(50),
 lName VARCHAR(50)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION searchStudent(fname VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50)) TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-alpha_GB_Admissions, alpha_GB_DBAdmin;
+lName VARCHAR(50)) TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
+alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the ID for the row in the Student table where the row's schoolIssuedID
@@ -301,8 +302,8 @@ REVOKE ALL ON FUNCTION getStudentIDByIssuedID(schoolIssuedID VARCHAR(50))
 FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentIDByIssuedID(schoolIssuedID VARCHAR(50))
-TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-alpha_GB_DBAdmin;
+TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Returns the ID for the row in the Student table where the row's schoolIssuedID
@@ -324,8 +325,9 @@ ALTER FUNCTION getStudentIDbyEmail(email VARCHAR(319)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getStudentIDbyEmail(email VARCHAR(319)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getStudentIDbyEmail(email VARCHAR(319)) TO GB_Webapp,
-alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+GRANT EXECUTE ON FUNCTION getStudentIDbyEmail(email VARCHAR(319)) 
+TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin, 
+alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Changes midtermGradeAwarded in a row of the Enrollee table where the row's

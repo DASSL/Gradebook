@@ -112,7 +112,7 @@ BEGIN
    --create user alpha_GB_WebApp if necessary and make sure the user is a member of
    --Gradebook role
    -- a default password is assigned to the user: user/admin should change it
-   IF NOT pg_temp.existsRole('gb_webapp') THEN
+   IF NOT pg_temp.existsRole('alpha_gb_webapp') THEN
       CREATE USER alpha_GB_WebApp WITH PASSWORD 'dassl2017';
    END IF;
 
