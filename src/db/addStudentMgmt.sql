@@ -149,23 +149,41 @@ RETURNS VOID
 AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   --May eventually integrate checks with helper functions
+   IF EXISTS (SELECT * FROM Student S WHERE S.schoolIssuedID = $4) THEN
+      RAISE EXCEPTION 'SchoolIssuedID ''%'' is already assigned to a student', $4;
+   ELSIF EXISTS (SELECT * FROM Instructor I WHERE I.schoolIssuedID = $4) THEN
+      RAISE EXCEPTION 'SchoolIssuedID ''%'' is already assigned to an instructor', $4;
+   END IF;
+
+   --Server role name will be set to schoolIssuedID, so an existing role name
+   -- should not match schoolIssuedID. ILIKE is used to ignore case sensitivity
+   IF EXISTS (SELECT * FROM pg_catalog.pg_roles WHERE rolname ILIKE $4)
+   THEN
+      RAISE EXCEPTION 'Server role matching SchoolIssuedID already exists';
+   END IF;
+
+   --Create student user with lowercase schoolIssuedID
+   EXECUTE FORMAT('CREATE USER alpha_%s IN ROLE alpha_GB_Student'
+                  ' ENCRYPTED PASSWORD ''%s''', LOWER($4), LOWER($4));
+
+   INSERT INTO Student VALUES(DEFAULT, $1, $2, $3, $4, $5, $6);
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT;
 
 ALTER FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) OWNER TO CURRENT_USER;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) FROM PUBLIC;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION addStudent(fName VARCHAR(50), mName VARCHAR(50),
-lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
-year VARCHAR(30)) TO alpha_GB_Admissions, alpha_GB_DBAdmin;
+   lName VARCHAR(50), schoolIssuedID VARCHAR(50), email VARCHAR(319),
+   year VARCHAR(30)) TO alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
 --Assigns a major to a student by adding an entry to the Student_Major table.
@@ -181,19 +199,41 @@ RETURNS VOID
 AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   IF NOT EXISTS(SELECT * FROM Student S WHERE S.ID = $1) THEN
+      RAISE EXCEPTION 'ID does not match known student';
+   END IF;
+
+   IF NOT EXISTS(SELECT * FROM Major M WHERE M.Name ILIKE $2) THEN
+      RAISE EXCEPTION 'Major does not match known major';
+   END IF;
+
+   IF EXISTS (SELECT * FROM Student_Major SM
+              WHERE SM.Student = $1 AND SM.Major ILIKE $2)
+   THEN
+      RAISE WARNING 'Student was already majoring in %', $2;
+      RETURN;
+   END IF;
+
+   WITH CasedMajor AS
+   (
+      SELECT M.Name Maj
+      FROM Major M
+      WHERE M.Name ILIKE $2
+   )
+   INSERT INTO Student_Major VALUES($1, (SELECT Maj FROM CasedMajor));
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT;
 
 ALTER FUNCTION assignMajor(student INT, major VARCHAR(30))
-OWNER TO CURRENT_USER;
+   OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION assignMajor(student INT, major VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION assignMajor(student INT, major VARCHAR(30))
-TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
+   TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
+   alpha_GB_DBAdmin;
 
 
 --Removes a major from a student by deleting an entry to the Student_Major table
@@ -210,19 +250,41 @@ RETURNS VOID
 AS
 $$
 BEGIN
-   RAISE WARNING 'Function not implemented';
+   IF NOT EXISTS(SELECT * FROM Student S WHERE S.ID = $1) THEN
+      RAISE EXCEPTION 'ID does not match known student';
+   END IF;
+
+   IF NOT EXISTS(SELECT * FROM Major M WHERE M.Name ILIKE $2) THEN
+      RAISE EXCEPTION 'Major does not match known major';
+   END IF;
+
+   IF NOT EXISTS (SELECT * FROM Student_Major SM
+              WHERE SM.Student = $1 AND SM.Major ILIKE $2)
+   THEN
+      RAISE WARNING 'Student was not majoring in %', $2;
+      RETURN;
+   END IF;
+
+   WITH CasedMajor AS
+   (
+      SELECT M.Name Maj
+      FROM Major M
+      WHERE M.Name ILIKE $2
+   )
+   DELETE FROM Student_Major SM
+   WHERE SM.Student = $1 AND SM.Major = (SELECT Maj FROM CasedMajor);
 END
 $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT;
 
 ALTER FUNCTION revokeMajor(student INT, major VARCHAR(30))
-OWNER TO CURRENT_USER;
+   OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION revokeMajor(student INT, major VARCHAR(30)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION revokeMajor(student INT, major VARCHAR(30))
-TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
+   TO alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_DBAdmin;
 
 
 --Returns a table with fName, mName, lName, schoolIssuedID, email, and year
