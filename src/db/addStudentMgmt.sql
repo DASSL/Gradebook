@@ -46,7 +46,7 @@ ALTER FUNCTION getStudentYears(studentID INT) OWNER TO CURRENT_USER;
 REVOKE ALL ON FUNCTION getStudentYears(studentID INT) FROM PUBLIC;
 
 
-GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO GB_Webapp,
+GRANT EXECUTE ON FUNCTION getStudentYears(studentID INT) TO alpha_GB_Webapp,
    alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
    alpha_GB_Admissions, alpha_GB_DBAdmin;
 
@@ -105,7 +105,7 @@ REVOKE ALL ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
    FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSeasons(studentID INT, year NUMERIC(4,0))
-   TO GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
+   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
    alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
@@ -129,7 +129,8 @@ ALTER FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO alpha_GB_Student;
+GRANT EXECUTE ON FUNCTION getSeasonsAsStudent(year NUMERIC(4,0)) TO
+   alpha_GB_Student;
 
 
 --Adds a student to the student table and creates database role for new student
