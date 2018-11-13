@@ -114,18 +114,10 @@ CREATE OR REPLACE FUNCTION getTermEnd(termID INT)
 RETURNS DATE
 AS
 $$
-BEGIN
-IF NOT EXISTS (
     SELECT EndDate 
     FROM Term
-    WHERE ID = $1)
-THEN RETURN NULL;
-ELSE
-    RETURN QUERY SELECT EndDate 
-                    FROM Term
-                    WHERE ID = $1
-END
-$$ LANGUAGE plpgsql
+    WHERE ID = $1
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
