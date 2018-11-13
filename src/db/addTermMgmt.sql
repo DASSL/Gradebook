@@ -116,8 +116,8 @@ AS
 $$
     SELECT EndDate 
     FROM Term
-    WHERE ID = $1
-$$ LANGUAGE sql
+    WHERE ID = $1;
+$$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
