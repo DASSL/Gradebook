@@ -65,10 +65,11 @@ CREATE OR REPLACE FUNCTION getTermID(year NUMERIC(4,0),
 RETURNS INT
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+   SELECT ID 
+   FROM Term
+   WHERE Year = $1
+   AND Season = $2;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -90,10 +91,10 @@ CREATE OR REPLACE FUNCTION getTermStart(termID INT)
 RETURNS DATE
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+    SELECT StartDate 
+    FROM Term
+    WHERE ID = $1;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -143,10 +144,10 @@ RETURNS TABLE (Date DATE,
               )
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+    SELECT *
+    FROM SignificantDate
+    WHERE Term = $1;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -169,10 +170,10 @@ CREATE OR REPLACE FUNCTION getTermCourseCount(termID INT)
 RETURNS INT
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+    SELECT COUNT(DISTINCT Course)
+    FROM Section
+    WHERE Term = $1;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
@@ -195,10 +196,10 @@ CREATE OR REPLACE FUNCTION getTermSectionCount(termID INT)
 RETURNS INT
 AS
 $$
-BEGIN
-   RAISE WARNING 'Function not implemented';
-END
-$$ LANGUAGE plpgsql
+    SELECT COUNT(DISTINCT Section)
+    FROM Section
+    WHERE Term = $1;
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
