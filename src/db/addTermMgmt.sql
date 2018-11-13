@@ -117,7 +117,7 @@ $$
     SELECT EndDate 
     FROM Term
     WHERE ID = $1;
-$$ LANGUAGE plpgsql
+$$ LANGUAGE sql
    SECURITY DEFINER
    SET search_path FROM CURRENT
    STABLE
