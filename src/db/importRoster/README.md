@@ -54,7 +54,7 @@ is used to copy the contents of a CSV roster file to the staging table.
 
 __Step 3__: The function `importRoster` is invoked to read the data in the
 staging table, apply any necessary transformation, and add to or update the
-tables `Gradebook.Student` and `Gradebook.Enrollee`.
+tables `Student` and `Enrollee`.
 
 ## Running the import procedure
 
@@ -73,7 +73,7 @@ The batch command accepts the following parameters:
 - `year`: The year in which the section is taught (the section whose roster is
 to be imported), for example, 2017.
 - `season`: The "order", name, or code of the season in which the section is
-taught, for example, 'Spring'. (See comments associated with the function `Gradebook.getSeason` for
+taught, for example, 'Spring'. (See comments associated with the function `getSeason` for
 details.)
 - `courseNumber`: The course the section is about, for example, CS110.
 - `sectionNumber`: The section number, for example, 72.

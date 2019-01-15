@@ -26,9 +26,12 @@
 
 START TRANSACTION;
 
-
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
+
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha, pg_temp';
 
 
 --Make sure current user is superuser
@@ -120,7 +123,6 @@ GRANT ALL PRIVILEGES ON SCHEMA public TO  Gradebook;
 CREATE SCHEMA IF NOT EXISTS Gradebook;
 REVOKE ALL PRIVILEGES ON SCHEMA Gradebook FROM PUBLIC;
 GRANT ALL PRIVILEGES ON SCHEMA Gradebook TO Gradebook;
-
 
 
 COMMIT;

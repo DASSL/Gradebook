@@ -16,6 +16,11 @@
 
 --The script prepareDB.psql should have been run before running this script
 
+--Set schema to reference in functions and tables, pg_temp is specified
+-- last for security purposes
+SET LOCAL search_path TO 'alpha', 'pg_temp';
+
+
 --This table is used to stage data from CSV file as part of the import process
 CREATE TEMPORARY TABLE CourseScheduleStaging
 (
@@ -45,7 +50,7 @@ CREATE TEMPORARY TABLE CourseScheduleStaging
 -- This is accomplished by testing if [currentYear * COUNT(Seasons) + Season + 1]
 -- is equal to [newYear * COUNT(Seasons) + Season].
 --Each year is mapped to a scale counting for the number of
--- seasons that are in Gradebook.  This allows a simple equality check to see
+-- seasons that are in Gradebook. This allows a simple equality check to see
 -- if the supplied term is in sequence
 CREATE FUNCTION pg_temp.checkTermSequence(year INT, seasonOrder NUMERIC(1,0))
 RETURNS BOOLEAN AS
@@ -54,24 +59,54 @@ $$
    WITH LatestYear AS
    (
       SELECT Year, Season
-      FROM Gradebook.Term
-      WHERE Year = (SELECT MAX(Year) FROM Gradebook.Term)
+      FROM Term
+      WHERE Year = (SELECT MAX(Year) FROM Term)
    )
    SELECT CASE --Check for the case when there are no terms, as we can't check
                --the sequence if it hasn't been started yet
-      WHEN (SELECT COUNT(*) FROM Gradebook.Term) > 0 THEN
+      WHEN (SELECT COUNT(*) FROM Term) > 0 THEN
          (
-            MAX(LY.Year) * (SELECT COUNT(*) FROM Gradebook.Season) +
+            MAX(LY.Year) * (SELECT COUNT(*) FROM Season) +
             MAX(LY.Season) + 1
          ) =
          (
-            $1 * (SELECT COUNT(*) FROM Gradebook.Season) + $2
+            $1 * (SELECT COUNT(*) FROM Season) + $2
          )
       ELSE
          TRUE
       END
    FROM LatestYear LY;
 $$ LANGUAGE sql;
+
+--Creates instructor ids that match the scheme: namepart0000
+--Name part is an all lowercase version of an instructor's name part, last
+-- name (lname) is used first, and falls back to mName than fName if the name
+-- part is null or an empty string
+--0000 represents a sequence of numbers, which increments based on previously
+-- assigned IDs (scans table rather than maintaining a counter)
+CREATE OR REPLACE FUNCTION pg_temp.generateInstructorIssuedID(fName TEXT,
+   mName TEXT, lName TEXT) RETURNS VARCHAR(50) AS
+$$
+BEGIN
+   IF $3 IS NOT NULL OR TRIM($3) <> '' THEN
+      RETURN (
+         SELECT LOWER(makeValidIssuedID($3)) || LPAD(COUNT(*)::VARCHAR, 4, '0')
+         FROM Instructor I WHERE I.SchoolIssuedID ILIKE makeValidIssuedID($3) || '%');
+   ELSIF $2 IS NOT NULL OR TRIM($2) <> '' THEN
+      RETURN (
+         SELECT LOWER(makeValidIssuedID(2)) || LPAD(COUNT(*)::VARCHAR, 4, '0')
+         FROM Instructor I WHERE I.SchoolIssuedID ILIKE makeValidIssuedID($2) || '%');
+   ELSIF $1 IS NOT NULL OR TRIM($1) <> '' THEN
+      RETURN (
+         SELECT LOWER(makeValidIssuedID($1)) || LPAD(COUNT(*)::VARCHAR, 4, '0')
+         FROM Instructor I WHERE I.SchoolIssuedID ILIKE makeValidIssuedID($1) || '%');
+   ELSE
+      RETURN (
+         SELECT "instructor" || LPAD(COUNT(*)::VARCHAR, 4, '0')
+         FROM Instructor I WHERE I.SchoolIssuedID ILIKE 'instructor%');
+   END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 --Populates Term, Instructor, Course, Course_Section and Section_Instructor from
 -- the CourseScheduleStaging table.
@@ -90,7 +125,7 @@ DECLARE
 BEGIN
    --Get the season order from the provided 'season identification'
    --This can be either a code, order, or name
-   SELECT Gradebook.getSeasonOrder($2)
+   SELECT getSeasonOrder($2)
    INTO seasonOrder;
 
    --Check if the provided term is the next term chronologically after the last imported
@@ -110,7 +145,7 @@ BEGIN
       FROM pg_temp.CourseScheduleStaging
    )
    --Select the extreme start and end dates from TermDates
-   INSERT INTO Gradebook.Term(Year, Season, StartDate, EndDate)
+   INSERT INTO Term(Year, Season, StartDate, EndDate)
    SELECT $1, seasonOrder,
    $1 + MIN(to_date(sDate, 'MM-DD')),
    $1 + MAX(to_date(eDate, 'MM-DD'))
@@ -118,17 +153,17 @@ BEGIN
    ON CONFLICT DO NOTHING;
 
    --Insert course into Course, concat subject || course to make 'Number'
-   INSERT INTO Gradebook.Course(Number, Title)
+   INSERT INTO Course(Number, DefaultTitle)
    SELECT DISTINCT ON (n) (Subject || Course) n, Title
    FROM pg_temp.CourseScheduleStaging
    WHERE NOT Subject IS NULL
    AND NOT Course IS NULL
    ON CONFLICT(Number)
       DO UPDATE
-         SET Title = EXCLUDED.Title;
+         SET DefaultTitle = EXCLUDED.DefaultTitle;
 
-   --The first CTE inserts new instructors into Gradebook.Instructor, and RETURNS
-   -- their full names for insertion into  Gradebook.Section table
+   --The first CTE inserts new instructors into Instructor, and RETURNS
+   -- their full names for insertion into  Section table
    WITH insertedFullNames AS
    (
       --This CTE creates a table of individual instructor names from single section,
@@ -154,7 +189,7 @@ BEGIN
          -- This method also ignores "names" like 'TBA'
          WHERE instructor LIKE '% %'
       )
-      INSERT INTO Gradebook.Instructor (FName, MName, LName)
+      INSERT INTO Instructor (FName, MName, LName, SchoolIssuedID)
       --Select the name parts from the array into the new Instructor row
       --EX. Name[1] = FName
       SELECT Name[1],
@@ -165,30 +200,39 @@ BEGIN
                SELECT string_agg(n, ' ')
                FROM unnest(Name[2:array_length(Name, 1) - 1]) n
               ) END,
-         Name[array_length(Name, 1)] --We place the last name part into LName
+         Name[array_length(Name, 1)], --We place the last name part into LName
+         pg_temp.generateInstructorIssuedID(Name[1], --same code is repeated from above
+                                             -- for call to generateInstructorIssuedID
+            CASE WHEN array_length(Name, 1) < 3 THEN NULL
+            ELSE ( --Because some names have more than 3 'name parts', we concat all
+                  --parts except the first and last into MName
+                  SELECT string_agg(n, ' ')
+                  FROM unnest(Name[2:array_length(Name, 1) - 1]) n
+               ) END,
+            Name[array_length(Name, 1)])
       FROM instructorSplitNames
       ON CONFLICT DO NOTHING
       RETURNING id, FName || ' ' || COALESCE(MName || ' ', '') || LName as FullName
    ),
    --This second CTE UNIONS any existing instructors that were not inserted into
-   -- Gradebook.Instructor so they can be used for insertion into Gradebook.Section
+   -- Instructor so they can be used for insertion into Section
    instructorFullNames AS (
       SELECT id, FullName
       FROM insertedFullNames
       UNION
       SELECT id, FName || ' ' || COALESCE(MName || ' ', '') || LName as FullName
-      FROM Gradebook.Instructor
+      FROM Instructor
    )
-   INSERT INTO Gradebook.Section(CRN, Course, SectionNumber, Term, Schedule,
+   INSERT INTO Section(CRN, Course, SectionNumber, Title, Term, Schedule,
                                  StartDate, EndDate,
                                  Location, Instructor1, Instructor2, Instructor3)
-   SELECT oc.CRN, oc.Subject || oc.Course, oc.Section, t.ID, oc.Days,
+   SELECT oc.CRN, oc.Subject || oc.Course, oc.Section, oc.title, t.ID, oc.Days,
           --Split the date on - (dash)
           to_date($1 || '/' || (string_to_array(Date, '-'))[1], 'YYYY/MM/DD'),
           to_date($1 || '/' || (string_to_array(Date, '-'))[2], 'YYYY/MM/DD'),
           oc.Location, i1.ID, i2.ID, i3.ID
    FROM pg_temp.CourseScheduleStaging oc
-   JOIN Gradebook.Term t ON t.Year = $1
+   JOIN Term t ON t.Year = $1
         AND t.Season = seasonOrder
    --These joins get the instructor ID for up to three instructors teaching a section
    JOIN instructorFullNames i1 ON
