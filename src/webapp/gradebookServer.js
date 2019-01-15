@@ -70,12 +70,14 @@ function executeQuery(response, config, queryText, queryParams, queryCallback) {
    var client = new pg.Client(config); //Connect to pg instance
    client.connect(function(err) {
       if(err) { //If a connection error happens, 500
+         client.end(); //Close the connection
          response.status(500).send('500 - Database connection error');
          console.log(err);
       }
       else { //Try and execute the query
          client.query(queryText, queryParams, function (err, result) {
             if(err) { //If the query returns an error, 500
+               client.end(); //Close the connection
                response.status(500).send('500 - Query execution error');
                console.log(err);
             }
