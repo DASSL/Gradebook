@@ -19,7 +19,7 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha', 'pg_temp';
+SET LOCAL search_path TO 'gradebook', 'pg_temp';
 
 
 --Function to get the details of the season matching a "season identification"
@@ -108,22 +108,6 @@ REVOKE ALL ON FUNCTION getSeasonOrder(VARCHAR(20)) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION getSeasonOrder(VARCHAR(20)) 
    TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student, alpha_GB_Registrar, 
    alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
-
---Returns a table listing season names and codes from the Season table.
-CREATE OR REPLACE FUNCTION listSeasons()
-   RETURNS TABLE ("Order" NUMERIC(1,0),
-                  Name VARCHAR(20),
-                  Code CHAR(1)
-                ) AS
-$$
-   SELECT "Order", s.name, s.code
-   FROM season s;
-$$ LANGUAGE sql
-   SECURITY DEFINER
-   SET search_path FROM CURRENT
-   STABLE;
-
-ALTER FUNCTION listSeasons() OWNER TO CURRENT_USER;
 
 
 COMMIT;

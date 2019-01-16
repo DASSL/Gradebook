@@ -28,14 +28,11 @@
 
 \set ON_ERROR_STOP on
 SET client_min_messages TO WARNING;
---\i initializeDB.sql
-\i addHelpers.sql
+\i initializeDB.sql
 \i createTables.sql
 \i addReferenceData.sql
 \i addSeasonMgmt.sql
 \i addInstructorMgmt.sql
-\i addCourseMgmt.sql
 \i addStudentMgmt.sql
-\i addTermMgmt.sql
 \i addSectionMgmt.sql
 \i addAttendanceMgmt.sql

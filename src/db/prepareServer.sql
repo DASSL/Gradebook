@@ -1,14 +1,8 @@
 --prepareServer.sql - Gradebook
 
---Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
--- in support of CS305 coursework at Western Connecticut State University.
-
---Licensed to others under CC 4.0 BY-SA-NC
-
---This work is a derivative of Gradebook, originally developed by:
-
---Andrew Figueroa, Steven Rollo, Sean Murthy
---Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
+--Steven Rollo, Andrew Figueroa, Jonathan Middleton, Sean Murthy
+--Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU).
+-- With contributions from Bruno DaSilva
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
 --Licensed to others under CC 4.0 BY-SA-NC

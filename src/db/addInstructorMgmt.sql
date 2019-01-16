@@ -1,14 +1,9 @@
 --addInstructorMgmt.sql - Gradebook
 
---Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
--- in support of CS305 coursework at Western Connecticut State University.
-
---Licensed to others under CC 4.0 BY-SA-NC
- 
---This work is a derivative of Gradebook, originally developed by:
-
---Zaid Bhujwala, Elly Griffin, Steven Rollo, Andrew Figueroa, Sean Murthy
+--Zaid Bhujwala, Elly Griffin, Steven Rollo, Andrew Figueroa,
+-- Jonathan Middleton, Sean Murthy
 --Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
+-- With contributions from Bruno DaSilva
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
 --Licensed to others under CC 4.0 BY-SA-NC
@@ -27,7 +22,7 @@ START TRANSACTION;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha', 'pg_temp';
+SET LOCAL search_path TO 'gradebook', 'pg_temp';
 
 
 --Function to get details of all known instructors
@@ -126,7 +121,7 @@ ALTER FUNCTION getInstructor(instructorID INT) OWNER TO alpha;
 REVOKE ALL ON FUNCTION getInstructor(instructorID INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getInstructor(instructorID INT)
-   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
+   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
    alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 
@@ -185,7 +180,7 @@ ALTER FUNCTION getInstructorYears(instructorID INT) OWNER TO alpha;
 REVOKE ALL ON FUNCTION getInstructorYears(instructorID INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getInstructorYears(instructorID INT)
-   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar, 
+   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Registrar,
    alpha_GB_RegistrarAdmin, alpha_GB_Admissions, alpha_GB_DBAdmin;
 
 

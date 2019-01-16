@@ -1,14 +1,9 @@
 --createTables.sql - Gradebook
 
---Edited by Bruno DaSilva, Andrew Figueroa, and Jonathan Middleton (Team Alpha)
--- in support of CS305 coursework at Western Connecticut State University.
-
---Licensed to others under CC 4.0 BY-SA-NC
-
---This work is a derivative of Gradebook, originally developed by:
-
---Zaid Bhujwala, Zach Boylan, Steven Rollo, Sean Murthy
---Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU)
+--Zaid Bhujwala, Zach Boylan, Steven Rollo, Andrew Figueroa, Jonathan Middleton,
+-- Sean Murthy
+--Data Science & Systems Lab (DASSL), Western Connecticut State University (WCSU).
+-- With contributions from Bruno DaSilva
 
 --(C) 2017- DASSL. ALL RIGHTS RESERVED.
 --Licensed to others under CC 4.0 BY-SA-NC
@@ -33,13 +28,13 @@ START TRANSACTION;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha', 'pg_temp';
+SET LOCAL search_path TO 'gradebook', 'pg_temp';
 
 CREATE TABLE IF NOT EXISTS Course
 (
    --Wonder if this table will eventually need a separate ID field
    Number VARCHAR(8) NOT NULL PRIMARY KEY, --e.g., 'CS170'
-   DefaultTitle VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
+   Title VARCHAR(100) NOT NULL --e.g., 'C++ Programming'
 );
 
 ALTER TABLE Course OWNER TO CURRENT_USER;
@@ -87,37 +82,15 @@ GRANT ALL ON Term TO alpha_GB_DBAdmin;
 
 
 
-CREATE TABLE IF NOT EXISTS SignificantDate
-(
-   Term INTEGER REFERENCES Term,
-   Date DATE NOT NULL,
-   Name VARCHAR(30) NOT NULL CHECK (TRIM(Name) <> ''), --"Memorial Day", "Snow Day", ...
-   ClassesHeld BOOLEAN NOT NULL,
-   Reason VARCHAR(30), --"Holiday", "Weather", etc.
-   PRIMARY KEY(Term, Date, Name)
-
-   --May be later implemented as a normalized table
-   --CHECK (Reason IN ('Holiday', 'Weather', 'Other'))
-);
-
-ALTER TABLE SignificantDate OWNER TO CURRENT_USER;
-REVOKE ALL ON SignificantDate FROM PUBLIC;
-GRANT ALL ON SignificantDate TO alpha_GB_DBAdmin;
-
-
-
 CREATE TABLE IF NOT EXISTS Instructor
 (
    ID SERIAL PRIMARY KEY,
    FName VARCHAR(50) NOT NULL,
    MName VARCHAR(50),
    LName VARCHAR(50) NOT NULL,
-   SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE, --cannot match any other schoolIssuedID
    Department VARCHAR(30),
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
-   UNIQUE(FName, MName, LName),
-
-   CONSTRAINT instructor_SchoolID_ValidChars CHECK(isValidSQLID(SchoolIssuedID))
+   UNIQUE(FName, MName, LName)
 );
 
 --enforce case-insensitive uniqueness of instructor e-mail addresses
@@ -143,7 +116,6 @@ CREATE TABLE IF NOT EXISTS Section
    Course VARCHAR(8) NOT NULL REFERENCES Course,
    SectionNumber VARCHAR(3) NOT NULL, --'01', '72', etc.
    CRN VARCHAR(5) NOT NULL, --store this info for the registrar's benefit?
-   Title VARCHAR(100) NOT NULL, --may or may not match course's default title
    Schedule VARCHAR(7),  --days the class meets: 'MW', 'TR', 'MWF', etc.
    Location VARCHAR(25), --likely a classroom
    StartDate DATE, --first date the section meets
@@ -213,11 +185,10 @@ CREATE TABLE IF NOT EXISTS Student
    LName VARCHAR(50), --use a CONSTRAINT on names instead of NOT NULL until we understand the data
    SchoolIssuedID VARCHAR(50) NOT NULL UNIQUE,
    Email VARCHAR(319) CHECK(TRIM(Email) LIKE '_%@_%._%'),
+   Major VARCHAR(50), --Non-matriculated students are not required to have a major
    Year VARCHAR(30), --represents the student year. Ex: Freshman, Sophomore, Junior, Senior
    CONSTRAINT StudentNameRequired --ensure at least one of the name fields is used
-      CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL),
-
-   CONSTRAINT instructor_SchoolID_ValidChars CHECK(isValidSQLID(SchoolIssuedID))
+      CHECK (FName IS NOT NULL OR MName IS NOT NULL OR LName IS NOT NULL)
 );
 
 --enforce case-insensitive uniqueness of student e-mail addresses
@@ -227,29 +198,6 @@ ON Student(LOWER(TRIM(Email)));
 ALTER TABLE Student OWNER TO CURRENT_USER;
 REVOKE ALL ON Student FROM PUBLIC;
 GRANT ALL ON Student TO alpha_GB_DBAdmin;
-
-
-
-CREATE TABLE IF NOT EXISTS Major
-(
-   Name VARCHAR(30) PRIMARY KEY  --ensures names of majors are unique
-);
-
-ALTER TABLE Major OWNER TO CURRENT_USER;
-REVOKE ALL ON Major FROM PUBLIC;
-GRANT ALL ON Major TO alpha_GB_DBAdmin;
-
-
-
-CREATE TABLE IF NOT EXISTS Student_Major
-(
-    Student INTEGER NOT NULL REFERENCES Student,
-    Major VARCHAR(30) NOT NULL REFERENCES Major
-);
-
-ALTER TABLE Student_Major OWNER TO CURRENT_USER;
-REVOKE ALL ON Student_Major FROM PUBLIC;
-GRANT ALL ON Student_Major TO alpha_GB_DBAdmin;
 
 
 
@@ -360,48 +308,5 @@ ALTER TABLE Enrollee_AssessmentItem OWNER TO CURRENT_USER;
 REVOKE ALL ON Enrollee_AssessmentItem FROM PUBLIC;
 GRANT ALL ON Enrollee_AssessmentItem TO alpha_GB_DBAdmin;
 
-
---Create function for INSERT and UPDATE triggers that check to see if
--- schoolIssuedID provided is unique among all users.
-CREATE OR REPLACE FUNCTION checkUniqueSchoolID() RETURNS TRIGGER AS
-$$
-BEGIN
-   IF EXISTS (SELECT * FROM Student S WHERE S.SchoolIssuedID
-                                         ILIKE NEW.SchoolIssuedID)
-      OR EXISTS (SELECT * FROM Instructor I WHERE I.SchoolIssuedID 
-                                               ILIKE NEW.SchoolIssuedID)
-   THEN
-      IF (TG_OP <> 'UPDATE' OR OLD.SchoolIssuedID <> NEW.SchoolIssuedID) THEN
-      RAISE EXCEPTION 'SchoolIssuedID ''%'' is already assigned', TG_ARGV[0];
-      END IF;
-   END IF;
-
-   RETURN NEW;
-END;
-$$
-   LANGUAGE plpgsql
-   SECURITY DEFINER
-   SET search_path FROM CURRENT;
-
-   
-DROP TRIGGER IF EXISTS triggerSchoolIDUniquenessInsertIns ON Instructor;
-DROP TRIGGER IF EXISTS triggerSchoolIDUniquenessInsertStu ON Student;
-DROP TRIGGER IF EXISTS triggerSchoolIDUniquenessUpdateIns ON Instructor;
-DROP TRIGGER IF EXISTS triggerSchoolIDUniquenessUpdateStu ON Student;
-
-
-CREATE TRIGGER triggerSchoolIDUniquenessInsertIns BEFORE INSERT ON Instructor
-FOR EACH ROW EXECUTE PROCEDURE checkUniqueSchoolID();
-
-CREATE TRIGGER triggerSchoolIDUniquenessInsertStu BEFORE INSERT ON Student
-FOR EACH ROW EXECUTE PROCEDURE checkUniqueSchoolID();
-
-CREATE TRIGGER triggerSchoolIDUniquenessUpdateIns
-BEFORE UPDATE OF SchoolIssuedID ON Instructor
-FOR EACH ROW EXECUTE PROCEDURE checkUniqueSchoolID();
-
-CREATE TRIGGER triggerSchoolIDUniquenessUpdateStu
-BEFORE UPDATE OF SchoolIssuedID ON Student
-FOR EACH ROW EXECUTE PROCEDURE checkUniqueSchoolID();
 
 COMMIT;

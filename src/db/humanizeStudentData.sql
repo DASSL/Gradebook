@@ -28,7 +28,7 @@ START TRANSACTION;
 
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
-SET LOCAL search_path TO 'alpha', 'pg_temp';
+SET LOCAL search_path TO 'gradebook', 'pg_temp';
 
 
 --create temporary tables for actual human names
