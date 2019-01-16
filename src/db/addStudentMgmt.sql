@@ -38,7 +38,7 @@ ALTER FUNCTION getMyStudentID() OWNER TO CURRENT_USER;
 
 REVOKE ALL ON FUNCTION getMyStudentID() FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION getMyStudentID() TO alpha_GB_Student;
+GRANT EXECUTE ON FUNCTION getMyStudentID() TO GB_Student;
 
 
 
@@ -78,15 +78,15 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT;
 
 ALTER FUNCTION getStudentSections(studentID INT, year NUMERIC(4,0),
-   seasonOrder NUMERIC(1,0)) OWNER TO alpha;
+   seasonOrder NUMERIC(1,0)) OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getStudentSections(studentID INT,
    year NUMERIC(4,0), seasonOrder NUMERIC(1,0)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSections(studentID INT,
-   year NUMERIC(4,0), seasonOrder NUMERIC(1,0)) TO alpha_GB_Webapp,
-   alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-   alpha_GB_Admissions, alpha_GB_DBAdmin, alpha_GB_Student;
+   year NUMERIC(4,0), seasonOrder NUMERIC(1,0)) TO GB_Webapp,
+   GB_Instructor, GB_Registrar, GB_RegistrarAdmin,
+   GB_Admissions, GB_DBAdmin, GB_Student;
 
 
 --function to get the section number(s) of a course a student has attended
@@ -110,15 +110,15 @@ $$ LANGUAGE sql
    RETURNS NULL ON NULL INPUT;
 
 ALTER FUNCTION getStudentSections(studentID INT, year NUMERIC(4,0),
-   seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8)) OWNER TO alpha;
+   seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8)) OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getStudentSections(studentID INT, year NUMERIC(4,0),
    seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8)) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getStudentSections(studentID INT, year NUMERIC(4,0),
-   seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8)) TO alpha_GB_Webapp,
-   alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_RegistrarAdmin,
-   alpha_GB_Admissions, alpha_GB_DBAdmin, alpha_GB_Student;
+   seasonOrder NUMERIC(1,0), courseNumber VARCHAR(8)) TO GB_Webapp,
+   GB_Instructor, GB_Registrar, GB_RegistrarAdmin,
+   GB_Admissions, GB_DBAdmin, GB_Student;
 
 
 COMMIT;

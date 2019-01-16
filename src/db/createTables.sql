@@ -21,7 +21,7 @@
 -- in the normal course of operations, this script should not be run
 -- individually, but instead should be called from the script prepareDB.sql
 
---This script assumes a schema named "alpha" already exists and is empty,
+--This script assumes a schema named "gradebook" already exists and is empty,
 -- but this can be changed in the line that begins with "SET LOCAL SCHEMA"
 
 START TRANSACTION;
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Course
 
 ALTER TABLE Course OWNER TO CURRENT_USER;
 REVOKE ALL ON Course FROM PUBLIC;
-GRANT ALL ON Course TO alpha_GB_DBAdmin;
+GRANT ALL ON Course TO GB_DBAdmin;
 
 
 
@@ -62,7 +62,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_Unique_SeasonName ON Season(LOWER(TRIM(Nam
 
 ALTER TABLE Season OWNER TO CURRENT_USER;
 REVOKE ALL ON Season FROM PUBLIC;
-GRANT ALL ON Season TO alpha_GB_DBAdmin;
+GRANT ALL ON Season TO GB_DBAdmin;
 
 
 
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS Term
 
 ALTER TABLE Term OWNER TO CURRENT_USER;
 REVOKE ALL ON Term FROM PUBLIC;
-GRANT ALL ON Term TO alpha_GB_DBAdmin;
+GRANT ALL ON Term TO GB_DBAdmin;
 
 
 
@@ -105,7 +105,7 @@ WHERE MName IS NULL;
 
 ALTER TABLE Instructor OWNER TO CURRENT_USER;
 REVOKE ALL ON Instructor FROM PUBLIC;
-GRANT ALL ON Instructor TO alpha_GB_DBAdmin;
+GRANT ALL ON Instructor TO GB_DBAdmin;
 
 
 
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS Section
 
 ALTER TABLE Section OWNER TO CURRENT_USER;
 REVOKE ALL ON Section FROM PUBLIC;
-GRANT ALL ON Section TO alpha_GB_DBAdmin;
+GRANT ALL ON Section TO GB_DBAdmin;
 
 
 
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS Grade
 
 ALTER TABLE Grade OWNER TO CURRENT_USER;
 REVOKE ALL ON Grade FROM PUBLIC;
-GRANT ALL ON Grade TO alpha_GB_DBAdmin;
+GRANT ALL ON Grade TO GB_DBAdmin;
 
 
 
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS Section_GradeTier
 
 ALTER TABLE Section_GradeTier OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_GradeTier FROM PUBLIC;
-GRANT ALL ON Section_GradeTier TO alpha_GB_DBAdmin;
+GRANT ALL ON Section_GradeTier TO GB_DBAdmin;
 
 
 
@@ -197,7 +197,7 @@ ON Student(LOWER(TRIM(Email)));
 
 ALTER TABLE Student OWNER TO CURRENT_USER;
 REVOKE ALL ON Student FROM PUBLIC;
-GRANT ALL ON Student TO alpha_GB_DBAdmin;
+GRANT ALL ON Student TO GB_DBAdmin;
 
 
 
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS Enrollee
 
 ALTER TABLE Enrollee OWNER TO CURRENT_USER;
 REVOKE ALL ON Enrollee FROM PUBLIC;
-GRANT ALL ON Enrollee TO alpha_GB_DBAdmin;
+GRANT ALL ON Enrollee TO GB_DBAdmin;
 
 
 
@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS AttendanceStatus
 
 ALTER TABLE AttendanceStatus OWNER TO CURRENT_USER;
 REVOKE ALL ON AttendanceStatus FROM PUBLIC;
-GRANT ALL ON AttendanceStatus TO alpha_GB_DBAdmin;
+GRANT ALL ON AttendanceStatus TO GB_DBAdmin;
 
 
 
@@ -251,7 +251,7 @@ CREATE TABLE IF NOT EXISTS AttendanceRecord
 
 ALTER TABLE AttendanceRecord OWNER TO CURRENT_USER;
 REVOKE ALL ON AttendanceRecord FROM PUBLIC;
-GRANT ALL ON AttendanceRecord TO alpha_GB_DBAdmin;
+GRANT ALL ON AttendanceRecord TO GB_DBAdmin;
 
 
 
@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS Section_AssessmentComponent
 
 ALTER TABLE Section_AssessmentComponent OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_AssessmentComponent FROM PUBLIC;
-GRANT ALL ON Section_AssessmentComponent TO alpha_GB_DBAdmin;
+GRANT ALL ON Section_AssessmentComponent TO GB_DBAdmin;
 
 
 
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS Section_AssessmentItem
 
 ALTER TABLE Section_AssessmentItem OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_AssessmentItem FROM PUBLIC;
-GRANT ALL ON Section_AssessmentItem TO alpha_GB_DBAdmin;
+GRANT ALL ON Section_AssessmentItem TO GB_DBAdmin;
 
 
 
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS Enrollee_AssessmentItem
 
 ALTER TABLE Enrollee_AssessmentItem OWNER TO CURRENT_USER;
 REVOKE ALL ON Enrollee_AssessmentItem FROM PUBLIC;
-GRANT ALL ON Enrollee_AssessmentItem TO alpha_GB_DBAdmin;
+GRANT ALL ON Enrollee_AssessmentItem TO GB_DBAdmin;
 
 
 COMMIT;

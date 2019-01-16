@@ -82,7 +82,7 @@ $$ LANGUAGE sql
 
 ALTER FUNCTION getScheduleDates(startDate DATE, endDate DATE,
                                 schedule VARCHAR(7))
-   OWNER TO alpha;
+   OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
                                         schedule VARCHAR(7))
@@ -90,9 +90,9 @@ REVOKE ALL ON FUNCTION getScheduleDates(startDate DATE, endDate DATE,
 
 GRANT EXECUTE ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
                                            schedule VARCHAR(7))
-   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student,
-   alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-   alpha_GB_DBAdmin;
+   TO GB_Webapp, GB_Instructor, GB_Student,
+   GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
+   GB_DBAdmin;
 
 
 --Returns a section schedule by providing a sectionID.  Does NOT consider
@@ -108,7 +108,7 @@ $$ LANGUAGE sql
 
 ALTER FUNCTION getScheduleDates(startDate DATE, endDate DATE,
                                 schedule VARCHAR(7))
-   OWNER TO alpha;
+   OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
                                         schedule VARCHAR(7))
@@ -116,9 +116,9 @@ REVOKE ALL ON FUNCTION getScheduleDates(startDate DATE, endDate DATE,
 
 GRANT EXECUTE ON FUNCTION getScheduleDates(startDate DATE, endDate DATE, 
                                            schedule VARCHAR(7))
-   TO alpha_GB_Webapp, alpha_GB_Instructor, alpha_GB_Student,
-   alpha_GB_Registrar, alpha_GB_RegistrarAdmin, alpha_GB_Admissions,
-   alpha_GB_DBAdmin;
+   TO GB_Webapp, GB_Instructor, GB_Student,
+   GB_Registrar, GB_RegistrarAdmin, GB_Admissions,
+   GB_DBAdmin;
 
 
 --Function to get attendance for a section ID
@@ -177,12 +177,12 @@ $$
 
 $$ LANGUAGE sql;
 
-ALTER FUNCTION getAttendance(sectionID INT) OWNER TO alpha;
+ALTER FUNCTION getAttendance(sectionID INT) OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getAttendance(sectionID INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION getAttendance(sectionID INT)
-   TO alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_DBAdmin;
+   TO GB_Instructor, GB_Registrar, GB_DBAdmin;
 
 
 --Function to get attendance for a year-season-course-section# combo
@@ -205,7 +205,7 @@ ALTER FUNCTION getAttendance(year NUMERIC(4,0),
                              course VARCHAR(8),
                              sectionNumber VARCHAR(3)
                             )
-   OWNER TO alpha;
+   OWNER TO gradebook;
 
 REVOKE ALL ON FUNCTION getAttendance(year NUMERIC(4,0),
                                      seasonIdentification VARCHAR(20),
@@ -219,7 +219,7 @@ GRANT EXECUTE ON FUNCTION getAttendance(year NUMERIC(4,0),
                                         course VARCHAR(8),
                                         sectionNumber VARCHAR(3)
                                        )
-   TO alpha_GB_Instructor, alpha_GB_Registrar, alpha_GB_DBAdmin;
+   TO GB_Instructor, GB_Registrar, GB_DBAdmin;
 
 
 COMMIT;
