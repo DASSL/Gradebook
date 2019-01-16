@@ -28,7 +28,6 @@ START TRANSACTION;
 --Suppress messages below WARNING level for the duration of this script
 SET LOCAL client_min_messages TO WARNING;
 
-
 --Create a temporary function to test if a role with the given name exists
 -- performs case-sensitive test for roleName;
 -- role names are intentionally not case folded at this time

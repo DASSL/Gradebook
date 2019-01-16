@@ -26,6 +26,11 @@
 --  2017SpringCS110-72Attendance.csv
 --  2017SpringCS110-74Attendance.csv
 
+START TRANSACTION;
+
+
+SET LOCAL search_path TO 'gradebook', 'pg_temp';
+
 
 --Create temporary staging table
 DROP TABLE IF EXISTS pg_temp.AttendanceStaging;
@@ -46,7 +51,7 @@ $$
    --Add AttendanceStaging.Code values that do not exist in AttendanceStatus.
    -- Code is also used as both the Status and Description attributes if an INSERT
    -- is performed. Does not ignore conflicts on AttendanceStatus.Description.
-   INSERT INTO Gradebook.AttendanceStatus
+   INSERT INTO AttendanceStatus
    SELECT DISTINCT UPPER(Code), UPPER(Code)
    FROM pg_temp.AttendanceStaging
    WHERE Code IS NOT NULL
@@ -58,24 +63,28 @@ $$
    -- imported. (See behavior of Gradebook.getAttendance() in /src/db/getAttendance.sql)
    INSERT INTO Gradebook.AttendanceRecord
    SELECT s.ID, $1, a.Date, UPPER(a.Code)
-   FROM pg_temp.AttendanceStaging a JOIN Gradebook.Student s ON
+   FROM pg_temp.AttendanceStaging a JOIN Student s ON
         a.FName = s.FName AND a.LName = s.LName AND
         COALESCE(a.MName, '') = COALESCE(s.MName, '')
    WHERE a.Code IS NOT NULL
    ON CONFLICT DO NOTHING;
 $$ LANGUAGE sql
+   SET search_path FROM CURRENT
    RETURNS NULL ON NULL INPUT; --no need to run the function if sectionID is NULL
 
 
 --Import data from files to staging table and call import function for each section
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-05Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '5'));
+SELECT pg_temp.importAttendance(getSectionID(2017, 0, 'CS110', '5'));
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-72Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '72'));
+SELECT pg_temp.importAttendance(getSectionID(2017, 0, 'CS110', '72'));
 TRUNCATE pg_temp.AttendanceStaging;
 
 \COPY pg_temp.AttendanceStaging FROM '2017SpringCS110-74Attendance.csv' WITH csv HEADER
-SELECT pg_temp.importAttendance(Gradebook.getSectionID(2017, 0, 'CS110', '74'));
+SELECT pg_temp.importAttendance(getSectionID(2017, 0, 'CS110', '74'));
 TRUNCATE pg_temp.AttendanceStaging;
+
+
+COMMIT;

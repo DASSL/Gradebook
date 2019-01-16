@@ -17,11 +17,9 @@
 
 START TRANSACTION;
 
-
 --Set schema to reference in functions and tables, pg_temp is specified
 -- last for security purposes
 SET LOCAL search_path TO 'gradebook', 'pg_temp';
-
 
 DROP TABLE IF EXISTS Course CASCADE;
 DROP TABLE IF EXISTS Season CASCADE;

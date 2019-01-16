@@ -82,7 +82,6 @@ RETURNS TABLE
    Term INT,
    Course VARCHAR(8),
    SectionNumber VARCHAR(3),
-   Title VARCHAR(100),
    CRN VARCHAR(5),
    Schedule VARCHAR(7),
    Location VARCHAR(25),
@@ -95,7 +94,7 @@ RETURNS TABLE
 )
 AS
 $$
-   SELECT N.ID, N.Term, N.Course, N.SectionNumber, N.Title, N.CRN, N.Schedule,
+   SELECT N.ID, N.Term, N.Course, N.SectionNumber, N.CRN, N.Schedule,
          N.Location, COALESCE(N.StartDate, T.StartDate),
          COALESCE(N.EndDate, T.EndDate), N.MidtermDate, N.Instructor1,
          N.Instructor2, N.Instructor3
@@ -127,7 +126,6 @@ RETURNS TABLE
    Term INT,
    Course VARCHAR(8),
    SectionNumber VARCHAR(3),
-   Title VARCHAR(100),
    CRN VARCHAR(5),
    Schedule VARCHAR(7),
    Location VARCHAR(25),
@@ -140,7 +138,7 @@ RETURNS TABLE
 )
 AS
 $$
-   SELECT ID, Term, Course, SectionNumber, Title, CRN, Schedule, Location,
+   SELECT ID, Term, Course, SectionNumber, CRN, Schedule, Location,
          StartDate, EndDate,
          MidtermDate, Instructor1, Instructor2, Instructor3
    FROM getSection($1, $2::VARCHAR, $3, $4);

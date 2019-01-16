@@ -42,7 +42,6 @@ REVOKE ALL ON Course FROM PUBLIC;
 GRANT ALL ON Course TO GB_DBAdmin;
 
 
-
 CREATE TABLE IF NOT EXISTS Season
 (
    --Order denotes the sequence of seasons within a year: 0, 1,...9
@@ -65,7 +64,6 @@ REVOKE ALL ON Season FROM PUBLIC;
 GRANT ALL ON Season TO GB_DBAdmin;
 
 
-
 CREATE TABLE IF NOT EXISTS Term
 (
    ID SERIAL NOT NULL PRIMARY KEY,
@@ -79,7 +77,6 @@ CREATE TABLE IF NOT EXISTS Term
 ALTER TABLE Term OWNER TO CURRENT_USER;
 REVOKE ALL ON Term FROM PUBLIC;
 GRANT ALL ON Term TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS Instructor
@@ -106,7 +103,6 @@ WHERE MName IS NULL;
 ALTER TABLE Instructor OWNER TO CURRENT_USER;
 REVOKE ALL ON Instructor FROM PUBLIC;
 GRANT ALL ON Instructor TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS Section
@@ -139,7 +135,6 @@ REVOKE ALL ON Section FROM PUBLIC;
 GRANT ALL ON Section TO GB_DBAdmin;
 
 
-
 --Table to store all possible letter grades
 --some universities permit A+
 CREATE TABLE IF NOT EXISTS Grade
@@ -159,7 +154,6 @@ REVOKE ALL ON Grade FROM PUBLIC;
 GRANT ALL ON Grade TO GB_DBAdmin;
 
 
-
 --Table to store mapping of percentage score to a letter grade: varies by section
 CREATE TABLE IF NOT EXISTS Section_GradeTier
 (
@@ -174,7 +168,6 @@ CREATE TABLE IF NOT EXISTS Section_GradeTier
 ALTER TABLE Section_GradeTier OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_GradeTier FROM PUBLIC;
 GRANT ALL ON Section_GradeTier TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS Student
@@ -200,14 +193,13 @@ REVOKE ALL ON Student FROM PUBLIC;
 GRANT ALL ON Student TO GB_DBAdmin;
 
 
-
 CREATE TABLE IF NOT EXISTS Enrollee
 (
    Student INT NOT NULL REFERENCES Student,
    Section INT REFERENCES Section,
    DateEnrolled DATE NULL, --used to figure out which assessment components to include/exclude
    YearEnrolled VARCHAR(30) NOT NULL,
-   MajorEnrolled VARCHAR(30) NOT NULL REFERENCES Major,
+   MajorEnrolled VARCHAR(30),
    MidtermWeightedAggregate NUMERIC(5,2), --weighted aggregate computed at mid-term
    MidtermGradeComputed VARCHAR(2), --will eventually move to a view
    MidtermGradeAwarded VARCHAR(2), --actual grade assigned, if any
@@ -226,7 +218,6 @@ REVOKE ALL ON Enrollee FROM PUBLIC;
 GRANT ALL ON Enrollee TO GB_DBAdmin;
 
 
-
 CREATE TABLE IF NOT EXISTS AttendanceStatus
 (
    Status CHAR(1) NOT NULL PRIMARY KEY, --'P', 'A', ...
@@ -236,7 +227,6 @@ CREATE TABLE IF NOT EXISTS AttendanceStatus
 ALTER TABLE AttendanceStatus OWNER TO CURRENT_USER;
 REVOKE ALL ON AttendanceStatus FROM PUBLIC;
 GRANT ALL ON AttendanceStatus TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS AttendanceRecord
@@ -254,7 +244,6 @@ REVOKE ALL ON AttendanceRecord FROM PUBLIC;
 GRANT ALL ON AttendanceRecord TO GB_DBAdmin;
 
 
-
 CREATE TABLE IF NOT EXISTS Section_AssessmentComponent
 (
    Section INT NOT NULL REFERENCES Section,
@@ -267,7 +256,6 @@ CREATE TABLE IF NOT EXISTS Section_AssessmentComponent
 ALTER TABLE Section_AssessmentComponent OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_AssessmentComponent FROM PUBLIC;
 GRANT ALL ON Section_AssessmentComponent TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS Section_AssessmentItem
@@ -286,7 +274,6 @@ CREATE TABLE IF NOT EXISTS Section_AssessmentItem
 ALTER TABLE Section_AssessmentItem OWNER TO CURRENT_USER;
 REVOKE ALL ON Section_AssessmentItem FROM PUBLIC;
 GRANT ALL ON Section_AssessmentItem TO GB_DBAdmin;
-
 
 
 CREATE TABLE IF NOT EXISTS Enrollee_AssessmentItem
