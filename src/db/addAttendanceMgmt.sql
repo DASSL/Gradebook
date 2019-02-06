@@ -144,5 +144,5 @@ CREATE FUNCTION getAttendance(year NUMERIC(4,0),
                                                   )
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
-   SELECT getAttendance(Gradebook.getSectionID($1, $2, $3, $4));
+   SELECT getAttendance(getSectionID($1, $2, $3, $4));
 $$ LANGUAGE sql;
