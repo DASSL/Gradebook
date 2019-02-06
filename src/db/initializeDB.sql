@@ -113,14 +113,12 @@ REVOKE ALL PRIVILEGES ON SCHEMA public FROM PUBLIC;
 GRANT ALL PRIVILEGES ON SCHEMA public TO  Gradebook;
 
 
---Create a schema to hold app-specific info and permit only the Gradebook role
---to create or use objects in that schema
--- this code might have to be moved to a function if schemas are used to support
--- multi-tenancy (schema name will be a parameter)
-CREATE SCHEMA IF NOT EXISTS Gradebook;
-REVOKE ALL PRIVILEGES ON SCHEMA Gradebook FROM PUBLIC;
-GRANT ALL PRIVILEGES ON SCHEMA Gradebook TO Gradebook;
-
+--Permit only the Gradebook role to create or use objects in the
+-- current schema. This code might have to be moved to a function if 
+-- schemas are used to support multi-tenancy (schema name will 
+-- be a parameter)
+REVOKE ALL PRIVILEGES ON SCHEMA CURRENT_SCHEMA FROM PUBLIC;
+GRANT ALL PRIVILEGES ON SCHEMA CURRENT_SCHEMA TO Gradebook;
 
 
 COMMIT;

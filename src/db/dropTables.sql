@@ -16,10 +16,6 @@
 START TRANSACTION;
 
 
---Remove the following line to drop tables from default schema instead
-SET LOCAL SCHEMA 'gradebook';
-
-
 DROP TABLE IF EXISTS Course CASCADE;
 DROP TABLE IF EXISTS Season CASCADE;
 DROP TABLE IF EXISTS Term CASCADE;
