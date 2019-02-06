@@ -21,7 +21,7 @@ SET LOCAL client_min_messages TO WARNING;
 
 --Drop function from M1 that has since been renamed or removed
 -- remove the DROP statement after M2
-DROP FUNCTION IF EXISTS Gradebook.datesFromSchedule(DATE, DATE, VARCHAR(7));
+DROP FUNCTION IF EXISTS datesFromSchedule(DATE, DATE, VARCHAR(7));
 
 
 --Function to generate a list of dates for a class schedule, within a date range
@@ -38,11 +38,11 @@ DROP FUNCTION IF EXISTS Gradebook.datesFromSchedule(DATE, DATE, VARCHAR(7));
 --S = Saturday
 
 --Example usage: get dates of Tuesdays and Thursdays b/w 2017-01-01 and 2017-05-01:
--- SELECT * FROM Gradebook.getScheduleDates('2017-01-01', '2017-05-01', 'TR');
+-- SELECT * FROM getScheduleDates('2017-01-01', '2017-05-01', 'TR');
 
-DROP FUNCTION IF EXISTS Gradebook.getScheduleDates(DATE, DATE, VARCHAR(7));
+DROP FUNCTION IF EXISTS getScheduleDates(DATE, DATE, VARCHAR(7));
 
-CREATE FUNCTION Gradebook.getScheduleDates(startDate DATE, endDate DATE,
+CREATE FUNCTION getScheduleDates(startDate DATE, endDate DATE,
                                            schedule VARCHAR(7)
                                           )
 RETURNS TABLE (ScheduleDate DATE)
@@ -76,9 +76,9 @@ $$ LANGUAGE sql
 
 
 --Function to get attendance for a section ID
-DROP FUNCTION IF EXISTS Gradebook.getAttendance(INT);
+DROP FUNCTION IF EXISTS getAttendance(INT);
 
-CREATE FUNCTION Gradebook.getAttendance(sectionID INT)
+CREATE FUNCTION getAttendance(sectionID INT)
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
 
@@ -87,15 +87,15 @@ $$
    SectionDate AS
    (
       SELECT ScheduleDate
-      FROM Gradebook.Section,
-           Gradebook.getScheduleDates(StartDate, EndDate, Schedule)
+      FROM Section,
+           getScheduleDates(StartDate, EndDate, Schedule)
       WHERE ID = $1
    ),
    --combine every student enrolled in section w/ each meeting date of section
    Enrollee_Date AS
    (
       SELECT Student, ScheduleDate
-      FROM Gradebook.Enrollee, SectionDate
+      FROM Enrollee, SectionDate
       WHERE Section = $1
    ),
    --get the recorded attendance for each enrollee, marking as "Present" if
@@ -104,7 +104,7 @@ $$
    (
       SELECT ed.Student, ScheduleDate, COALESCE(ar.Status, 'P') c
       FROM Enrollee_Date ed
-           LEFT OUTER JOIN Gradebook.AttendanceRecord ar
+           LEFT OUTER JOIN AttendanceRecord ar
            ON ed.Student = ar.Student
               AND ed.ScheduleDate = ar.Date
               AND ar.Section = $1 --can't move test on section to WHERE clause
@@ -124,7 +124,7 @@ $$
       SELECT concat_ws(',', st.LName, st.FName, COALESCE(st.MName, ''),
                       string_agg(c, ',' ORDER BY ScheduleDate)
                      )
-      FROM sdar JOIN Gradebook.Student st ON sdar.Student = st.ID
+      FROM sdar JOIN Student st ON sdar.Student = st.ID
       GROUP BY st.ID
       ORDER BY st.LName, st.FName, COALESCE(st.MName, '')
    );
@@ -133,16 +133,16 @@ $$ LANGUAGE sql;
 
 
 --Function to get attendance for a year-season-course-section# combo
-DROP FUNCTION IF EXISTS Gradebook.getAttendance(NUMERIC(4,0), VARCHAR(20),
+DROP FUNCTION IF EXISTS getAttendance(NUMERIC(4,0), VARCHAR(20),
                                                 VARCHAR(8), VARCHAR(3)
                                                );
 
-CREATE FUNCTION Gradebook.getAttendance(year NUMERIC(4,0),
+CREATE FUNCTION getAttendance(year NUMERIC(4,0),
                                                    seasonIdentification VARCHAR(20),
                                                    course VARCHAR(8),
                                                    sectionNumber VARCHAR(3)
                                                   )
 RETURNS TABLE(AttendanceCsvWithHeader TEXT) AS
 $$
-   SELECT Gradebook.getAttendance(Gradebook.getSectionID($1, $2, $3, $4));
+   SELECT getAttendance(Gradebook.getSectionID($1, $2, $3, $4));
 $$ LANGUAGE sql;

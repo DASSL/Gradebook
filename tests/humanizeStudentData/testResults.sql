@@ -32,7 +32,7 @@ BEGIN
 
    RAISE INFO '%   Row count',
    (SELECT
-      CASE (SELECT COUNT(*) FROM Gradebook.Student
+      CASE (SELECT COUNT(*) FROM Student
             WHERE Email ~ '[1-8]@example\.com'
            )
          WHEN 8 THEN 'PASS'
@@ -49,7 +49,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 1'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '1@example.com'
    );
 
@@ -60,7 +60,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 2'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '2@example.com'
    );
 
@@ -71,7 +71,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 3'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '3@example.com'
    );
 
@@ -82,7 +82,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 4'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '4@example.com'
    );
 
@@ -93,7 +93,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 5'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '5@example.com'
    );
 
@@ -104,7 +104,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 6'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '6@example.com'
    );
 
@@ -117,7 +117,7 @@ BEGIN
          WHEN true THEN 'FAIL: Code 7'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '7@example.com'
    );
 
@@ -128,13 +128,13 @@ BEGIN
          WHEN true THEN 'FAIL: Code 8'
          ELSE 'PASS'
       END
-    FROM Gradebook.Student
+    FROM Student
     WHERE Email = '8@example.com'
    );
 
 
    --remove test rows
-   DELETE FROM Gradebook.Student
+   DELETE FROM Student
    WHERE Email ~ '[1-8]@example\.com';
 
 END
