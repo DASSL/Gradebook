@@ -58,7 +58,17 @@ tables `Gradebook.Term`, `Gradebook.Course`, `Gradebook.Section`, and
 
 The import procedure implemented can be executed on a Microsoft Windows
 system by running the batch command `importCourseScheduleCSV.bat`. This command accepts
-a few parameters and uses the `psql` client to run all three steps of the import procedure:
+a few parameters and uses the `psql` client to run all three steps of the import procedure.
+
+Before running the batch file, the following command may need to be executed in psql to ensure that the
+installation takes affect in the correct database and the correct schema(s):
+
+`ALTER ROLE role IN DATABASE database SET search_path TO schema1, schema2, pg_temp;`
+
+Notes concerning the command above:
+* `role` and `database` are the user's target role and database, respectively
+* `IN DATABASE database` is optional, but not specifying a target database will make the change to all databases
+* One or more schemas may take the place of `schema1, schema2', however 'pg_temp' must always remain at the end of the list.
 
 To execute the procedure, open a Command window and run the batch command as shown
 below. The strings shown after the command name are parameters; strings
