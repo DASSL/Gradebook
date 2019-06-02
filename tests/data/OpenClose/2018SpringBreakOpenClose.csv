@@ -1,2 +1,2 @@
-Status,Lvl,CRN,Subj,Crse,Sec,Cred,Title,Days,Time,Date (MM/DD),Cap,Act,Rem,XL Cap,XL Act,XL Rem,Location,Instructor
-Open,UG,30002,HPX,198,91,1,Life Guard Certification Training,MTWRF,12:30 pm-01:20 pm,03/12-03/16,15,3,12,,,,ON POOL,Alexandra Hall (P)
+Status,Lvl,CRN,Subj,Crse,Sec,Cred,Title,Days,Time,Date (MM/DD),Cap,Act,Rem,WL Cap,WL Act,WL Rem,XL Cap,XL Act,XL Rem,Location,Instructor
+Open,UG,30002,HPX,198,91,1,Life Guard Certification Training,MTWRF,12:30 pm-01:20 pm,03/12-03/16,15,3,12,0,0,0,,,,ON POOL,Alexandra Hall (P)
