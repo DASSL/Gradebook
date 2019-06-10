@@ -31,7 +31,7 @@ actual email address
 
 */
 
-INSERT INTO Gradebook.Student(FName, MName, LName, SchoolIssuedID, Email)
+INSERT INTO Student(FName, MName, LName, SchoolIssuedID, Email)
 VALUES
 
    --rows that should be altered by humanization

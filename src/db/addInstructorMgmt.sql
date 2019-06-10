@@ -18,9 +18,9 @@
 
 
 --Function to get details of all known instructors
-DROP FUNCTION IF EXISTS Gradebook.getInstructors();
+DROP FUNCTION IF EXISTS getInstructors();
 
-CREATE FUNCTION Gradebook.getInstructors()
+CREATE FUNCTION getInstructors()
 RETURNS TABLE
 (
    ID INT,
@@ -34,7 +34,7 @@ AS
 $$
 
    SELECT ID, FName, MName, LName, Department, Email
-   FROM Gradebook.Instructor;
+   FROM Instructor;
 
 $$ LANGUAGE sql
    STABLE; --no need for RETURN NULL ON... because the function takes no input
@@ -43,9 +43,9 @@ $$ LANGUAGE sql
 --function to get details of the instructor with the given e-mail address
 -- performs a case-insensitive match of email address;
 -- returns 0 or 1 row: Instructor.Email is unique;
-DROP FUNCTION IF EXISTS Gradebook.getInstructor(Gradebook.Instructor.Email%TYPE);
+DROP FUNCTION IF EXISTS getInstructor(Gradebook.Instructor.Email%TYPE);
 
-CREATE FUNCTION Gradebook.getInstructor(Email Gradebook.Instructor.Email%TYPE)
+CREATE FUNCTION getInstructor(Email Instructor.Email%TYPE)
 RETURNS TABLE
 (
    ID INT,
@@ -58,7 +58,7 @@ AS
 $$
 
    SELECT ID, FName, MName, LName, Department
-   FROM Gradebook.Instructor
+   FROM Instructor
    WHERE LOWER(TRIM(Email)) = LOWER(TRIM($1));
 
 $$ LANGUAGE sql
@@ -68,9 +68,9 @@ $$ LANGUAGE sql
 
 
 --function to get details of the instructor with the given ID
-DROP FUNCTION IF EXISTS Gradebook.getInstructor(INT);
+DROP FUNCTION IF EXISTS getInstructor(INT);
 
-CREATE FUNCTION Gradebook.getInstructor(instructorID INT)
+CREATE FUNCTION getInstructor(instructorID INT)
 RETURNS TABLE
 (
    FName VARCHAR(50),
@@ -83,7 +83,7 @@ AS
 $$
 
    SELECT FName, MName, LName, Department, Email
-   FROM Gradebook.Instructor
+   FROM Instructor
    WHERE ID = $1;
 
 $$ LANGUAGE sql
@@ -94,24 +94,24 @@ $$ LANGUAGE sql
 
 --drop functions with older names due to names being revised
 -- remove this block of code after milestone M1
-DROP FUNCTION IF EXISTS Gradebook.getYears(INT);
-DROP FUNCTION IF EXISTS Gradebook.getSeasons(INT, NUMERIC(4,0));
-DROP FUNCTION IF EXISTS Gradebook.getCourses(INT, NUMERIC(4,0), NUMERIC(1,0));
-DROP FUNCTION IF EXISTS Gradebook.getSections(INT, NUMERIC(4,0),
+DROP FUNCTION IF EXISTS getYears(INT);
+DROP FUNCTION IF EXISTS getSeasons(INT, NUMERIC(4,0));
+DROP FUNCTION IF EXISTS getCourses(INT, NUMERIC(4,0), NUMERIC(1,0));
+DROP FUNCTION IF EXISTS getSections(INT, NUMERIC(4,0),
                                               NUMERIC(1,0), VARCHAR(8)
                                              );
 
 
 --function to get the years in which an instructor has taught
-DROP FUNCTION IF EXISTS Gradebook.getInstructorYears(INT);
+DROP FUNCTION IF EXISTS getInstructorYears(INT);
 
-CREATE FUNCTION Gradebook.getInstructorYears(instructorID INT)
+CREATE FUNCTION getInstructorYears(instructorID INT)
 RETURNS TABLE(Year NUMERIC(4,0))
 AS
 $$
 
    SELECT DISTINCT Year
-   FROM Gradebook.Term T JOIN Gradebook.Section N ON T.ID  = N.Term
+   FROM Term T JOIN Section N ON T.ID  = N.Term
    WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3)
    ORDER BY Year DESC;
 
@@ -121,9 +121,9 @@ $$ LANGUAGE sql
 
 
 --function to get all seasons an instructor has taught in a specfied year
-DROP FUNCTION IF EXISTS Gradebook.getInstructorSeasons(INT, NUMERIC(4,0));
+DROP FUNCTION IF EXISTS getInstructorSeasons(INT, NUMERIC(4,0));
 
-CREATE FUNCTION Gradebook.getInstructorSeasons(instructorID INT,
+CREATE FUNCTION getInstructorSeasons(instructorID INT,
                                                year NUMERIC(4,0)
                                               )
 RETURNS TABLE(SeasonOrder NUMERIC(1,0), SeasonName VARCHAR(20))
@@ -131,8 +131,8 @@ AS
 $$
 
    SELECT DISTINCT S."Order", S.Name
-   FROM Gradebook.Season S JOIN Gradebook.Term T ON S."Order" = T.Season
-        JOIN Gradebook.Section N ON N.Term  = T.ID
+   FROM Season S JOIN Term T ON S."Order" = T.Season
+        JOIN Section N ON N.Term  = T.ID
    WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3)
          AND T.Year = $2
    ORDER BY S."Order";
@@ -143,11 +143,11 @@ $$ LANGUAGE sql
 
 
 --function to get all courses an instructor has taught in a year-season combo
-DROP FUNCTION IF EXISTS Gradebook.getInstructorCourses(INT, NUMERIC(4,0),
+DROP FUNCTION IF EXISTS getInstructorCourses(INT, NUMERIC(4,0),
                                                        NUMERIC(1,0)
                                                       );
 
-CREATE FUNCTION Gradebook.getInstructorCourses(instructorID INT,
+CREATE FUNCTION getInstructorCourses(instructorID INT,
                                                year NUMERIC(4,0),
                                                seasonOrder NUMERIC(1,0)
                                               )
@@ -156,7 +156,7 @@ AS
 $$
 
    SELECT DISTINCT N.Course
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3)
          AND T.Year = $2
          AND T.Season = $3
@@ -173,11 +173,11 @@ $$ LANGUAGE sql
 -- a string of the form "course-sectionNumber";
 --this function is useful in showing Course-Section combinations directly
 --without having to first explicitly choose a course to get sections
-DROP FUNCTION IF EXISTS Gradebook.getInstructorSections(INT, NUMERIC(4,0),
+DROP FUNCTION IF EXISTS getInstructorSections(INT, NUMERIC(4,0),
                                                         NUMERIC(1,0)
                                                        );
 
-CREATE FUNCTION Gradebook.getInstructorSections(instructorID INT,
+CREATE FUNCTION getInstructorSections(instructorID INT,
                                                 year NUMERIC(4,0),
                                                 seasonOrder NUMERIC(1,0)
                                                )
@@ -191,7 +191,7 @@ $$
 
    SELECT N.ID, N.Course, N.SectionNumber,
           N.Course || '-' || N.SectionNumber AS CourseSection
-   FROM Gradebook.Section N JOIN Gradebook.Term T ON N.Term  = T.ID
+   FROM Section N JOIN Term T ON N.Term  = T.ID
    WHERE $1 IN (N.Instructor1, N.Instructor2, N.Instructor3)
          AND T.Year = $2
          AND T.Season = $3
@@ -203,11 +203,11 @@ $$ LANGUAGE sql
 
 --function to get the section number(s) of a course an instructor has taught
 -- performs case-insensitive match for course
-DROP FUNCTION IF EXISTS Gradebook.getInstructorSections(INT, NUMERIC(4,0),
+DROP FUNCTION IF EXISTS getInstructorSections(INT, NUMERIC(4,0),
                                                         NUMERIC(1,0), VARCHAR(8)
                                                        );
 
-CREATE FUNCTION Gradebook.getInstructorSections(instructorID INT,
+CREATE FUNCTION getInstructorSections(instructorID INT,
                                                 year NUMERIC(4,0),
                                                 seasonOrder NUMERIC(1,0),
                                                 courseNumber VARCHAR(8)
@@ -217,7 +217,7 @@ AS
 $$
 
    SELECT SectionID, SectionNumber
-   FROM Gradebook.getInstructorSections($1, $2, $3)
+   FROM getInstructorSections($1, $2, $3)
    WHERE LOWER(Course) = LOWER($4)
    ORDER BY SectionNumber;
 
