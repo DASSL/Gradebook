@@ -28,7 +28,7 @@ extension) and PSQL scripts (files with `.psql` extension). SQL scripts may be
 run using any Postgres client such as [`psql`](https://www.postgresql.org/docs/9.6/static/app-psql.html),
 but PSQL scripts must be run using `psql`.
 
-__All scripts in the installation process hould be run by a user with superuser
+__All scripts in the installation process should be run by a user with superuser
 privileges__.
 
 The following alternative means are possible to run either kind of script using
